@@ -1,13 +1,13 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import com.google.zxing.WriterException
-import com.v2ray.ang.R
-import com.v2ray.ang.databinding.ActivityLogcatBinding
-import com.v2ray.ang.extension.toast
-import com.v2ray.ang.util.AngConfigManager
+import com.safenet.service.R
+import com.safenet.service.databinding.ActivityLogcatBinding
+import com.safenet.service.extension.toast
+import com.safenet.service.util.AngConfigManager
 
 class UrlSchemeActivity : BaseActivity() {
     private lateinit var binding: ActivityLogcatBinding

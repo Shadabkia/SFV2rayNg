@@ -1,13 +1,13 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.Manifest
 import android.content.*
 import com.tbruyelle.rxpermissions.RxPermissions
-import com.v2ray.ang.R
-import com.v2ray.ang.util.AngConfigManager
+import com.safenet.service.R
+import com.safenet.service.util.AngConfigManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
-import com.v2ray.ang.extension.toast
+import com.safenet.service.extension.toast
 
 class ScScannerActivity : BaseActivity() {
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.v2ray.ang">
+    package="com.safenet.service">
 
     <supports-screens
         android:anyDensity="true"
@@ -26,7 +26,7 @@
     <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
 
     <application
-        android:name=".AngApplication"
+        android:name="com.safenet.service.AngApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -36,7 +36,7 @@
         tools:targetApi="m">
         <activity
             android:exported="true"
-            android:name=".ui.MainActivity"
+            android:name="com.safenet.service.ui.MainActivity"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,51 +51,51 @@
         </activity>
         <activity
             android:exported="false"
-            android:name=".ui.ServerActivity"
+            android:name="com.safenet.service.ui.ServerActivity"
             android:windowSoftInputMode="stateUnchanged" />
         <activity
             android:exported="false"
-            android:name=".ui.ServerCustomConfigActivity"
+            android:name="com.safenet.service.ui.ServerCustomConfigActivity"
             android:windowSoftInputMode="stateUnchanged" />
         <activity
             android:exported="false"
-            android:name=".ui.SettingsActivity" />
+            android:name="com.safenet.service.ui.SettingsActivity" />
         <activity
             android:exported="false"
-            android:name=".ui.PerAppProxyActivity" />
+            android:name="com.safenet.service.ui.PerAppProxyActivity" />
         <activity
             android:exported="false"
-            android:name=".ui.ScannerActivity" />
+            android:name="com.safenet.service.ui.ScannerActivity" />
         <activity
             android:exported="false"
-            android:name=".ui.LogcatActivity" />
+            android:name="com.safenet.service.ui.LogcatActivity" />
         <activity
             android:exported="false"
-            android:name=".ui.RoutingSettingsActivity"
+            android:name="com.safenet.service.ui.RoutingSettingsActivity"
             android:windowSoftInputMode="stateUnchanged" />
         <activity
             android:exported="false"
-            android:name=".ui.SubSettingActivity" />
+            android:name="com.safenet.service.ui.SubSettingActivity" />
         <activity
             android:exported="false"
-            android:name=".ui.UserAssetActivity" />
+            android:name="com.safenet.service.ui.UserAssetActivity" />
 
         <activity
             android:exported="false"
-            android:name=".ui.SubEditActivity" />
+            android:name="com.safenet.service.ui.SubEditActivity" />
         <activity
             android:exported="false"
-            android:name=".ui.ScScannerActivity" />
+            android:name="com.safenet.service.ui.ScScannerActivity" />
         <activity
             android:exported="false"
-            android:name=".ui.ScSwitchActivity"
+            android:name="com.safenet.service.ui.ScSwitchActivity"
             android:excludeFromRecents="true"
             android:process=":RunSoLibV2RayDaemon"
             android:theme="@style/AppTheme.NoActionBar.Translucent" />
 
         <activity
             android:exported="true"
-            android:name=".ui.UrlSchemeActivity">
+            android:name="com.safenet.service.ui.UrlSchemeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -111,7 +111,7 @@
         </activity>
 
         <service
-            android:name=".service.V2RayVpnService"
+            android:name="com.safenet.service.service.V2RayVpnService"
             android:enabled="true"
             android:exported="false"
             android:label="@string/app_name"
@@ -125,34 +125,34 @@
                 android:value="true" />
         </service>
 
-        <service android:name=".service.V2RayProxyOnlyService"
+        <service android:name="com.safenet.service.service.V2RayProxyOnlyService"
                 android:exported="false"
                 android:label="@string/app_name"
                 android:process=":RunSoLibV2RayDaemon">
         </service>
 
-        <service android:name=".service.V2RayTestService"
+        <service android:name="com.safenet.service.service.V2RayTestService"
             android:exported="false"
             android:process=":RunSoLibV2RayDaemon">
         </service>
 
         <receiver
                 android:exported="true"
-                android:name=".receiver.WidgetProvider"
+                android:name="com.safenet.service.receiver.WidgetProvider"
                 android:process=":RunSoLibV2RayDaemon">
             <meta-data
                     android:name="android.appwidget.provider"
                     android:resource="@xml/app_widget_provider" />
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.v2ray.ang.action.widget.click" />
-                <action android:name="com.v2ray.ang.action.activity" />
+                <action android:name="com.safenet.service.action.widget.click" />
+                <action android:name="com.safenet.service.action.activity" />
             </intent-filter>
         </receiver>
 
         <service
                 android:exported="true"
-                android:name=".service.QSTileService"
+                android:name="com.safenet.service.service.QSTileService"
                 android:icon="@drawable/ic_stat_name"
                 android:label="@string/app_tile_name"
                 android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
@@ -164,7 +164,7 @@
         <!-- =====================Tasker===================== -->
         <activity
             android:exported="true"
-            android:name=".ui.TaskerActivity"
+            android:name="com.safenet.service.ui.TaskerActivity"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name">
             <intent-filter>
@@ -174,7 +174,7 @@
 
         <receiver
             android:exported="true"
-            android:name=".receiver.TaskerReceiver"
+            android:name="com.safenet.service.receiver.TaskerReceiver"
                 android:process=":RunSoLibV2RayDaemon">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />

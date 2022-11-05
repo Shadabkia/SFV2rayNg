@@ -1,4 +1,4 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.os.Bundle
 import android.text.TextUtils
@@ -11,17 +11,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.AppConfig.ANG_PACKAGE
-import com.v2ray.ang.R
-import com.v2ray.ang.databinding.ActivityBypassListBinding
-import com.v2ray.ang.dto.AppInfo
-import com.v2ray.ang.extension.toast
-import com.v2ray.ang.extension.v2RayApplication
-import com.v2ray.ang.util.AppManagerUtil
-import com.v2ray.ang.util.Utils
+import com.safenet.service.AppConfig
+import com.safenet.service.AppConfig.ANG_PACKAGE
+import com.safenet.service.R
+import com.safenet.service.databinding.ActivityBypassListBinding
+import com.safenet.service.dto.AppInfo
+import com.safenet.service.extension.toast
+import com.safenet.service.extension.v2RayApplication
+import com.safenet.service.util.AppManagerUtil
+import com.safenet.service.util.Utils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers

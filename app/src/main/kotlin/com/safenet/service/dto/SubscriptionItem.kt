@@ -1,4 +1,4 @@
-package com.v2ray.ang.dto
+package com.safenet.service.dto
 
 data class SubscriptionItem(
         var remarks: String = "",

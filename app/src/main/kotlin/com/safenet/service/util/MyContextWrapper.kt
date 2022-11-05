@@ -1,4 +1,4 @@
-package com.v2ray.ang.util
+package com.safenet.service.util
 
 import android.content.Context
 import android.content.ContextWrapper

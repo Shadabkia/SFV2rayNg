@@ -1,4 +1,4 @@
-package com.v2ray.ang.service
+package com.safenet.service.service
 
 import android.annotation.TargetApi
 import android.content.BroadcastReceiver
@@ -9,10 +9,10 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.R
-import com.v2ray.ang.util.MessageUtil
-import com.v2ray.ang.util.Utils
+import com.safenet.service.AppConfig
+import com.safenet.service.R
+import com.safenet.service.util.MessageUtil
+import com.safenet.service.util.Utils
 import java.lang.ref.SoftReference
 
 @TargetApi(Build.VERSION_CODES.N)

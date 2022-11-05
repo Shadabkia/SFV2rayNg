@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.v2ray.ang.helper;
+package com.safenet.service.helper;
 
 import androidx.recyclerview.widget.RecyclerView;
 

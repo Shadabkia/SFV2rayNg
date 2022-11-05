@@ -1,4 +1,4 @@
-package com.v2ray.ang.receiver
+package com.safenet.service.receiver
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -8,10 +8,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.widget.RemoteViews
-import com.v2ray.ang.R
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.service.V2RayServiceManager
-import com.v2ray.ang.util.Utils
+import com.safenet.service.R
+import com.safenet.service.AppConfig
+import com.safenet.service.service.V2RayServiceManager
+import com.safenet.service.util.Utils
 
 class WidgetProvider : AppWidgetProvider() {
     /**

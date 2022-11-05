@@ -1,4 +1,4 @@
-package com.v2ray.ang;
+package com.safenet.service;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

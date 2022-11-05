@@ -1,4 +1,4 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.os.Handler
 import android.os.Looper
@@ -8,13 +8,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.v2ray.ang.AppConfig.ANG_PACKAGE
-import com.v2ray.ang.R
-import com.v2ray.ang.databinding.ActivityLogcatBinding
-import com.v2ray.ang.extension.toast
-import com.v2ray.ang.util.Utils
+import com.safenet.service.AppConfig.ANG_PACKAGE
+import com.safenet.service.R
+import com.safenet.service.databinding.ActivityLogcatBinding
+import com.safenet.service.extension.toast
+import com.safenet.service.util.Utils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 import java.io.IOException

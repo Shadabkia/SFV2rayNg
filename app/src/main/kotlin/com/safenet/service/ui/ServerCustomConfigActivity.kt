@@ -1,4 +1,4 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.os.Bundle
 import android.text.TextUtils
@@ -9,14 +9,14 @@ import androidx.appcompat.app.AlertDialog
 import com.blacksquircle.ui.language.json.JsonLanguage
 import com.google.gson.*
 import com.tencent.mmkv.MMKV
-import com.v2ray.ang.R
-import com.v2ray.ang.databinding.ActivityServerCustomConfigBinding
-import com.v2ray.ang.dto.EConfigType
-import com.v2ray.ang.dto.ServerConfig
-import com.v2ray.ang.dto.V2rayConfig
-import com.v2ray.ang.extension.toast
-import com.v2ray.ang.util.MmkvManager
-import com.v2ray.ang.util.Utils
+import com.safenet.service.R
+import com.safenet.service.databinding.ActivityServerCustomConfigBinding
+import com.safenet.service.dto.EConfigType
+import com.safenet.service.dto.ServerConfig
+import com.safenet.service.dto.V2rayConfig
+import com.safenet.service.extension.toast
+import com.safenet.service.util.MmkvManager
+import com.safenet.service.util.Utils
 import me.drakeet.support.toast.ToastCompat
 
 class ServerCustomConfigActivity : BaseActivity() {

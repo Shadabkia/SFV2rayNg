@@ -1,4 +1,4 @@
-package com.v2ray.ang.dto
+package com.safenet.service.dto
 
 import android.graphics.drawable.Drawable
 

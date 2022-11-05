@@ -1,4 +1,4 @@
-package com.v2ray.ang.util
+package com.safenet.service.util
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,18 +8,18 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.AppConfig.ANG_CONFIG
-import com.v2ray.ang.AppConfig.HTTPS_PROTOCOL
-import com.v2ray.ang.AppConfig.HTTP_PROTOCOL
-import com.v2ray.ang.R
-import com.v2ray.ang.dto.*
-import com.v2ray.ang.dto.V2rayConfig.Companion.DEFAULT_SECURITY
-import com.v2ray.ang.dto.V2rayConfig.Companion.TLS
-import com.v2ray.ang.util.MmkvManager.KEY_SELECTED_SERVER
+import com.safenet.service.AppConfig
+import com.safenet.service.AppConfig.ANG_CONFIG
+import com.safenet.service.AppConfig.HTTPS_PROTOCOL
+import com.safenet.service.AppConfig.HTTP_PROTOCOL
+import com.safenet.service.R
+import com.safenet.service.dto.*
+import com.safenet.service.dto.V2rayConfig.Companion.DEFAULT_SECURITY
+import com.safenet.service.dto.V2rayConfig.Companion.TLS
+import com.safenet.service.util.MmkvManager.KEY_SELECTED_SERVER
 import java.net.URI
 import java.util.*
-import com.v2ray.ang.extension.idnHost
+import com.safenet.service.extension.idnHost
 
 object AngConfigManager {
     private val mainStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_MAIN, MMKV.MULTI_PROCESS_MODE) }

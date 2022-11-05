@@ -1,9 +1,9 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
-import com.v2ray.ang.R
-import com.v2ray.ang.util.Utils
+import com.safenet.service.R
+import com.safenet.service.util.Utils
 import android.os.Bundle
-import com.v2ray.ang.service.V2RayServiceManager
+import com.safenet.service.service.V2RayServiceManager
 
 class ScSwitchActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

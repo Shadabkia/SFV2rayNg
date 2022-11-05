@@ -1,4 +1,4 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.Manifest
 import android.app.Activity
@@ -12,9 +12,9 @@ import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.zxing.BarcodeFormat
 import com.tbruyelle.rxpermissions.RxPermissions
-import com.v2ray.ang.R
-import com.v2ray.ang.extension.toast
-import com.v2ray.ang.util.QRCodeDecoder
+import com.safenet.service.R
+import com.safenet.service.extension.toast
+import com.safenet.service.util.QRCodeDecoder
 
 class ScannerActivity : BaseActivity(), ZXingScannerView.ResultHandler {
 

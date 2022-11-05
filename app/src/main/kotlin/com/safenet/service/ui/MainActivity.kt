@@ -1,4 +1,4 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.Manifest
 import android.content.*
@@ -8,11 +8,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import com.tbruyelle.rxpermissions.RxPermissions
-import com.v2ray.ang.R
+import com.safenet.service.R
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.KeyEvent
-import com.v2ray.ang.AppConfig
+import com.safenet.service.AppConfig
 import android.content.res.ColorStateList
 import com.google.android.material.navigation.NavigationView
 import androidx.core.content.ContextCompat
@@ -26,18 +26,18 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.tencent.mmkv.MMKV
-import com.v2ray.ang.AppConfig.ANG_PACKAGE
-import com.v2ray.ang.BuildConfig
-import com.v2ray.ang.databinding.ActivityMainBinding
-import com.v2ray.ang.dto.EConfigType
-import com.v2ray.ang.extension.toast
+import com.safenet.service.AppConfig.ANG_PACKAGE
+import com.safenet.service.BuildConfig
+import com.safenet.service.databinding.ActivityMainBinding
+import com.safenet.service.dto.EConfigType
+import com.safenet.service.extension.toast
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
-import com.v2ray.ang.helper.SimpleItemTouchHelperCallback
-import com.v2ray.ang.service.V2RayServiceManager
-import com.v2ray.ang.util.*
-import com.v2ray.ang.viewmodel.MainViewModel
+import com.safenet.service.helper.SimpleItemTouchHelperCallback
+import com.safenet.service.service.V2RayServiceManager
+import com.safenet.service.util.*
+import com.safenet.service.viewmodel.MainViewModel
 import kotlinx.coroutines.*
 import me.drakeet.support.toast.ToastCompat
 import java.io.File

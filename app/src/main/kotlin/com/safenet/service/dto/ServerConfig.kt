@@ -1,9 +1,9 @@
-package com.v2ray.ang.dto
+package com.safenet.service.dto
 
-import com.v2ray.ang.AppConfig.TAG_AGENT
-import com.v2ray.ang.AppConfig.TAG_BLOCKED
-import com.v2ray.ang.AppConfig.TAG_DIRECT
-import com.v2ray.ang.util.Utils
+import com.safenet.service.AppConfig.TAG_AGENT
+import com.safenet.service.AppConfig.TAG_BLOCKED
+import com.safenet.service.AppConfig.TAG_DIRECT
+import com.safenet.service.util.Utils
 
 data class ServerConfig(
         val configVersion: Int = 3,

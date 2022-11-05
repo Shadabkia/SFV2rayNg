@@ -1,4 +1,4 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
@@ -11,14 +11,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.tbruyelle.rxpermissions.RxPermissions
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.R
-import com.v2ray.ang.databinding.FragmentRoutingSettingsBinding
-import com.v2ray.ang.extension.toast
-import com.v2ray.ang.extension.v2RayApplication
-import com.v2ray.ang.util.Utils
+import com.safenet.service.AppConfig
+import com.safenet.service.R
+import com.safenet.service.databinding.FragmentRoutingSettingsBinding
+import com.safenet.service.extension.toast
+import com.safenet.service.extension.v2RayApplication
+import com.safenet.service.util.Utils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class RoutingSettingsFragment : Fragment() {

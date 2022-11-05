@@ -1,17 +1,17 @@
-package com.v2ray.ang.util
+package com.safenet.service.util
 
 import android.content.Context
 import android.text.TextUtils
 import android.util.Log
 import com.google.gson.*
 import com.tencent.mmkv.MMKV
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.AppConfig.ANG_PACKAGE
-import com.v2ray.ang.dto.V2rayConfig
-import com.v2ray.ang.dto.EConfigType
-import com.v2ray.ang.dto.ERoutingMode
-import com.v2ray.ang.dto.V2rayConfig.Companion.DEFAULT_NETWORK
-import com.v2ray.ang.dto.V2rayConfig.Companion.HTTP
+import com.safenet.service.AppConfig
+import com.safenet.service.AppConfig.ANG_PACKAGE
+import com.safenet.service.dto.V2rayConfig
+import com.safenet.service.dto.EConfigType
+import com.safenet.service.dto.ERoutingMode
+import com.safenet.service.dto.V2rayConfig.Companion.DEFAULT_NETWORK
+import com.safenet.service.dto.V2rayConfig.Companion.HTTP
 
 object V2rayConfigUtil {
     private val serverRawStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_SERVER_RAW, MMKV.MULTI_PROCESS_MODE) }

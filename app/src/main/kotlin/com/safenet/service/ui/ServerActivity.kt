@@ -1,4 +1,4 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.os.Bundle
 import android.text.TextUtils
@@ -8,20 +8,20 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import com.tencent.mmkv.MMKV
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.AppConfig.PREF_ALLOW_INSECURE
-import com.v2ray.ang.R
-import com.v2ray.ang.dto.EConfigType
-import com.v2ray.ang.dto.ServerConfig
-import com.v2ray.ang.dto.V2rayConfig
-import com.v2ray.ang.dto.V2rayConfig.Companion.DEFAULT_FLOW
-import com.v2ray.ang.dto.V2rayConfig.Companion.DEFAULT_PORT
-import com.v2ray.ang.dto.V2rayConfig.Companion.XTLS
-import com.v2ray.ang.extension.toast
-import com.v2ray.ang.util.MmkvManager
-import com.v2ray.ang.util.MmkvManager.ID_MAIN
-import com.v2ray.ang.util.MmkvManager.KEY_SELECTED_SERVER
-import com.v2ray.ang.util.Utils
+import com.safenet.service.AppConfig
+import com.safenet.service.AppConfig.PREF_ALLOW_INSECURE
+import com.safenet.service.R
+import com.safenet.service.dto.EConfigType
+import com.safenet.service.dto.ServerConfig
+import com.safenet.service.dto.V2rayConfig
+import com.safenet.service.dto.V2rayConfig.Companion.DEFAULT_FLOW
+import com.safenet.service.dto.V2rayConfig.Companion.DEFAULT_PORT
+import com.safenet.service.dto.V2rayConfig.Companion.XTLS
+import com.safenet.service.extension.toast
+import com.safenet.service.util.MmkvManager
+import com.safenet.service.util.MmkvManager.ID_MAIN
+import com.safenet.service.util.MmkvManager.KEY_SELECTED_SERVER
+import com.safenet.service.util.Utils
 
 class ServerActivity : BaseActivity() {
 

@@ -1,4 +1,4 @@
-package com.v2ray.ang.service
+package com.safenet.service.service
 
 import android.app.*
 import android.content.BroadcastReceiver
@@ -11,18 +11,18 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.tencent.mmkv.MMKV
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.AppConfig.ANG_PACKAGE
-import com.v2ray.ang.AppConfig.TAG_DIRECT
-import com.v2ray.ang.R
-import com.v2ray.ang.dto.ServerConfig
-import com.v2ray.ang.extension.toSpeedString
-import com.v2ray.ang.extension.toast
-import com.v2ray.ang.ui.MainActivity
-import com.v2ray.ang.util.MessageUtil
-import com.v2ray.ang.util.MmkvManager
-import com.v2ray.ang.util.Utils
-import com.v2ray.ang.util.V2rayConfigUtil
+import com.safenet.service.AppConfig
+import com.safenet.service.AppConfig.ANG_PACKAGE
+import com.safenet.service.AppConfig.TAG_DIRECT
+import com.safenet.service.R
+import com.safenet.service.dto.ServerConfig
+import com.safenet.service.extension.toSpeedString
+import com.safenet.service.extension.toast
+import com.safenet.service.ui.MainActivity
+import com.safenet.service.util.MessageUtil
+import com.safenet.service.util.MmkvManager
+import com.safenet.service.util.Utils
+import com.safenet.service.util.V2rayConfigUtil
 import go.Seq
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

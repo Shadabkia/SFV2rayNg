@@ -1,4 +1,4 @@
-package com.v2ray.ang;
+package com.safenet.service;
 
 import org.junit.Test;
 

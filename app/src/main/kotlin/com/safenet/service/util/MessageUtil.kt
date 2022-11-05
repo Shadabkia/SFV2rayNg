@@ -1,10 +1,10 @@
-package com.v2ray.ang.util
+package com.safenet.service.util
 
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.service.V2RayTestService
+import com.safenet.service.AppConfig
+import com.safenet.service.service.V2RayTestService
 import java.io.Serializable
 
 

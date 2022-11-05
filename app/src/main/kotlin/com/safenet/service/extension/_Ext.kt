@@ -1,9 +1,9 @@
-package com.v2ray.ang.extension
+package com.safenet.service.extension
 
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
-import com.v2ray.ang.AngApplication
+import com.safenet.service.AngApplication
 import me.drakeet.support.toast.ToastCompat
 import org.json.JSONObject
 import java.net.URI

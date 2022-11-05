@@ -1,11 +1,11 @@
-package com.v2ray.ang.util
+package com.safenet.service.util
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import com.v2ray.ang.dto.AppInfo
+import com.safenet.service.dto.AppInfo
 import rx.Observable
 import java.util.*
 

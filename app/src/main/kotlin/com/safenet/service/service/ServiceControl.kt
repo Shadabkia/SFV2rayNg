@@ -1,4 +1,4 @@
-package com.v2ray.ang.service
+package com.safenet.service.service
 
 import android.app.Service
 

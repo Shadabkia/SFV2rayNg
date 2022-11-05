@@ -1,4 +1,4 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity

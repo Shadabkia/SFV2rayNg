@@ -1,4 +1,4 @@
-package com.v2ray.ang.service
+package com.safenet.service.service
 
 import android.app.Service
 import android.content.Context
@@ -11,12 +11,12 @@ import android.os.StrictMode
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.tencent.mmkv.MMKV
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.R
-import com.v2ray.ang.dto.ERoutingMode
-import com.v2ray.ang.util.MmkvManager
-import com.v2ray.ang.util.MyContextWrapper
-import com.v2ray.ang.util.Utils
+import com.safenet.service.AppConfig
+import com.safenet.service.R
+import com.safenet.service.dto.ERoutingMode
+import com.safenet.service.util.MmkvManager
+import com.safenet.service.util.MyContextWrapper
+import com.safenet.service.util.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

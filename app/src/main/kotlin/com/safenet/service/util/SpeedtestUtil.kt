@@ -1,12 +1,12 @@
-package com.v2ray.ang.util
+package com.safenet.service.util
 
 import android.content.Context
 import android.os.SystemClock
 import android.text.TextUtils
 import android.util.Log
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.R
-import com.v2ray.ang.extension.responseLength
+import com.safenet.service.AppConfig
+import com.safenet.service.R
+import com.safenet.service.extension.responseLength
 import kotlinx.coroutines.isActive
 import libv2ray.Libv2ray
 import java.io.IOException

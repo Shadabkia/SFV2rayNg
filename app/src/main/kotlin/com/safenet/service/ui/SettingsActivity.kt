@@ -1,4 +1,4 @@
-package com.v2ray.ang.ui
+package com.safenet.service.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,10 +6,10 @@ import android.text.TextUtils
 import android.view.View
 import androidx.activity.viewModels
 import androidx.preference.*
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.R
-import com.v2ray.ang.util.Utils
-import com.v2ray.ang.viewmodel.SettingsViewModel
+import com.safenet.service.AppConfig
+import com.safenet.service.R
+import com.safenet.service.util.Utils
+import com.safenet.service.viewmodel.SettingsViewModel
 
 class SettingsActivity : BaseActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels()

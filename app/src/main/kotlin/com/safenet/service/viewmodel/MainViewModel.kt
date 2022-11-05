@@ -1,4 +1,4 @@
-package com.v2ray.ang.viewmodel
+package com.safenet.service.viewmodel
 
 import android.app.Application
 import android.content.*
@@ -11,15 +11,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
-import com.v2ray.ang.AngApplication
-import com.v2ray.ang.AppConfig
-import com.v2ray.ang.AppConfig.ANG_PACKAGE
-import com.v2ray.ang.R
-import com.v2ray.ang.databinding.DialogConfigFilterBinding
-import com.v2ray.ang.dto.*
-import com.v2ray.ang.extension.toast
-import com.v2ray.ang.util.*
-import com.v2ray.ang.util.MmkvManager.KEY_ANG_CONFIGS
+import com.safenet.service.AngApplication
+import com.safenet.service.AppConfig
+import com.safenet.service.AppConfig.ANG_PACKAGE
+import com.safenet.service.R
+import com.safenet.service.databinding.DialogConfigFilterBinding
+import com.safenet.service.dto.*
+import com.safenet.service.extension.toast
+import com.safenet.service.util.*
+import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
 import kotlinx.coroutines.*
 import java.util.*
 

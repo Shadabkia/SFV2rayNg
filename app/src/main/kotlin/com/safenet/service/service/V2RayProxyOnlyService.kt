@@ -1,4 +1,4 @@
-package com.v2ray.ang.service
+package com.safenet.service.service
 
 import android.app.Service
 import android.content.Context
@@ -6,8 +6,8 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
-import com.v2ray.ang.util.MyContextWrapper
-import com.v2ray.ang.util.Utils
+import com.safenet.service.util.MyContextWrapper
+import com.safenet.service.util.Utils
 import java.lang.ref.SoftReference
 
 class V2RayProxyOnlyService : Service(), ServiceControl {
