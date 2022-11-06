@@ -62,7 +62,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        title = getString(R.string.title_server)
+        title = ""
         setSupportActionBar(binding.toolbar)
 
         binding.fab.setOnClickListener {
@@ -259,61 +259,61 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 //            true
 //        }
 
-        R.id.sub_update -> {
-            importConfigViaSub()
-            true
-        }
-
-        R.id.export_all -> {
-            if (AngConfigManager.shareNonCustomConfigsToClipboard(this, mainViewModel.serverList) == 0) {
-                toast(R.string.toast_success)
-            } else {
-                toast(R.string.toast_failure)
-            }
-            true
-        }
-
-        R.id.ping_all -> {
-            mainViewModel.testAllTcping()
-            true
-        }
-
-        R.id.real_ping_all -> {
-            mainViewModel.testAllRealPing()
-            true
-        }
-
-        R.id.service_restart -> {
-            restartV2Ray()
-            true
-        }
-
-        R.id.del_all_config -> {
-            AlertDialog.Builder(this).setMessage(R.string.del_config_comfirm)
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
-                        MmkvManager.removeAllServer()
-                        mainViewModel.reloadServerList()
-                    }
-                    .show()
-            true
-        }
-
-        R.id.del_invalid_config -> {
-            AlertDialog.Builder(this).setMessage(R.string.del_config_comfirm)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    MmkvManager.removeInvalidServer()
-                    mainViewModel.reloadServerList()
-                }
-                .show()
-            true
-        }
-        R.id.sort_by_test_results -> {
-            MmkvManager.sortByTestResults()
-            mainViewModel.reloadServerList()
-            true
-        }
-        R.id.filter_config -> {
-            mainViewModel.filterConfig(this)
+//        R.id.sub_update -> {
+//            importConfigViaSub()
+//            true
+//        }
+//
+//        R.id.export_all -> {
+//            if (AngConfigManager.shareNonCustomConfigsToClipboard(this, mainViewModel.serverList) == 0) {
+//                toast(R.string.toast_success)
+//            } else {
+//                toast(R.string.toast_failure)
+//            }
+//            true
+//        }
+//
+//        R.id.ping_all -> {
+//            mainViewModel.testAllTcping()
+//            true
+//        }
+//
+//        R.id.real_ping_all -> {
+//            mainViewModel.testAllRealPing()
+//            true
+//        }
+//
+//        R.id.service_restart -> {
+//            restartV2Ray()
+//            true
+//        }
+//
+//        R.id.del_all_config -> {
+//            AlertDialog.Builder(this).setMessage(R.string.del_config_comfirm)
+//                    .setPositiveButton(android.R.string.ok) { _, _ ->
+//                        MmkvManager.removeAllServer()
+//                        mainViewModel.reloadServerList()
+//                    }
+//                    .show()
+//            true
+//        }
+//
+//        R.id.del_invalid_config -> {
+//            AlertDialog.Builder(this).setMessage(R.string.del_config_comfirm)
+//                .setPositiveButton(android.R.string.ok) { _, _ ->
+//                    MmkvManager.removeInvalidServer()
+//                    mainViewModel.reloadServerList()
+//                }
+//                .show()
+//            true
+//        }
+//        R.id.sort_by_test_results -> {
+//            MmkvManager.sortByTestResults()
+//            mainViewModel.reloadServerList()
+//            true
+//        }
+        R.id.device_id -> {
+            mainViewModel.onDeviceIdClicked(this)
             true
         }
 

@@ -1,16 +1,19 @@
 package com.safenet.service.viewmodel
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.*
+import android.net.wifi.WifiManager
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
-import com.tencent.mmkv.MMKV
 import com.safenet.service.AngApplication
 import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
@@ -20,8 +23,10 @@ import com.safenet.service.dto.*
 import com.safenet.service.extension.toast
 import com.safenet.service.util.*
 import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.*
 import java.util.*
+
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val mainStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_MAIN, MMKV.MULTI_PROCESS_MODE) }
@@ -199,6 +204,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 return index
         }
         return -1
+    }
+
+    @SuppressLint("HardwareIds")
+    fun onDeviceIdClicked(context: Context) {
+        var deviceId = Settings.Secure.getString(context.contentResolver,
+            Settings.Secure.ANDROID_ID);
+
+        context.toast(deviceId)
     }
 
     private val mMsgReceiver = object : BroadcastReceiver() {
