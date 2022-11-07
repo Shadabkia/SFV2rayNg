@@ -203,6 +203,8 @@
     <string name="connection_connected">Connected, tap to check connection</string>
     <string name="connection_not_connected">Not connected</string>
     <string name="get_device_id" translatable="false">Device Id</string>
+    <string name="blocked_url_or_ip" translatable="false">geosite:category-ads-all,ext:iran.dat:ads,domain:appcenter.ms,domain:app-measurement.com,domain:firebase.io,domain:crashlytics.com,domain:google-analytics.com,geosite:category-porn</string>
+    <string name="direct_url_or_ip" translatable="false">regexp:^.+/\/\.ir$,ext:iran.dat:ir,ext:iran.dat:other</string>
 
     <string-array name="share_method">
         <item>QRcode</item>

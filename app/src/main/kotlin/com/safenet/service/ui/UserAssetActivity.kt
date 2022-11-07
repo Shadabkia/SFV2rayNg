@@ -40,7 +40,7 @@ class UserAssetActivity : BaseActivity() {
     private val settingsStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_SETTING, MMKV.MULTI_PROCESS_MODE) }
 
     val extDir by lazy { File(Utils.userAssetPath(this)) }
-    val geofiles = arrayOf("geosite.dat", "geoip.dat")
+    val geofiles = arrayOf("geosite.dat", "geoip.dat","iran.dat")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.tencent.mmkv.MMKV
 import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.BuildConfig
@@ -56,6 +57,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
     private var mItemTouchHelper: ItemTouchHelper? = null
     val mainViewModel: MainViewModel by viewModels()
+
+    val defaultSharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,6 +111,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setupViewModel()
         copyAssets()
         migrateLegacy()
+
+        setRoutingRules()
+    }
+
+    private fun setRoutingRules() {
+        defaultSharedPreferences.edit().putString(AppConfig.PREF_V2RAY_ROUTING_BLOCKED, getString(R.string.blocked_url_or_ip)).apply()
+        defaultSharedPreferences.edit().putString(AppConfig.PREF_V2RAY_ROUTING_DIRECT, getString(R.string.direct_url_or_ip)).apply()
     }
 
     private fun setupViewModel() {
@@ -138,7 +149,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val extFolder = Utils.userAssetPath(this)
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val geo = arrayOf("geosite.dat", "geoip.dat")
+                val geo = arrayOf("geosite.dat", "geoip.dat","iran.dat")
                 assets.list("")
                         ?.filter { geo.contains(it) }
                         ?.filter { !File(extFolder, it).exists() }

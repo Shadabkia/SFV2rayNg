@@ -3,13 +3,13 @@ package com.safenet.service.viewmodel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.*
-import android.net.wifi.WifiManager
 import android.provider.Settings
+import android.util.Base64
+import android.util.Base64.encodeToString
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -25,6 +25,8 @@ import com.safenet.service.util.*
 import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.*
+import java.nio.charset.StandardCharsets
+import java.security.KeyStore
 import java.util.*
 
 
@@ -208,10 +210,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     @SuppressLint("HardwareIds")
     fun onDeviceIdClicked(context: Context) {
-        var deviceId = Settings.Secure.getString(context.contentResolver,
+        var androidId = Settings.Secure.getString(context.contentResolver,
             Settings.Secure.ANDROID_ID);
 
-        context.toast(deviceId)
+        var newAndroidId = UUID.randomUUID().toString()+"/"+androidId +"sn9296"
+        val data = newAndroidId.toByteArray(StandardCharsets.UTF_8)
+        val base64AndroidId = encodeToString(data, Base64.DEFAULT)
+
+        context.toast(base64AndroidId)
+
     }
 
     private val mMsgReceiver = object : BroadcastReceiver() {
