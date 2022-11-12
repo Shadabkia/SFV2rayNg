@@ -51,27 +51,7 @@ class SettingsActivity : BaseActivity() {
                 false
             }
 
-//            licenses.onClick {
-//                val fragment = LicensesDialogFragment.Builder(act)
-//                        .setNotices(R.raw.licenses)
-//                        .setIncludeOwnLicense(false)
-//                        .build()
-//                fragment.show((act as AppCompatActivity).supportFragmentManager, null)
-//            }
-//
-//            feedback.onClick {
-//                Utils.openUri(activity, "https://github.com/2dust/v2rayNG/issues")
-//            }
-//            tgGroup.onClick {
-//                //                Utils.openUri(activity, "https://t.me/v2rayN")
-//                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tg:resolve?domain=v2rayN"))
-//                try {
-//                    startActivity(intent)
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                    toast(R.string.toast_tg_app_not_found)
-//                }
-//            }
+
 
             perAppProxy?.setOnPreferenceClickListener {
                 startActivity(Intent(activity, PerAppProxyActivity::class.java))
@@ -169,7 +149,7 @@ class SettingsActivity : BaseActivity() {
             }
         }
 
-        private fun updateLocalDns(enabled: Boolean) {
+        fun updateLocalDns(enabled: Boolean) {
             fakeDns?.isEnabled = enabled
             localDnsPort?.isEnabled = enabled
             vpnDns?.isEnabled = !enabled

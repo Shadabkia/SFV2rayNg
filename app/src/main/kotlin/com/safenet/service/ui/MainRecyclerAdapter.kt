@@ -3,6 +3,7 @@ package com.safenet.service.ui
 import android.content.Intent
 import android.graphics.Color
 import android.text.TextUtils
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
@@ -63,7 +64,7 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
             val outbound = config.getProxyOutbound()
             val aff = MmkvManager.decodeServerAffiliationInfo(guid)
 
-            holder.itemMainBinding.tvName.text = config.remarks
+            holder.itemMainBinding.tvName.text = position.toString()
             holder.itemView.setBackgroundColor(Color.TRANSPARENT)
             holder.itemMainBinding.tvTestResult.text = aff?.getTestDelayString() ?: ""
             if ((aff?.testDelayMillis ?: 0L) < 0L) {
@@ -137,17 +138,15 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
                 }
             }
             holder.itemMainBinding.layoutRemove.setOnClickListener {
-                if (guid != mainStorage?.decodeString(MmkvManager.KEY_SELECTED_SERVER)) {
-                    if (settingsStorage?.decodeBool(AppConfig.PREF_CONFIRM_REMOVE) == true) {
+
+
                         AlertDialog.Builder(mActivity).setMessage(R.string.del_config_comfirm)
                             .setPositiveButton(android.R.string.ok) { _, _ ->
                                 removeServer(guid, position)
                             }
                             .show()
-                    } else {
-                        removeServer(guid, position)
-                    }
-                }
+
+
             }
 
             holder.itemMainBinding.infoContainer.setOnClickListener {
@@ -192,6 +191,7 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
     }
 
     private  fun removeServer(guid: String,position:Int) {
+        Log.d("MainViewModel", "removeServer"+guid)
         mActivity.mainViewModel.removeServer(guid)
         notifyItemRemoved(position)
         notifyItemRangeChanged(position, mActivity.mainViewModel.serversCache.size)

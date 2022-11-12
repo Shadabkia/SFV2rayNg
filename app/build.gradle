@@ -25,16 +25,16 @@ android {
     if (props["sign"]) {
         signingConfigs {
             release {
-                storeFile file("../key.jks")
-                keyAlias 'ang'
-                keyPassword '123456'
-                storePassword '123456'
+                storeFile file("SafeNetOrg.jks")
+                keyAlias 'SafeNet'
+                keyPassword 'hrhr.9191'
+                storePassword 'hrhr.9191'
             }
             debug {
-                storeFile file("../key.jks")
-                keyAlias 'ang'
-                keyPassword '123456'
-                storePassword '123456'
+                storeFile file("SafeNetOrg.jks")
+                keyAlias 'SafeNet'
+                keyPassword 'hrhr.9191'
+                storePassword 'hrhr.9191'
             }
         }
     }
@@ -48,7 +48,7 @@ android {
                 signingConfig signingConfigs.release
             }
             ndk.abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             minifyEnabled false
@@ -139,6 +139,11 @@ dependencies {
     implementation 'com.blacksquircle.ui:editorkit:2.1.1'
     implementation 'com.blacksquircle.ui:language-base:2.1.1'
     implementation 'com.blacksquircle.ui:language-json:2.1.1'
+
+    // kotlin coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4'
 }
 
 //buildscript {

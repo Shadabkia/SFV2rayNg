@@ -119,6 +119,7 @@
                         android:padding="@dimen/layout_margin_spacing">
 
                         <ImageView
+                            android:visibility="gone"
                             android:layout_width="wrap_content"
                             android:layout_height="@dimen/png_height"
                             android:src="@drawable/ic_share_black_24dp"
@@ -138,6 +139,7 @@
                         android:padding="@dimen/layout_margin_spacing">
 
                         <ImageView
+                            android:visibility="gone"
                             android:layout_width="@dimen/png_height"
                             android:layout_height="@dimen/png_height"
                             android:src="@drawable/ic_edit_black_24dp"

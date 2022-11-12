@@ -5,11 +5,14 @@ import android.app.Application
 import android.content.*
 import android.provider.Settings
 import android.util.Base64
+import android.util.Base64.decode
 import android.util.Base64.encodeToString
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -21,6 +24,7 @@ import com.safenet.service.R
 import com.safenet.service.databinding.DialogConfigFilterBinding
 import com.safenet.service.dto.*
 import com.safenet.service.extension.toast
+import com.safenet.service.ui.MainActivity
 import com.safenet.service.util.*
 import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
 import com.tencent.mmkv.MMKV
@@ -61,11 +65,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun reloadServerList() {
         serverList = MmkvManager.decodeServerList()
+        Log.d("ServersList", "serverlist size : ${serverList.size}")
+
         updateCache()
         updateListAction.value = -1
     }
 
     fun removeServer(guid: String) {
+        Log.d("MainViewModel", guid)
         serverList.remove(guid)
         MmkvManager.removeServer(guid)
         val index = getPosition(guid)
@@ -97,10 +104,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         for (guid in serverList) {
             val config = MmkvManager.decodeServerConfig(guid) ?: continue
             if (subscriptionId.isNotEmpty() && subscriptionId != config.subscriptionId) {
+                Log.d("ServersList", "subscriptionId.isNotEmpty() && subscriptionId != config.subscriptionId")
                 continue
             }
 
             if (keywordFilter.isEmpty() || config.remarks.contains(keywordFilter)) {
+                Log.d("ServersList", "keywordFilter.isEmpty() || config.remarks.contains(keywordFilter")
                 serversCache.add(ServersCache(guid, config))
             }
         }
@@ -208,18 +217,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return -1
     }
 
-    @SuppressLint("HardwareIds")
     fun onDeviceIdClicked(context: Context) {
-        var androidId = Settings.Secure.getString(context.contentResolver,
-            Settings.Secure.ANDROID_ID);
+//        var androidId = Settings.Secure.getString(context.contentResolver,
+//            Settings.Secure.ANDROID_ID);
 
-        var newAndroidId = UUID.randomUUID().toString()+"/"+androidId +"sn9296"
-        val data = newAndroidId.toByteArray(StandardCharsets.UTF_8)
-        val base64AndroidId = encodeToString(data, Base64.DEFAULT)
 
-        context.toast(base64AndroidId)
+        var publicKey = KeyManage().getPublic()
+        setToClipBoard(context, publicKey)
+
+        context.toast("device key added to clipboard")
 
     }
+
+    private fun setToClipBoard(context: Context,text: String) {
+        val clipboard =
+            ContextCompat.getSystemService(context, ClipboardManager::class.java)
+        val clip = ClipData.newPlainText(null, text)
+        clipboard!!.setPrimaryClip(clip)
+    }
+
 
     private val mMsgReceiver = object : BroadcastReceiver() {
         override fun onReceive(ctx: Context?, intent: Intent?) {

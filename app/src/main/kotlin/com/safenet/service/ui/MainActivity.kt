@@ -1,6 +1,7 @@
 package com.safenet.service.ui
 
 import android.Manifest
+import android.app.Dialog
 import android.content.*
 import android.net.Uri
 import android.net.VpnService
@@ -40,6 +41,7 @@ import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.util.*
 import com.safenet.service.viewmodel.MainViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.NonCancellable.cancel
 import me.drakeet.support.toast.ToastCompat
 import java.io.File
 import java.io.FileOutputStream
@@ -220,50 +222,50 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.import_qrcode -> {
-            importQRcode(true)
-            true
-        }
+//        R.id.import_qrcode -> {
+//            importQRcode(true)
+//            true
+//        }
         R.id.import_clipboard -> {
             importClipboard()
             true
         }
-        R.id.import_manually_vmess -> {
-            importManually(EConfigType.VMESS.value)
-            true
-        }
-        R.id.import_manually_vless -> {
-            importManually(EConfigType.VLESS.value)
-            true
-        }
-        R.id.import_manually_ss -> {
-            importManually(EConfigType.SHADOWSOCKS.value)
-            true
-        }
-        R.id.import_manually_socks -> {
-            importManually(EConfigType.SOCKS.value)
-            true
-        }
-        R.id.import_manually_trojan -> {
-            importManually(EConfigType.TROJAN.value)
-            true
-        }
-        R.id.import_config_custom_clipboard -> {
-            importConfigCustomClipboard()
-            true
-        }
-        R.id.import_config_custom_local -> {
-            importConfigCustomLocal()
-            true
-        }
-        R.id.import_config_custom_url -> {
-            importConfigCustomUrlClipboard()
-            true
-        }
-        R.id.import_config_custom_url_scan -> {
-            importQRcode(false)
-            true
-        }
+//        R.id.import_manually_vmess -> {
+//            importManually(EConfigType.VMESS.value)
+//            true
+//        }
+//        R.id.import_manually_vless -> {
+//            importManually(EConfigType.VLESS.value)
+//            true
+//        }
+//        R.id.import_manually_ss -> {
+//            importManually(EConfigType.SHADOWSOCKS.value)
+//            true
+//        }
+//        R.id.import_manually_socks -> {
+//            importManually(EConfigType.SOCKS.value)
+//            true
+//        }
+//        R.id.import_manually_trojan -> {
+//            importManually(EConfigType.TROJAN.value)
+//            true
+//        }
+//        R.id.import_config_custom_clipboard -> {
+//            importConfigCustomClipboard()
+//            true
+//        }
+//        R.id.import_config_custom_local -> {
+//            importConfigCustomLocal()
+//            true
+//        }
+//        R.id.import_config_custom_url -> {
+//            importConfigCustomUrlClipboard()
+//            true
+//        }
+//        R.id.import_config_custom_url_scan -> {
+//            importQRcode(false)
+//            true
+//        }
 
 //        R.id.sub_setting -> {
 //            startActivity<SubSettingActivity>()
@@ -383,32 +385,49 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             : Boolean {
         try {
             val clipboard = Utils.getClipboard(this)
-            importBatchConfig(clipboard)
+            //TODO
+            importBatchConfig(KeyManage().decryptData(clipboard))
         } catch (e: Exception) {
             e.printStackTrace()
+            toast("failure")
             return false
         }
         return true
     }
 
     fun importBatchConfig(server: String?, subid: String = "") {
-        val subid2 = if(subid.isNullOrEmpty()){
-            mainViewModel.subscriptionId
-        }else{
-            subid
-        }
-        val append = subid.isNullOrEmpty()
 
-        var count = AngConfigManager.importBatchConfig(server, subid2, append)
-        if (count <= 0) {
-            count = AngConfigManager.importBatchConfig(Utils.decode(server!!), subid2, append)
-        }
-        if (count > 0) {
-            toast(R.string.toast_success)
-            mainViewModel.reloadServerList()
-        } else {
-            toast(R.string.toast_failure)
-        }
+            val subid2 = if (subid.isNullOrEmpty()) {
+                mainViewModel.subscriptionId
+            } else {
+                subid
+            }
+            val append = subid.isNullOrEmpty()
+
+            var count = AngConfigManager.importBatchConfig(server, subid2, append)
+            if (count <= 0) {
+                toast(R.string.toast_failure)
+            } else {
+                if (mainViewModel.serverList.size >= 1) {
+                    AlertDialog.Builder(this@MainActivity).setMessage("do you want to change config?")
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            this@MainActivity.lifecycleScope.launch{
+                                mainViewModel.reloadServerList()
+                                delay(1000)
+                                mainViewModel.removeServer(mainViewModel.serversCache[0].guid)
+                                toast(R.string.toast_success)
+                            }
+                        }
+                        .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
+                } else {
+                    toast(R.string.toast_success)
+                    mainViewModel.reloadServerList()
+                }
+            }
+
     }
 
     fun importConfigCustomClipboard()
@@ -643,22 +662,22 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         // Handle navigation view item clicks here.
         when (item.itemId) {
             //R.id.server_profile -> activityClass = MainActivity::class.java
-            R.id.sub_setting -> {
-                startActivity(Intent(this, SubSettingActivity::class.java))
-            }
-            R.id.settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java)
-                        .putExtra("isRunning", mainViewModel.isRunning.value == true))
-            }
-            R.id.user_asset_setting -> {
-                startActivity(Intent(this, UserAssetActivity::class.java))
-            }
-            R.id.feedback -> {
-                Utils.openUri(this, AppConfig.v2rayNGIssues)
-            }
-            R.id.promotion -> {
-                Utils.openUri(this, "${Utils.decode(AppConfig.promotionUrl)}?t=${System.currentTimeMillis()}")
-            }
+//            R.id.sub_setting -> {
+//                startActivity(Intent(this, SubSettingActivity::class.java))
+//            }
+//            R.id.settings -> {
+//                startActivity(Intent(this, SettingsActivity::class.java)
+//                        .putExtra("isRunning", mainViewModel.isRunning.value == true))
+//            }
+//            R.id.user_asset_setting -> {
+//                startActivity(Intent(this, UserAssetActivity::class.java))
+//            }
+//            R.id.feedback -> {
+//                Utils.openUri(this, AppConfig.v2rayNGIssues)
+//            }
+//            R.id.promotion -> {
+//                Utils.openUri(this, "${Utils.decode(AppConfig.promotionUrl)}?t=${System.currentTimeMillis()}")
+//            }
             R.id.logcat -> {
                 startActivity(Intent(this, LogcatActivity::class.java))
             }
