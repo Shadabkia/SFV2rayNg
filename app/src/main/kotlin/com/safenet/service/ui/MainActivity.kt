@@ -1,62 +1,72 @@
 package com.safenet.service.ui
 
 import android.Manifest
-import android.app.Dialog
-import android.content.*
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.net.VpnService
-import androidx.recyclerview.widget.LinearLayoutManager
-import android.view.Menu
-import android.view.MenuItem
-import com.tbruyelle.rxpermissions.RxPermissions
-import com.safenet.service.R
 import android.os.Bundle
 import android.text.TextUtils
-import android.view.KeyEvent
-import com.safenet.service.AppConfig
-import android.content.res.ColorStateList
-import com.google.android.material.navigation.NavigationView
-import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.recyclerview.widget.ItemTouchHelper
 import android.util.Log
+import android.view.KeyEvent
+import android.view.Menu
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import com.tencent.mmkv.MMKV
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
-import com.safenet.service.BuildConfig
+import com.safenet.service.R
 import com.safenet.service.databinding.ActivityMainBinding
-import com.safenet.service.dto.EConfigType
 import com.safenet.service.extension.toast
-import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
-import java.util.concurrent.TimeUnit
 import com.safenet.service.helper.SimpleItemTouchHelperCallback
 import com.safenet.service.service.V2RayServiceManager
-import com.safenet.service.util.*
+import com.safenet.service.util.AngConfigManager
+import com.safenet.service.util.KeyManage
+import com.safenet.service.util.MmkvManager
+import com.safenet.service.util.Utils
 import com.safenet.service.viewmodel.MainViewModel
-import kotlinx.coroutines.*
-import kotlinx.coroutines.NonCancellable.cancel
+import com.tbruyelle.rxpermissions.RxPermissions
+import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.drakeet.support.toast.ToastCompat
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.TimeUnit
+
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val adapter by lazy { MainRecyclerAdapter(this) }
-    private val mainStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_MAIN, MMKV.MULTI_PROCESS_MODE) }
-    private val settingsStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_SETTING, MMKV.MULTI_PROCESS_MODE) }
-    private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) {
-            startV2Ray()
-        }
+    private val mainStorage by lazy {
+        MMKV.mmkvWithID(
+            MmkvManager.ID_MAIN,
+            MMKV.MULTI_PROCESS_MODE
+        )
     }
+    private val settingsStorage by lazy {
+        MMKV.mmkvWithID(
+            MmkvManager.ID_SETTING,
+            MMKV.MULTI_PROCESS_MODE
+        )
+    }
+    private val requestVpnPermission =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                startV2Ray()
+            }
+        }
     private var mItemTouchHelper: ItemTouchHelper? = null
     val mainViewModel: MainViewModel by viewModels()
 
@@ -69,7 +79,6 @@ class MainActivity : BaseActivity() {
         val view = binding.root
         setContentView(view)
         title = ""
-        setSupportActionBar(binding.toolbar)
 
         binding.fab.setOnClickListener {
             if (mainViewModel.isRunning.value == true) {
@@ -107,11 +116,46 @@ class MainActivity : BaseActivity() {
         migrateLegacy()
 
         setRoutingRules()
+
+        listeners()
     }
 
+    private fun listeners() {
+        binding.apply {
+            navToolbar.apply {
+                idImportConfig.setOnClickListener {
+                    importClipboard()
+                }
+
+                getDeviceId.setOnClickListener { view ->
+                    this@MainActivity.lifecycleScope.launch {
+                        mainViewModel.onDeviceIdClicked(this@MainActivity)
+                        view.isEnabled = false
+                        delay(1500)
+                        view.isEnabled = true
+
+                    }
+                }
+            }
+
+            contactUs.setOnClickListener{
+                val intent =
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/safenet_vpn"))
+                startActivity(intent)
+            }
+        }
+
+
+    }
+
+
     private fun setRoutingRules() {
-        defaultSharedPreferences.edit().putString(AppConfig.PREF_V2RAY_ROUTING_BLOCKED, getString(R.string.blocked_url_or_ip)).apply()
-        defaultSharedPreferences.edit().putString(AppConfig.PREF_V2RAY_ROUTING_DIRECT, getString(R.string.direct_url_or_ip)).apply()
+        defaultSharedPreferences.edit()
+            .putString(AppConfig.PREF_V2RAY_ROUTING_BLOCKED, getString(R.string.blocked_url_or_ip))
+            .apply()
+        defaultSharedPreferences.edit()
+            .putString(AppConfig.PREF_V2RAY_ROUTING_DIRECT, getString(R.string.direct_url_or_ip))
+            .apply()
     }
 
     private fun setupViewModel() {
@@ -126,11 +170,13 @@ class MainActivity : BaseActivity() {
         mainViewModel.isRunning.observe(this) { isRunning ->
             adapter.isRunning = isRunning
             if (isRunning) {
-                binding.fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorSelected))
+                binding.fab.backgroundTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorSelected))
                 setTestState(getString(R.string.connection_connected))
                 binding.layoutTest.isFocusable = true
             } else {
-                binding.fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorUnselected))
+                binding.fab.backgroundTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorUnselected))
                 setTestState(getString(R.string.connection_not_connected))
                 binding.layoutTest.isFocusable = false
             }
@@ -143,19 +189,22 @@ class MainActivity : BaseActivity() {
         val extFolder = Utils.userAssetPath(this)
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val geo = arrayOf("geosite.dat", "geoip.dat","iran.dat")
+                val geo = arrayOf("geosite.dat", "geoip.dat", "iran.dat")
                 assets.list("")
-                        ?.filter { geo.contains(it) }
-                        ?.filter { !File(extFolder, it).exists() }
-                        ?.forEach {
-                            val target = File(extFolder, it)
-                            assets.open(it).use { input ->
-                                FileOutputStream(target).use { output ->
-                                    input.copyTo(output)
-                                }
+                    ?.filter { geo.contains(it) }
+                    ?.filter { !File(extFolder, it).exists() }
+                    ?.forEach {
+                        val target = File(extFolder, it)
+                        assets.open(it).use { input ->
+                            FileOutputStream(target).use { output ->
+                                input.copyTo(output)
                             }
-                            Log.i(ANG_PACKAGE, "Copied from apk assets folder to ${target.absolutePath}")
                         }
+                        Log.i(
+                            ANG_PACKAGE,
+                            "Copied from apk assets folder to ${target.absolutePath}"
+                        )
+                    }
             } catch (e: Exception) {
                 Log.e(ANG_PACKAGE, "asset copy failed", e)
             }
@@ -193,10 +242,10 @@ class MainActivity : BaseActivity() {
             Utils.stopVService(this)
         }
         Observable.timer(500, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    startV2Ray()
-                }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                startV2Ray()
+            }
     }
 
     public override fun onResume() {
@@ -213,119 +262,8 @@ class MainActivity : BaseActivity() {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-//        R.id.import_qrcode -> {
-//            importQRcode(true)
-//            true
-//        }
-        R.id.import_clipboard -> {
-            importClipboard()
-            true
-        }
-//        R.id.import_manually_vmess -> {
-//            importManually(EConfigType.VMESS.value)
-//            true
-//        }
-//        R.id.import_manually_vless -> {
-//            importManually(EConfigType.VLESS.value)
-//            true
-//        }
-//        R.id.import_manually_ss -> {
-//            importManually(EConfigType.SHADOWSOCKS.value)
-//            true
-//        }
-//        R.id.import_manually_socks -> {
-//            importManually(EConfigType.SOCKS.value)
-//            true
-//        }
-//        R.id.import_manually_trojan -> {
-//            importManually(EConfigType.TROJAN.value)
-//            true
-//        }
-//        R.id.import_config_custom_clipboard -> {
-//            importConfigCustomClipboard()
-//            true
-//        }
-//        R.id.import_config_custom_local -> {
-//            importConfigCustomLocal()
-//            true
-//        }
-//        R.id.import_config_custom_url -> {
-//            importConfigCustomUrlClipboard()
-//            true
-//        }
-//        R.id.import_config_custom_url_scan -> {
-//            importQRcode(false)
-//            true
-//        }
 
-//        R.id.sub_setting -> {
-//            startActivity<SubSettingActivity>()
-//            true
-//        }
-
-//        R.id.sub_update -> {
-//            importConfigViaSub()
-//            true
-//        }
-//
-//        R.id.export_all -> {
-//            if (AngConfigManager.shareNonCustomConfigsToClipboard(this, mainViewModel.serverList) == 0) {
-//                toast(R.string.toast_success)
-//            } else {
-//                toast(R.string.toast_failure)
-//            }
-//            true
-//        }
-//
-//        R.id.ping_all -> {
-//            mainViewModel.testAllTcping()
-//            true
-//        }
-//
-//        R.id.real_ping_all -> {
-//            mainViewModel.testAllRealPing()
-//            true
-//        }
-//
-//        R.id.service_restart -> {
-//            restartV2Ray()
-//            true
-//        }
-//
-//        R.id.del_all_config -> {
-//            AlertDialog.Builder(this).setMessage(R.string.del_config_comfirm)
-//                    .setPositiveButton(android.R.string.ok) { _, _ ->
-//                        MmkvManager.removeAllServer()
-//                        mainViewModel.reloadServerList()
-//                    }
-//                    .show()
-//            true
-//        }
-//
-//        R.id.del_invalid_config -> {
-//            AlertDialog.Builder(this).setMessage(R.string.del_config_comfirm)
-//                .setPositiveButton(android.R.string.ok) { _, _ ->
-//                    MmkvManager.removeInvalidServer()
-//                    mainViewModel.reloadServerList()
-//                }
-//                .show()
-//            true
-//        }
-//        R.id.sort_by_test_results -> {
-//            MmkvManager.sortByTestResults()
-//            mainViewModel.reloadServerList()
-//            true
-//        }
-        R.id.device_id -> {
-            mainViewModel.onDeviceIdClicked(this)
-            true
-        }
-
-        else -> super.onOptionsItemSelected(item)
-    }
-
-    private fun importManually(createConfigType : Int) {
+    private fun importManually(createConfigType: Int) {
         startActivity(
             Intent()
                 .putExtra("createConfigType", createConfigType)
@@ -344,31 +282,38 @@ class MainActivity : BaseActivity() {
 //                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), requestCode)
 //        } catch (e: Exception) {
         RxPermissions(this)
-                .request(Manifest.permission.CAMERA)
-                .subscribe {
-                    if (it)
-                        if (forConfig)
-                            scanQRCodeForConfig.launch(Intent(this, ScannerActivity::class.java))
-                        else
-                            scanQRCodeForUrlToCustomConfig.launch(Intent(this, ScannerActivity::class.java))
+            .request(Manifest.permission.CAMERA)
+            .subscribe {
+                if (it)
+                    if (forConfig)
+                        scanQRCodeForConfig.launch(Intent(this, ScannerActivity::class.java))
                     else
-                        toast(R.string.toast_permission_denied)
-                }
+                        scanQRCodeForUrlToCustomConfig.launch(
+                            Intent(
+                                this,
+                                ScannerActivity::class.java
+                            )
+                        )
+                else
+                    toast(R.string.toast_permission_denied)
+            }
 //        }
         return true
     }
 
-    private val scanQRCodeForConfig = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) {
-            importBatchConfig(it.data?.getStringExtra("SCAN_RESULT"))
+    private val scanQRCodeForConfig =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                importBatchConfig(it.data?.getStringExtra("SCAN_RESULT"))
+            }
         }
-    }
 
-    private val scanQRCodeForUrlToCustomConfig = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) {
-            importConfigCustomUrl(it.data?.getStringExtra("SCAN_RESULT"))
+    private val scanQRCodeForUrlToCustomConfig =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                importConfigCustomUrl(it.data?.getStringExtra("SCAN_RESULT"))
+            }
         }
-    }
 
     /**
      * import config from clipboard
@@ -387,40 +332,52 @@ class MainActivity : BaseActivity() {
         return true
     }
 
-    fun importBatchConfig(server: String?, subid: String = "") {
+    private fun importBatchConfig(server: String?, subside: String = "") {
 
-            val subid2 = if (subid.isNullOrEmpty()) {
-                mainViewModel.subscriptionId
-            } else {
-                subid
-            }
-            val append = subid.isNullOrEmpty()
+        val subside2 = if (subside.isNullOrEmpty()) {
+            mainViewModel.subscriptionId
+        } else {
+            subside
+        }
+        val append = subside.isNullOrEmpty()
 
-            var count = AngConfigManager.importBatchConfig(server, subid2, append)
-            if (count <= 0) {
-                toast(R.string.toast_failure)
-            } else {
-                if (mainViewModel.serverList.size >= 1) {
-                    AlertDialog.Builder(this@MainActivity).setMessage("do you want to change config?")
-                        .setPositiveButton(android.R.string.ok) { _, _ ->
-                            this@MainActivity.lifecycleScope.launch{
-                                for(i in mainViewModel.serversCache){
-                                    mainViewModel.removeServer(i.guid)
-                                }
-                                delay(1000)
-                                mainViewModel.reloadServerList()
-                                toast(R.string.toast_success)
-                            }
-                        }
-                        .setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                        .show()
-                } else {
-                    toast(R.string.toast_success)
-                    mainViewModel.reloadServerList()
+        var count = AngConfigManager.importBatchConfig(server, subside2, append)
+        if (count <= 0) {
+            AngConfigManager.importBatchConfig(Utils.decode(server!!), subside2, append)
+            toast(R.string.toast_failure)
+        } else {
+            if (mainViewModel.serverList.size >= 1) {
+                // Delete servers
+                while (mainViewModel.serversCache.size > 0) {
+                    mainViewModel.removeServer(mainViewModel.serversCache[mainViewModel.serversCache.size - 1].guid)
                 }
+                AlertDialog.Builder(this@MainActivity).setMessage("Do you want to change config?")
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        this@MainActivity.lifecycleScope.launch {
+                            AngConfigManager.importBatchConfig(server, subside2, append)
+                            defaultSharedPreferences.edit()
+                                .putString(AppConfig.LAST_SERVER, "")
+                                .apply()
+                            toast(R.string.toast_success)
+                        }
+                    }
+                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                        AngConfigManager.importBatchConfig(
+                            defaultSharedPreferences
+                                .getString(AppConfig.LAST_SERVER, ""),
+                            subside2, append
+                        )
+                        dialog.dismiss()
+                    }
+                    .show()
+            } else {
+                defaultSharedPreferences.edit()
+                    .putString(AppConfig.LAST_SERVER, "")
+                    .apply()
+                toast(R.string.toast_success)
             }
+            mainViewModel.reloadServerList()
+        }
 
     }
 
@@ -504,8 +461,8 @@ class MainActivity : BaseActivity() {
             toast(R.string.title_sub_update)
             MmkvManager.decodeSubscriptions().forEach {
                 if (TextUtils.isEmpty(it.first)
-                        || TextUtils.isEmpty(it.second.remarks)
-                        || TextUtils.isEmpty(it.second.url)
+                    || TextUtils.isEmpty(it.second.remarks)
+                    || TextUtils.isEmpty(it.second.url)
                 ) {
                     return@forEach
                 }
@@ -548,37 +505,43 @@ class MainActivity : BaseActivity() {
         intent.addCategory(Intent.CATEGORY_OPENABLE)
 
         try {
-            chooseFileForCustomConfig.launch(Intent.createChooser(intent, getString(R.string.title_file_chooser)))
+            chooseFileForCustomConfig.launch(
+                Intent.createChooser(
+                    intent,
+                    getString(R.string.title_file_chooser)
+                )
+            )
         } catch (ex: ActivityNotFoundException) {
             toast(R.string.toast_require_file_manager)
         }
     }
 
-    private val chooseFileForCustomConfig = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        val uri = it.data?.data
-        if (it.resultCode == RESULT_OK && uri != null) {
-            readContentFromUri(uri)
+    private val chooseFileForCustomConfig =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val uri = it.data?.data
+            if (it.resultCode == RESULT_OK && uri != null) {
+                readContentFromUri(uri)
+            }
         }
-    }
 
     /**
      * read content from uri
      */
     private fun readContentFromUri(uri: Uri) {
         RxPermissions(this)
-                .request(Manifest.permission.READ_EXTERNAL_STORAGE)
-                .subscribe {
-                    if (it) {
-                        try {
-                            contentResolver.openInputStream(uri).use { input ->
-                                importCustomizeConfig(input?.bufferedReader()?.readText())
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+            .request(Manifest.permission.READ_EXTERNAL_STORAGE)
+            .subscribe {
+                if (it) {
+                    try {
+                        contentResolver.openInputStream(uri).use { input ->
+                            importCustomizeConfig(input?.bufferedReader()?.readText())
                         }
-                    } else
-                        toast(R.string.toast_permission_denied)
-                }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                } else
+                    toast(R.string.toast_permission_denied)
+            }
     }
 
     /**
@@ -595,7 +558,11 @@ class MainActivity : BaseActivity() {
             toast(R.string.toast_success)
             //adapter.notifyItemInserted(mainViewModel.serverList.lastIndex)
         } catch (e: Exception) {
-            ToastCompat.makeText(this, "${getString(R.string.toast_malformed_josn)} ${e.cause?.message}", Toast.LENGTH_LONG).show()
+            ToastCompat.makeText(
+                this,
+                "${getString(R.string.toast_malformed_josn)} ${e.cause?.message}",
+                Toast.LENGTH_LONG
+            ).show()
             e.printStackTrace()
             return
         }
@@ -629,16 +596,16 @@ class MainActivity : BaseActivity() {
     fun hideCircle() {
         try {
             Observable.timer(300, TimeUnit.MILLISECONDS)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        try {
-                            if (binding.fabProgressCircle.isShown) {
-                                binding.fabProgressCircle.hide()
-                            }
-                        } catch (e: Exception) {
-                            Log.w(ANG_PACKAGE, e)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    try {
+                        if (binding.fabProgressCircle.isShown) {
+                            binding.fabProgressCircle.hide()
                         }
+                    } catch (e: Exception) {
+                        Log.w(ANG_PACKAGE, e)
                     }
+                }
         } catch (e: Exception) {
             Log.d(ANG_PACKAGE, e.toString())
         }

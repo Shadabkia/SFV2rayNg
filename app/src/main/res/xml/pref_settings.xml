@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <CheckBoxPreference
         android:key="pref_speed_enabled"
         android:summary="@string/summary_pref_speed_enabled"
@@ -11,7 +12,9 @@
         android:summary="@string/summary_pref_sniffing_enabled"
         android:title="@string/title_pref_sniffing_enabled" />
 
-    <PreferenceCategory android:title="@string/title_vpn_settings">
+    <PreferenceCategory
+        app:isPreferenceVisible="false"
+        android:title="@string/title_vpn_settings">
         <CheckBoxPreference
             android:key="pref_per_app_proxy"
             android:summary="@string/summary_pref_per_app_proxy"
@@ -40,7 +43,9 @@
             android:title="@string/title_pref_vpn_dns" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/title_pref_routing">
+    <PreferenceCategory
+        app:isPreferenceVisible="false"
+        android:title="@string/title_pref_routing">
         <ListPreference
             android:defaultValue="IPIfNonMatch"
             android:entries="@array/routing_domain_strategy"
@@ -64,7 +69,9 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/title_advanced">
+    <PreferenceCategory
+        app:isPreferenceVisible="false"
+        android:title="@string/title_advanced">
 
         <CheckBoxPreference
             android:defaultValue="true"

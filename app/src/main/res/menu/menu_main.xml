@@ -2,16 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/import_clipboard"
         android:icon="@drawable/ic_add_white_24dp"
         android:title="@string/menu_item_add_config"
         app:showAsAction="ifRoom">
-        <menu>
-            <item
-                android:id="@+id/import_clipboard"
-                android:title="@string/menu_item_import_config_clipboard"
-                app:showAsAction="never" />
 
-        </menu>
     </item>
 
     <item

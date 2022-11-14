@@ -69,7 +69,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         updateCache()
         updateListAction.value = -1
-        AngConfigManager.mainStorage?.encode(MmkvManager.KEY_SELECTED_SERVER, serversCache.getOrNull(0)?.guid)
+        AngConfigManager.mainStorage?.encode(MmkvManager.KEY_SELECTED_SERVER, serversCache.lastOrNull()?.guid)
     }
 
     fun removeServer(guid: String) {
@@ -222,11 +222,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 //        var androidId = Settings.Secure.getString(context.contentResolver,
 //            Settings.Secure.ANDROID_ID);
 
-
         var publicKey = KeyManage().getPublic()
         setToClipBoard(context, publicKey)
 
-        context.toast("device key added to clipboard")
+        context.toast("Device Id Copied to Clipboard")
 
     }
 

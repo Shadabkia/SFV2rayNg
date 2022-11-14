@@ -13,6 +13,8 @@ object AppConfig {
     const val PREF_INAPP_BUY_IS_PREMIUM = "pref_inapp_buy_is_premium"
     const val PREF_ROUTING_CUSTOM = "pref_routing_custom"
 
+    const val LAST_SERVER = "last_server"
+
     // Preferences mapped to MMKV
     const val PREF_MODE = "pref_mode"
     const val PREF_SPEED_ENABLED = "pref_speed_enabled"
