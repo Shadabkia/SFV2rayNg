@@ -42,12 +42,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             AppConfig.PREF_V2RAY_ROUTING_DIRECT, -> {
                 settingsStorage?.encode(key, sharedPreferences.getString(key, ""))
             }
+            AppConfig.PREF_PREFER_IPV6,
+            AppConfig.PREF_LOCAL_DNS_ENABLED, -> {
+                settingsStorage?.encode(key, sharedPreferences.getBoolean(key, true))
+            }
             AppConfig.PREF_SPEED_ENABLED,
             AppConfig.PREF_PROXY_SHARING,
-            AppConfig.PREF_LOCAL_DNS_ENABLED,
             AppConfig.PREF_FAKE_DNS_ENABLED,
             AppConfig.PREF_ALLOW_INSECURE,
-            AppConfig.PREF_PREFER_IPV6,
             AppConfig.PREF_PER_APP_PROXY,
             AppConfig.PREF_BYPASS_APPS,
             AppConfig.PREF_CONFIRM_REMOVE, -> {

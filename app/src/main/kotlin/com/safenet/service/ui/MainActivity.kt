@@ -46,7 +46,7 @@ import me.drakeet.support.toast.ToastCompat
 import java.io.File
 import java.io.FileOutputStream
 
-class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val adapter by lazy { MainRecyclerAdapter(this) }
@@ -101,14 +101,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val callback = SimpleItemTouchHelperCallback(adapter)
         mItemTouchHelper = ItemTouchHelper(callback)
         mItemTouchHelper?.attachToRecyclerView(binding.recyclerView)
-
-
-        val toggle = ActionBarDrawerToggle(
-                this, binding.drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        binding.drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-        binding.navView.setNavigationItemSelectedListener(this)
-        binding.version.text = "v${BuildConfig.VERSION_NAME} (${SpeedtestUtil.getLibVersion()})"
 
         setupViewModel()
         copyAssets()
@@ -653,38 +645,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
-        when (item.itemId) {
-            //R.id.server_profile -> activityClass = MainActivity::class.java
-//            R.id.sub_setting -> {
-//                startActivity(Intent(this, SubSettingActivity::class.java))
-//            }
-//            R.id.settings -> {
-//                startActivity(Intent(this, SettingsActivity::class.java)
-//                        .putExtra("isRunning", mainViewModel.isRunning.value == true))
-//            }
-//            R.id.user_asset_setting -> {
-//                startActivity(Intent(this, UserAssetActivity::class.java))
-//            }
-//            R.id.feedback -> {
-//                Utils.openUri(this, AppConfig.v2rayNGIssues)
-//            }
-//            R.id.promotion -> {
-//                Utils.openUri(this, "${Utils.decode(AppConfig.promotionUrl)}?t=${System.currentTimeMillis()}")
-//            }
-            R.id.logcat -> {
-                startActivity(Intent(this, LogcatActivity::class.java))
-            }
-        }
-        binding.drawerLayout.closeDrawer(GravityCompat.START)
-        return true
+        super.onBackPressed()
     }
 }

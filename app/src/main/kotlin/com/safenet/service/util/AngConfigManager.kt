@@ -74,13 +74,18 @@ object AngConfigManager {
         listOf(
             AppConfig.PREF_SPEED_ENABLED,
             AppConfig.PREF_PROXY_SHARING,
-            AppConfig.PREF_LOCAL_DNS_ENABLED,
             AppConfig.PREF_ALLOW_INSECURE,
-            AppConfig.PREF_PREFER_IPV6,
+
             AppConfig.PREF_PER_APP_PROXY,
             AppConfig.PREF_BYPASS_APPS,
         ).forEach { key ->
             settingsStorage?.encode(key, sharedPreferences.getBoolean(key, false))
+        }
+        listOf(
+            AppConfig.PREF_PREFER_IPV6,
+            AppConfig.PREF_LOCAL_DNS_ENABLED,
+        ).forEach{ key ->
+            settingsStorage?.encode(key, sharedPreferences.getBoolean(key, true))
         }
         settingsStorage?.encode(AppConfig.PREF_SNIFFING_ENABLED, sharedPreferences.getBoolean(AppConfig.PREF_SNIFFING_ENABLED, true))
         settingsStorage?.encode(AppConfig.PREF_PER_APP_PROXY_SET, sharedPreferences.getStringSet(AppConfig.PREF_PER_APP_PROXY_SET, setOf()))

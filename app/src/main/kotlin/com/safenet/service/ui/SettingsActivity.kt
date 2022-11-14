@@ -140,12 +140,12 @@ class SettingsActivity : BaseActivity() {
             perAppProxy?.isEnabled = vpn
             perAppProxy?.isChecked = PreferenceManager.getDefaultSharedPreferences(requireActivity())
                     .getBoolean(AppConfig.PREF_PER_APP_PROXY, false)
-            localDns?.isEnabled = vpn
+            localDns?.isEnabled = true
             fakeDns?.isEnabled = vpn
             localDnsPort?.isEnabled = vpn
             vpnDns?.isEnabled = vpn
             if (vpn) {
-                updateLocalDns(defaultSharedPreferences.getBoolean(AppConfig.PREF_LOCAL_DNS_ENABLED, false))
+                updateLocalDns(defaultSharedPreferences.getBoolean(AppConfig.PREF_LOCAL_DNS_ENABLED, true))
             }
         }
 
