@@ -412,9 +412,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     AlertDialog.Builder(this@MainActivity).setMessage("do you want to change config?")
                         .setPositiveButton(android.R.string.ok) { _, _ ->
                             this@MainActivity.lifecycleScope.launch{
-                                mainViewModel.reloadServerList()
+                                for(i in mainViewModel.serversCache){
+                                    mainViewModel.removeServer(i.guid)
+                                }
                                 delay(1000)
-                                mainViewModel.removeServer(mainViewModel.serversCache[0].guid)
+                                mainViewModel.reloadServerList()
                                 toast(R.string.toast_success)
                             }
                         }

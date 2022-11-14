@@ -69,6 +69,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         updateCache()
         updateListAction.value = -1
+        AngConfigManager.mainStorage?.encode(MmkvManager.KEY_SELECTED_SERVER, serversCache.getOrNull(0)?.guid)
     }
 
     fun removeServer(guid: String) {
