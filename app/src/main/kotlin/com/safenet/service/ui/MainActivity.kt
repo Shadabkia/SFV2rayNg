@@ -25,6 +25,7 @@ import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.R
 import com.safenet.service.databinding.ActivityMainBinding
 import com.safenet.service.extension.toast
+import com.safenet.service.extension.toastLong
 import com.safenet.service.helper.SimpleItemTouchHelperCallback
 import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.util.AngConfigManager
@@ -36,6 +37,7 @@ import com.tbruyelle.rxpermissions.RxPermissions
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.drakeet.support.toast.ToastCompat
 import rx.Observable
@@ -80,18 +82,23 @@ class MainActivity : BaseActivity() {
         setContentView(view)
         title = ""
 
-        binding.fab.setOnClickListener {
-            if (mainViewModel.isRunning.value == true) {
-                Utils.stopVService(this)
-            } else if (settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN" == "VPN") {
-                val intent = VpnService.prepare(this)
-                if (intent == null) {
-                    startV2Ray()
+        binding.fab.setOnClickListener {view ->
+            this@MainActivity.lifecycleScope.launch {
+                if (mainViewModel.isRunning.value == true) {
+                    Utils.stopVService(this@MainActivity)
+                } else if ((settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN") == "VPN") {
+                    val intent = VpnService.prepare(this@MainActivity)
+                    if (intent == null) {
+                        startV2Ray()
+                    } else {
+                        requestVpnPermission.launch(intent)
+                    }
                 } else {
-                    requestVpnPermission.launch(intent)
+                    startV2Ray()
                 }
-            } else {
-                startV2Ray()
+                view.isEnabled = false
+                delay(500)
+                view.isEnabled = true
             }
         }
         binding.layoutTest.setOnClickListener {
@@ -123,10 +130,14 @@ class MainActivity : BaseActivity() {
     private fun listeners() {
         binding.apply {
             navToolbar.apply {
-                idImportConfig.setOnClickListener {
-                    importClipboard()
+                idImportConfig.setOnClickListener { view ->
+                    this@MainActivity.lifecycleScope.launch {
+                        importClipboard()
+                        view.isEnabled = false
+                        delay(2000)
+                        view.isEnabled = true
+                    }
                 }
-
                 getDeviceId.setOnClickListener { view ->
                     this@MainActivity.lifecycleScope.launch {
                         mainViewModel.onDeviceIdClicked(this@MainActivity)
@@ -143,6 +154,17 @@ class MainActivity : BaseActivity() {
                     Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/safenet_vpn"))
                 startActivity(intent)
             }
+
+            this@MainActivity.lifecycleScope.launch {
+                mainViewModel.serverAvailability.collect{
+                    if(it)
+                        serverAvailability.text = getString(R.string.server_available)
+                    else
+                        serverAvailability.text = getString(R.string.no_server)
+                }
+
+            }
+
         }
 
 
@@ -174,11 +196,14 @@ class MainActivity : BaseActivity() {
                     ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorSelected))
                 setTestState(getString(R.string.connection_connected))
                 binding.layoutTest.isFocusable = true
+                binding.fabText.text = getString(R.string.connected)
+                binding.serverAvailability.text = getString(R.string.server_available_c)
             } else {
                 binding.fab.backgroundTintList =
                     ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorUnselected))
                 setTestState(getString(R.string.connection_not_connected))
                 binding.layoutTest.isFocusable = false
+                binding.fabText.text = getString(R.string.connect)
             }
             hideCircle()
         }
@@ -275,46 +300,6 @@ class MainActivity : BaseActivity() {
     /**
      * import config from qrcode
      */
-    fun importQRcode(forConfig: Boolean): Boolean {
-//        try {
-//            startActivityForResult(Intent("com.google.zxing.client.android.SCAN")
-//                    .addCategory(Intent.CATEGORY_DEFAULT)
-//                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), requestCode)
-//        } catch (e: Exception) {
-        RxPermissions(this)
-            .request(Manifest.permission.CAMERA)
-            .subscribe {
-                if (it)
-                    if (forConfig)
-                        scanQRCodeForConfig.launch(Intent(this, ScannerActivity::class.java))
-                    else
-                        scanQRCodeForUrlToCustomConfig.launch(
-                            Intent(
-                                this,
-                                ScannerActivity::class.java
-                            )
-                        )
-                else
-                    toast(R.string.toast_permission_denied)
-            }
-//        }
-        return true
-    }
-
-    private val scanQRCodeForConfig =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) {
-                importBatchConfig(it.data?.getStringExtra("SCAN_RESULT"))
-            }
-        }
-
-    private val scanQRCodeForUrlToCustomConfig =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) {
-                importConfigCustomUrl(it.data?.getStringExtra("SCAN_RESULT"))
-            }
-        }
-
     /**
      * import config from clipboard
      */
@@ -323,63 +308,15 @@ class MainActivity : BaseActivity() {
         try {
             val clipboard = Utils.getClipboard(this)
             //TODO
-            importBatchConfig(KeyManage().decryptData(clipboard))
+            mainViewModel.importBatchConfig(KeyManage().decryptData(clipboard), "",this@MainActivity)
         } catch (e: Exception) {
             e.printStackTrace()
-            toast("failure")
+            toastLong(R.string.wrong_confige)
             return false
         }
         return true
     }
 
-    private fun importBatchConfig(server: String?, subside: String = "") {
-
-        val subside2 = if (subside.isNullOrEmpty()) {
-            mainViewModel.subscriptionId
-        } else {
-            subside
-        }
-        val append = subside.isNullOrEmpty()
-
-        var count = AngConfigManager.importBatchConfig(server, subside2, append)
-        if (count <= 0) {
-            AngConfigManager.importBatchConfig(Utils.decode(server!!), subside2, append)
-            toast(R.string.toast_failure)
-        } else {
-            if (mainViewModel.serverList.size >= 1) {
-                // Delete servers
-                while (mainViewModel.serversCache.size > 0) {
-                    mainViewModel.removeServer(mainViewModel.serversCache[mainViewModel.serversCache.size - 1].guid)
-                }
-                AlertDialog.Builder(this@MainActivity).setMessage("Do you want to change config?")
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
-                        this@MainActivity.lifecycleScope.launch {
-                            AngConfigManager.importBatchConfig(server, subside2, append)
-                            defaultSharedPreferences.edit()
-                                .putString(AppConfig.LAST_SERVER, "")
-                                .apply()
-                            toast(R.string.toast_success)
-                        }
-                    }
-                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                        AngConfigManager.importBatchConfig(
-                            defaultSharedPreferences
-                                .getString(AppConfig.LAST_SERVER, ""),
-                            subside2, append
-                        )
-                        dialog.dismiss()
-                    }
-                    .show()
-            } else {
-                defaultSharedPreferences.edit()
-                    .putString(AppConfig.LAST_SERVER, "")
-                    .apply()
-                toast(R.string.toast_success)
-            }
-            mainViewModel.reloadServerList()
-        }
-
-    }
 
     fun importConfigCustomClipboard()
             : Boolean {
@@ -485,7 +422,7 @@ class MainActivity : BaseActivity() {
                         return@launch
                     }
                     launch(Dispatchers.Main) {
-                        importBatchConfig(configText, it.first)
+                        mainViewModel.importBatchConfig(configText, it.first, this@MainActivity)
                     }
                 }
             }

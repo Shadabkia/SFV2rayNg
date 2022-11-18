@@ -10,7 +10,7 @@
     <string name="migration_fail">Перенос данных не выполнен!</string>
 
     <!-- Notifications -->
-    <string name="notification_action_stop_v2ray">Остановить</string>
+    <string name="notification_action_stop_safenet">Остановить</string>
     <string name="toast_permission_denied">Разрешение не получено</string>
     <string name="notification_action_more">Ещё…</string>
     <string name="toast_services_start">Запуск служб</string>

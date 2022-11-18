@@ -1,20 +1,15 @@
 package com.safenet.service.viewmodel
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.*
-import android.provider.Settings
-import android.util.Base64
-import android.util.Base64.decode
-import android.util.Base64.encodeToString
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.safenet.service.AngApplication
@@ -24,13 +19,14 @@ import com.safenet.service.R
 import com.safenet.service.databinding.DialogConfigFilterBinding
 import com.safenet.service.dto.*
 import com.safenet.service.extension.toast
+import com.safenet.service.extension.toastLong
 import com.safenet.service.ui.MainActivity
 import com.safenet.service.util.*
 import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.*
-import java.nio.charset.StandardCharsets
-import java.security.KeyStore
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
 
@@ -46,6 +42,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val isRunning by lazy { MutableLiveData<Boolean>() }
     val updateListAction by lazy { MutableLiveData<Int>() }
     val updateTestResultAction by lazy { MutableLiveData<String>() }
+
+    private val _serverAvailability = MutableStateFlow(serverList.isNotEmpty())
+    val serverAvailability : StateFlow<Boolean> get() = _serverAvailability
 
     private val tcpingTestScope by lazy { CoroutineScope(Dispatchers.IO) }
 
@@ -268,4 +267,54 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+     fun importBatchConfig(server: String?, subside: String = "", context: Context) {
+
+        val subside2 = if (subside.isNullOrEmpty()) {
+            subscriptionId
+        } else {
+            subside
+        }
+        val append = subside.isNullOrEmpty()
+
+        var count = AngConfigManager.importBatchConfig(server, subside2, append)
+        if (count <= 0) {
+            AngConfigManager.importBatchConfig(Utils.decode(server!!), subside2, append)
+            context.toastLong(R.string.wrong_confige)
+        } else {
+            if (serverList.size >= 1) {
+                // Delete servers
+                while (serversCache.size > 0) {
+                    removeServer(serversCache[serversCache.size - 1].guid)
+                }
+                AlertDialog.Builder(context).setMessage("Do you want to change config?")
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                            AngConfigManager.importBatchConfig(server, subside2, append)
+                            (context as MainActivity).defaultSharedPreferences.edit()
+                                .putString(AppConfig.LAST_SERVER, "")
+                                .apply()
+                            context.toast(R.string.toast_success)
+
+                    }
+                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                        AngConfigManager.importBatchConfig(
+                            (context as MainActivity).defaultSharedPreferences
+                                .getString(AppConfig.LAST_SERVER, ""),
+                            subside2, append
+                        )
+                        dialog.dismiss()
+                    }
+                    .show()
+            } else {
+                (context as MainActivity).defaultSharedPreferences.edit()
+                    .putString(AppConfig.LAST_SERVER, "")
+                    .apply()
+                context.toast(R.string.toast_success)
+            }
+
+            reloadServerList()
+        }
+        _serverAvailability.value = true
+    }
+
 }

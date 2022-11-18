@@ -28,6 +28,12 @@ fun Context.toast(message: CharSequence): Toast = ToastCompat
             show()
         }
 
+fun Context.toastLong(message: Int): Toast = ToastCompat
+        .makeText(this, message, Toast.LENGTH_LONG)
+        .apply {
+            show()
+        }
+
 fun JSONObject.putOpt(pair: Pair<String, Any>) = putOpt(pair.first, pair.second)
 fun JSONObject.putOpt(pairs: Map<String, Any>) = pairs.forEach { putOpt(it.key to it.value) }
 

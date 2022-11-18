@@ -15,6 +15,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/server_availability"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/server_available"
+            android:textSize="10pt"
+            app:layout_constraintBottom_toTopOf="@+id/fabProgressCircle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:visibility="gone"
@@ -106,11 +116,12 @@
                     app:layout_anchorGravity="bottom|right|end" />
 
                 <TextView
+                    android:id="@+id/fab_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:elevation="10dp"
-                    android:text="Connect"
+                    android:text="@string/connect"
                     android:textColor="@color/white"
                     android:textSize="9sp" />
 
@@ -127,6 +138,8 @@
             android:letterSpacing="0"
             android:text="@string/contact_us"
             android:textAllCaps="false"
+            android:textColor="#787878"
+            app:rippleColor="#787878"
             app:layout_constraintBottom_toTopOf="@+id/layout_test"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

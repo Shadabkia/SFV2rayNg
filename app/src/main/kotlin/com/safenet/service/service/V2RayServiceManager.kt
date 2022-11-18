@@ -287,7 +287,7 @@ object V2RayServiceManager {
                 .setOnlyAlertOnce(true)
                 .setContentIntent(contentPendingIntent)
                 .addAction(R.drawable.ic_close_grey_800_24dp,
-                        service.getString(R.string.notification_action_stop_v2ray),
+                        service.getString(R.string.notification_action_stop_safenet),
                         stopV2RayPendingIntent)
         //.build()
 

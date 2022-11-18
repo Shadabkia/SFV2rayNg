@@ -36,6 +36,8 @@
         tools:targetApi="m">
         <activity
             android:exported="true"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:name="com.safenet.service.ui.MainActivity"
             android:launchMode="singleTask">
             <intent-filter>
@@ -51,17 +53,25 @@
         </activity>
         <activity
             android:exported="false"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:name="com.safenet.service.ui.ServerActivity"
             android:windowSoftInputMode="stateUnchanged" />
         <activity
             android:exported="false"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:name="com.safenet.service.ui.ServerCustomConfigActivity"
             android:windowSoftInputMode="stateUnchanged" />
         <activity
             android:exported="false"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:name="com.safenet.service.ui.SettingsActivity" />
         <activity
             android:exported="false"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:name="com.safenet.service.ui.PerAppProxyActivity" />
         <activity
             android:exported="false"
@@ -95,6 +105,8 @@
 
         <activity
             android:exported="true"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:name="com.safenet.service.ui.UrlSchemeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
