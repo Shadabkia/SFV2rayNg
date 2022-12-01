@@ -3,7 +3,10 @@ package com.safenet.service
 import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
 import com.tencent.mmkv.MMKV
+import dagger.hilt.android.HiltAndroidApp
+import timber.log.Timber
 
+@HiltAndroidApp
 class AngApplication : MultiDexApplication() {
     companion object {
         const val PREF_LAST_VERSION = "pref_last_version"
@@ -14,6 +17,10 @@ class AngApplication : MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
 //        LeakCanary.install(this)
 

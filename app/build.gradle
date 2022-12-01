@@ -1,5 +1,10 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
 
 Properties props = new Properties()
 props.load(new FileInputStream(new File('local.properties')))
@@ -41,9 +46,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            zipAlignEnabled false
-            shrinkResources false
+            buildConfigField "String", "BASE_URL", '"https://pintomarket.ir"'
+            minifyEnabled true
+            debuggable = true
+            jniDebuggable = false
+            shrinkResources = true
             if (props["sign"]) {
                 signingConfig signingConfigs.release
             }
@@ -51,13 +58,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
+            buildConfigField "String", "BASE_URL", '"http://193.151.129.59:3000"'
+            debuggable = true
+            jniDebuggable = true
             minifyEnabled false
             zipAlignEnabled false
             shrinkResources false
             if (props["sign"]) {
                 signingConfig signingConfigs.release
             }
-            ndk.abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+//            ndk.abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
         }
     }
 
@@ -144,13 +154,20 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4'
+
+    // Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2"
+
+    // Hilt
+    implementation "com.google.dagger:hilt-android:2.42"
+    kapt "com.google.dagger:hilt-compiler:2.42"
+
+    // Datastore
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    // Timber for logging
+    implementation 'com.jakewharton.timber:timber:5.0.1'
 }
 
-//buildscript {
-//    repositories {
-//        google()
-//        mavenCentral()
-//        maven { url 'https://maven.google.com' }
-//        maven { url 'https://jitpack.io' }
-//    }
-//}

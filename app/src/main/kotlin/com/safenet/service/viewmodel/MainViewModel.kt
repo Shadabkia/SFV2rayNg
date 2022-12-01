@@ -20,6 +20,7 @@ import com.safenet.service.databinding.DialogConfigFilterBinding
 import com.safenet.service.dto.*
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
+import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.ui.MainActivity
 import com.safenet.service.util.*
 import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
@@ -43,8 +44,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val updateListAction by lazy { MutableLiveData<Int>() }
     val updateTestResultAction by lazy { MutableLiveData<String>() }
 
-    private val _serverAvailability = MutableStateFlow(serverList.isNotEmpty())
-    val serverAvailability : StateFlow<Boolean> get() = _serverAvailability
+    private val _serverAvailability = MutableStateFlow<String?>(null)
+    val serverAvailability : StateFlow<String?> get() = _serverAvailability
+
 
     private val tcpingTestScope by lazy { CoroutineScope(Dispatchers.IO) }
 
@@ -69,6 +71,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         updateCache()
         updateListAction.value = -1
         AngConfigManager.mainStorage?.encode(MmkvManager.KEY_SELECTED_SERVER, serversCache.lastOrNull()?.guid)
+
+
+        _serverAvailability.value = MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks ?: "No serve!"
+
     }
 
     fun removeServer(guid: String) {
@@ -314,7 +320,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             reloadServerList()
         }
-        _serverAvailability.value = true
+         _serverAvailability.value = MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks ?: "No serve!"
     }
 
 }

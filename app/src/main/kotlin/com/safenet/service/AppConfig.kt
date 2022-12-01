@@ -89,5 +89,9 @@ object AppConfig {
     const val MSG_MEASURE_CONFIG_SUCCESS = 71
     const val MSG_MEASURE_CONFIG_CANCEL = 72
 
-    const val direct_url_or_ip = "regexp:^.+\\.ir$,ext:iran.dat:ir,ext:iran.dat:other"
+    // retrofit
+    const val AUTHORIZATION_HEADER_KEY = "Authorization"
+    const val CONTENT_TYPE_HEADER_KEY = "Content-Type"
+    const val APPLICATION_JSON_HEADER_KEY = "application/json"
+    const val TOKEN_PREFIX = "Bearer "
 }

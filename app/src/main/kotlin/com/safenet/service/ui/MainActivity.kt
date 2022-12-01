@@ -46,7 +46,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
-
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
 
@@ -151,16 +150,13 @@ class MainActivity : BaseActivity() {
 
             contactUs.setOnClickListener{
                 val intent =
-                    Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/safenet_vpn"))
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/safenet_vpn_admin"))
                 startActivity(intent)
             }
 
             this@MainActivity.lifecycleScope.launch {
                 mainViewModel.serverAvailability.collect{
-                    if(it)
-                        serverAvailability.text = getString(R.string.server_available)
-                    else
-                        serverAvailability.text = getString(R.string.no_server)
+                    serverAvailability.text = it
                 }
 
             }
@@ -197,13 +193,14 @@ class MainActivity : BaseActivity() {
                 setTestState(getString(R.string.connection_connected))
                 binding.layoutTest.isFocusable = true
                 binding.fabText.text = getString(R.string.connected)
-                binding.serverAvailability.text = getString(R.string.server_available_c)
+                binding.serverAvailability.text = getString(R.string.server_name, mainViewModel.serverAvailability.value)
             } else {
                 binding.fab.backgroundTintList =
                     ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorUnselected))
                 setTestState(getString(R.string.connection_not_connected))
                 binding.layoutTest.isFocusable = false
                 binding.fabText.text = getString(R.string.connect)
+                binding.serverAvailability.text = mainViewModel.serverAvailability.value
             }
             hideCircle()
         }

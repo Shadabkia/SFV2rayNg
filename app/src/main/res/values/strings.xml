@@ -213,6 +213,7 @@
     <string name="connected" translatable="false">Connected</string>
     <string name="import_server" translatable="false">Import from clipboard</string>
     <string name="wrong_confige" translatable="false">Please copy correct config and import again</string>
+    <string name="server_name" translatable="false">Running: %1$s</string>
 
     <string-array name="share_method">
         <item>QRcode</item>
