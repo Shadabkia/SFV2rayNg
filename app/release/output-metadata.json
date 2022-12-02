@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.safenet.service",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 480,
+      "versionName": "1.0.0",
+      "outputFile": "SafeNet_1.0.0_null.apk"
+    }
+  ],
+  "elementType": "File"
+}

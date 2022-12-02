@@ -8,7 +8,9 @@ import com.safenet.service.R
 import com.safenet.service.databinding.ActivityLogcatBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.util.AngConfigManager
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class UrlSchemeActivity : BaseActivity() {
     private lateinit var binding: ActivityLogcatBinding
 

@@ -16,7 +16,9 @@ import com.tencent.mmkv.MMKV
 import com.safenet.service.AppConfig
 import com.safenet.service.databinding.ActivityTaskerBinding
 import com.safenet.service.util.MmkvManager
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class TaskerActivity : BaseActivity() {
     private lateinit var binding: ActivityTaskerBinding
 

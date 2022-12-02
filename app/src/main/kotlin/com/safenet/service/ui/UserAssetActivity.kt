@@ -24,6 +24,7 @@ import com.safenet.service.extension.toTrafficString
 import com.safenet.service.extension.toast
 import com.safenet.service.util.MmkvManager
 import com.safenet.service.util.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -35,6 +36,7 @@ import java.net.URL
 import java.text.DateFormat
 import java.util.*
 
+@AndroidEntryPoint
 class UserAssetActivity : BaseActivity() {
     private lateinit var binding: ActivitySubSettingBinding
     private val settingsStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_SETTING, MMKV.MULTI_PROCESS_MODE) }

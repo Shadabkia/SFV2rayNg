@@ -17,9 +17,11 @@ import com.safenet.service.databinding.FragmentRoutingSettingsBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.v2RayApplication
 import com.safenet.service.util.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class RoutingSettingsFragment : Fragment() {
     private lateinit var binding: FragmentRoutingSettingsBinding
     companion object {

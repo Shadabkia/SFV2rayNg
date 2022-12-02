@@ -8,7 +8,9 @@ import com.safenet.service.util.AngConfigManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import com.safenet.service.extension.toast
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ScScannerActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

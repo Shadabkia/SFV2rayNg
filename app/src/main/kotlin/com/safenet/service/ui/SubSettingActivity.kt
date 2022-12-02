@@ -9,7 +9,9 @@ import android.os.Bundle
 import com.safenet.service.databinding.ActivitySubSettingBinding
 import com.safenet.service.dto.SubscriptionItem
 import com.safenet.service.util.MmkvManager
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SubSettingActivity : BaseActivity() {
     private lateinit var binding: ActivitySubSettingBinding
 

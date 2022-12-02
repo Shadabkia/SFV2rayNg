@@ -15,7 +15,9 @@ import com.tbruyelle.rxpermissions.RxPermissions
 import com.safenet.service.R
 import com.safenet.service.extension.toast
 import com.safenet.service.util.QRCodeDecoder
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ScannerActivity : BaseActivity(), ZXingScannerView.ResultHandler {
 
     private var mScannerView: ZXingScannerView? = null

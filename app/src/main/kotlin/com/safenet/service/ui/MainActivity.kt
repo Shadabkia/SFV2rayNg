@@ -14,7 +14,6 @@ import android.view.Menu
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
@@ -35,9 +34,9 @@ import com.safenet.service.util.Utils
 import com.safenet.service.viewmodel.MainViewModel
 import com.tbruyelle.rxpermissions.RxPermissions
 import com.tencent.mmkv.MMKV
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.drakeet.support.toast.ToastCompat
 import rx.Observable
@@ -46,6 +45,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
 
@@ -129,22 +129,18 @@ class MainActivity : BaseActivity() {
     private fun listeners() {
         binding.apply {
             navToolbar.apply {
-                idImportConfig.setOnClickListener { view ->
-                    this@MainActivity.lifecycleScope.launch {
-                        importClipboard()
-                        view.isEnabled = false
-                        delay(2000)
-                        view.isEnabled = true
-                    }
-                }
-                getDeviceId.setOnClickListener { view ->
-                    this@MainActivity.lifecycleScope.launch {
-                        mainViewModel.onDeviceIdClicked(this@MainActivity)
-                        view.isEnabled = false
-                        delay(1500)
-                        view.isEnabled = true
+//                idImportConfig.setOnClickListener { view ->
+//                    this@MainActivity.lifecycleScope.launch {
+//                        importClipboard()
+//                        view.isEnabled = false
+//                        delay(2000)
+//                        view.isEnabled = true
+//                    }
+//                }
+                activeVpn.setOnClickListener { view ->
+                        mainViewModel.onActiveVpnClicked(this@MainActivity)
 
-                    }
+
                 }
             }
 

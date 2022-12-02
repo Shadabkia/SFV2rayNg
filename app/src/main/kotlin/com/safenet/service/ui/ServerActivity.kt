@@ -22,7 +22,9 @@ import com.safenet.service.util.MmkvManager
 import com.safenet.service.util.MmkvManager.ID_MAIN
 import com.safenet.service.util.MmkvManager.KEY_SELECTED_SERVER
 import com.safenet.service.util.Utils
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ServerActivity : BaseActivity() {
 
     private val mainStorage by lazy { MMKV.mmkvWithID(ID_MAIN, MMKV.MULTI_PROCESS_MODE) }

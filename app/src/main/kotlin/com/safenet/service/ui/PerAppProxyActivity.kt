@@ -20,6 +20,7 @@ import com.safenet.service.extension.toast
 import com.safenet.service.extension.v2RayApplication
 import com.safenet.service.util.AppManagerUtil
 import com.safenet.service.util.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import rx.android.schedulers.AndroidSchedulers
@@ -27,6 +28,7 @@ import rx.schedulers.Schedulers
 import java.text.Collator
 import java.util.*
 
+@AndroidEntryPoint
 class PerAppProxyActivity : BaseActivity() {
     private lateinit var binding: ActivityBypassListBinding
 

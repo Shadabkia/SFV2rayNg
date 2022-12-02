@@ -13,12 +13,14 @@ import com.safenet.service.R
 import com.safenet.service.databinding.ActivityLogcatBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.util.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 import java.io.IOException
 import java.util.LinkedHashSet
 
+@AndroidEntryPoint
 class LogcatActivity : BaseActivity() {
     private lateinit var binding: ActivityLogcatBinding
 

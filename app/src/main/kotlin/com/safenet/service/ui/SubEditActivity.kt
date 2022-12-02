@@ -13,7 +13,9 @@ import com.safenet.service.dto.SubscriptionItem
 import com.safenet.service.extension.toast
 import com.safenet.service.util.MmkvManager
 import com.safenet.service.util.Utils
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SubEditActivity : BaseActivity() {
     private lateinit var binding: ActivitySubEditBinding
 

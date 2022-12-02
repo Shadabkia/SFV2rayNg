@@ -10,8 +10,11 @@ import com.safenet.service.AppConfig
 import com.safenet.service.R
 import com.safenet.service.util.Utils
 import com.safenet.service.viewmodel.SettingsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SettingsActivity : BaseActivity() {
+
     private val settingsViewModel: SettingsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {

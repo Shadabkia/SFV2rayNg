@@ -9,29 +9,31 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.safenet.service.AngApplication
 import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.R
+import com.safenet.service.databinding.BottomsheetEnterVoucherBinding
 import com.safenet.service.databinding.DialogConfigFilterBinding
 import com.safenet.service.dto.*
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
-import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.ui.MainActivity
+import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetDialog
 import com.safenet.service.util.*
 import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
 import com.tencent.mmkv.MMKV
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.*
+import javax.inject.Inject
 
-
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class MainViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
     private val mainStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_MAIN, MMKV.MULTI_PROCESS_MODE) }
     private val serverRawStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_SERVER_RAW, MMKV.MULTI_PROCESS_MODE) }
 
@@ -73,7 +75,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         AngConfigManager.mainStorage?.encode(MmkvManager.KEY_SELECTED_SERVER, serversCache.lastOrNull()?.guid)
 
 
-        _serverAvailability.value = MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks ?: "No serve!"
+        _serverAvailability.value = MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks ?: "No server!"
 
     }
 
@@ -223,14 +225,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return -1
     }
 
-    fun onDeviceIdClicked(context: Context) {
+    fun onActiveVpnClicked(context: Context) {
 //        var androidId = Settings.Secure.getString(context.contentResolver,
 //            Settings.Secure.ANDROID_ID);
+        val enterVoucherBottomSheetDialog = EnterVoucherBottomSheetDialog()
+        enterVoucherBottomSheetDialog.show((context as MainActivity).supportFragmentManager, "voucher")
 
-        var publicKey = KeyManage().getPublic()
-        setToClipBoard(context, publicKey)
-
-        context.toast("Device Id Copied to Clipboard")
+//        var publicKey = KeyManage().getPublic()
+//        setToClipBoard(context, publicKey)
+//
+//        context.toast("Device Id Copied to Clipboard")
 
     }
 
@@ -320,7 +324,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             reloadServerList()
         }
-         _serverAvailability.value = MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks ?: "No serve!"
+         _serverAvailability.value = MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks ?: "No server!"
     }
 
 }

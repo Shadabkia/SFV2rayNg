@@ -17,8 +17,10 @@ import com.safenet.service.dto.V2rayConfig
 import com.safenet.service.extension.toast
 import com.safenet.service.util.MmkvManager
 import com.safenet.service.util.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import me.drakeet.support.toast.ToastCompat
 
+@AndroidEntryPoint
 class ServerCustomConfigActivity : BaseActivity() {
     private lateinit var binding: ActivityServerCustomConfigBinding
 
