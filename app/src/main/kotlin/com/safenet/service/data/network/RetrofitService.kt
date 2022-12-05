@@ -17,17 +17,11 @@ interface RetrofitService {
         @Field("voucher") voucher: String,
         @Field("publicU") publicU: String,
     ): Response<VerifyResponse>
-//
-//    @GET("/")
-//    suspend fun getUserInfo(): Response<String>
-//
-//    @FormUrlEncoded
-//    @POST("/")
-//    suspend fun getRegisterVerificationCode(@Field("username") username: String,
-//                                            @Field("password") password : String,
-//                                            @Field("client_id") client_id: String,
-//                                            @Field("client_secret") client_secret: String,
-//                                            @Field("grant_type") grant_type: String,
-//
-//    ): Response<PreConfirmationCustomer>
+
+    @FormUrlEncoded
+    @POST("/api/config")
+    suspend fun getConfig(
+        @Field("token") token: String,
+    ): Response<ConfigResponse>
+
 }

@@ -81,4 +81,14 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(RetrofitService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideVerificationApiService(okHttpClient: OkHttpClient): RetrofitService =
+        Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(RetrofitService::class.java)
 }

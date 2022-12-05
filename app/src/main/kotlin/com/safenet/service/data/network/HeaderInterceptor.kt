@@ -19,13 +19,13 @@ class HeaderInterceptor @Inject constructor(
         requestBuilder.addHeader(
             CONTENT_TYPE_HEADER_KEY, APPLICATION_JSON_HEADER_KEY
         )
-        dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN)
-            .let {
-                requestBuilder.addHeader(
-                    AUTHORIZATION_HEADER_KEY, "Bearer $it"
-                )
-                Timber.tag("okhttp Header: ").i("Token: Bearer $it")
-            }
+//        dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN)
+//            .let {
+//                requestBuilder.addHeader(
+//                    AUTHORIZATION_HEADER_KEY, "Bearer $it"
+//                )
+//                Timber.tag("okhttp Header: ").i("Token: Bearer $it")
+//            }
 
         val request = requestBuilder.build()
 

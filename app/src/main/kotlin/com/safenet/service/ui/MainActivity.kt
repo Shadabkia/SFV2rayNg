@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -27,6 +28,7 @@ import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.helper.SimpleItemTouchHelperCallback
 import com.safenet.service.service.V2RayServiceManager
+import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.AngConfigManager
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.MmkvManager
@@ -37,6 +39,7 @@ import com.tencent.mmkv.MMKV
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.drakeet.support.toast.ToastCompat
 import rx.Observable
@@ -47,6 +50,10 @@ import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
+
+    private val enterVoucherViewModel by viewModels<EnterVoucherBottomSheetViewModel>()
+
+
     private lateinit var binding: ActivityMainBinding
 
     private val adapter by lazy { MainRecyclerAdapter(this) }
@@ -81,33 +88,6 @@ class MainActivity : BaseActivity() {
         setContentView(view)
         title = ""
 
-        binding.fab.setOnClickListener {view ->
-            this@MainActivity.lifecycleScope.launch {
-                if (mainViewModel.isRunning.value == true) {
-                    Utils.stopVService(this@MainActivity)
-                } else if ((settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN") == "VPN") {
-                    val intent = VpnService.prepare(this@MainActivity)
-                    if (intent == null) {
-                        startV2Ray()
-                    } else {
-                        requestVpnPermission.launch(intent)
-                    }
-                } else {
-                    startV2Ray()
-                }
-                view.isEnabled = false
-                delay(500)
-                view.isEnabled = true
-            }
-        }
-        binding.layoutTest.setOnClickListener {
-            if (mainViewModel.isRunning.value == true) {
-                setTestState(getString(R.string.connection_test_testing))
-                mainViewModel.testCurrentServerRealPing()
-            } else {
-//                tv_test_state.text = getString(R.string.connection_test_fail)
-            }
-        }
 
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -124,6 +104,15 @@ class MainActivity : BaseActivity() {
         setRoutingRules()
 
         listeners()
+        initView()
+    }
+
+    private fun initView() {
+        this.lifecycleScope.launch {
+            enterVoucherViewModel.config.collectLatest {
+                importClipboard(it)
+            }
+        }
     }
 
     private fun listeners() {
@@ -139,8 +128,6 @@ class MainActivity : BaseActivity() {
 //                }
                 activeVpn.setOnClickListener { view ->
                         mainViewModel.onActiveVpnClicked(this@MainActivity)
-
-
                 }
             }
 
@@ -157,9 +144,37 @@ class MainActivity : BaseActivity() {
 
             }
 
+            fab.setOnClickListener {view ->
+                this@MainActivity.lifecycleScope.launch {
+                    if (mainViewModel.isRunning.value == true) {
+                        Utils.stopVService(this@MainActivity)
+                    } else if ((settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN") == "VPN") {
+                        val intent = VpnService.prepare(this@MainActivity)
+                        if (intent == null) {
+                            startV2Ray()
+                        } else {
+                            requestVpnPermission.launch(intent)
+                        }
+                    } else {
+                        startV2Ray()
+                    }
+                    mainViewModel.getConfig()
+                    view.isEnabled = false
+                    delay(500)
+                    view.isEnabled = true
+                }
+            }
+
+            layoutTest.setOnClickListener {
+                if (mainViewModel.isRunning.value == true) {
+                    setTestState(getString(R.string.connection_test_testing))
+                    mainViewModel.testCurrentServerRealPing()
+                } else {
+//                tv_test_state.text = getString(R.string.connection_test_fail)
+                }
+            }
+
         }
-
-
     }
 
 
@@ -296,12 +311,11 @@ class MainActivity : BaseActivity() {
     /**
      * import config from clipboard
      */
-    fun importClipboard()
+    fun importClipboard(config : String)
             : Boolean {
         try {
-            val clipboard = Utils.getClipboard(this)
-            //TODO
-            mainViewModel.importBatchConfig(KeyManage().decryptData(clipboard), "",this@MainActivity)
+//            val clipboard = Utils.getClipboard(this)
+            mainViewModel.importBatchConfig(KeyManage.instance.getConfig(config), "",this@MainActivity)
         } catch (e: Exception) {
             e.printStackTrace()
             toastLong(R.string.wrong_confige)

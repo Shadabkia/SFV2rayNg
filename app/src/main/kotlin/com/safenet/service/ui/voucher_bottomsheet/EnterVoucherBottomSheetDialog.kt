@@ -4,18 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.safenet.service.R
 import com.safenet.service.databinding.BottomsheetEnterVoucherBinding
+import com.safenet.service.extension.toast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
 
-    private val viewModel by viewModels<EnterVoucherBottomSheetViewModel>()
+    private val viewModel by activityViewModels<EnterVoucherBottomSheetViewModel>()
 
     private var _binding: BottomsheetEnterVoucherBinding? = null
     private val binding get() = _binding!!
@@ -52,11 +58,14 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
 
     private fun initViews() {
         initListeners()
-        binding.apply {
-            btConfirm.setOnClickListener{
-                if(!etVoucher.text.isNullOrEmpty()){
-                    viewModel.onConfirmClicked(etVoucher.text.toString())
+        viewLifecycleOwner.lifecycleScope.launch{
+            viewModel.state.collectLatest { state ->
+                binding.pbVerification.isVisible = state?.isLoading ?: false
+                state?.let {
+                    if(state.error.isNotBlank())
+                        activity?.toast(state.error)
                 }
+
             }
         }
 
@@ -64,7 +73,11 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
 
     private fun initListeners() {
         binding.apply {
-
+            btConfirm.setOnClickListener{
+                if(etVoucher.text.toString().isNotEmpty()){
+                    viewModel.onConfirmClicked(etVoucher.text.toString())
+                }
+            }
         }
     }
 

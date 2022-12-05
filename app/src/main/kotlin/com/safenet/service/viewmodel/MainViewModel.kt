@@ -15,6 +15,7 @@ import com.safenet.service.AngApplication
 import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.R
+import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.databinding.BottomsheetEnterVoucherBinding
 import com.safenet.service.databinding.DialogConfigFilterBinding
 import com.safenet.service.dto.*
@@ -29,11 +30,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
+class MainViewModel @Inject constructor(
+    private val verificationRepository: VerificationRepository,
+    application: Application
+) : AndroidViewModel(application) {
     private val mainStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_MAIN, MMKV.MULTI_PROCESS_MODE) }
     private val serverRawStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_SERVER_RAW, MMKV.MULTI_PROCESS_MODE) }
 
@@ -325,6 +330,12 @@ class MainViewModel @Inject constructor(application: Application) : AndroidViewM
             reloadServerList()
         }
          _serverAvailability.value = MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks ?: "No server!"
+    }
+
+    fun getConfig() = viewModelScope.launch(Dispatchers.IO) {
+        verificationRepository.getConfig("").collectLatest {
+
+        }
     }
 
 }
