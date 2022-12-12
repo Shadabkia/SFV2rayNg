@@ -56,6 +56,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
+                    android:text="uF3xD17cJhk5If"
                     android:hint="@string/enter_voucher"
                     android:inputType="textEmailAddress" />
 
@@ -64,6 +65,7 @@
             <Button
                 android:id="@+id/bt_confirm"
                 android:layout_width="match_parent"
+                android:backgroundTint="@color/colorAccentByDark"
                 android:paddingVertical="@dimen/padding_medium"
                 android:layout_marginHorizontal="@dimen/margin_medium"
                 android:layout_height="wrap_content"

@@ -15,7 +15,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -28,30 +27,30 @@ import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.helper.SimpleItemTouchHelperCallback
 import com.safenet.service.service.V2RayServiceManager
-import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.main.MainActivityEvents
+import com.safenet.service.ui.main.MainViewModel
 import com.safenet.service.util.AngConfigManager
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.MmkvManager
 import com.safenet.service.util.Utils
-import com.safenet.service.viewmodel.MainViewModel
 import com.tbruyelle.rxpermissions.RxPermissions
 import com.tencent.mmkv.MMKV
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.drakeet.support.toast.ToastCompat
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
-
-    private val enterVoucherViewModel by viewModels<EnterVoucherBottomSheetViewModel>()
 
 
     private lateinit var binding: ActivityMainBinding
@@ -80,7 +79,6 @@ class MainActivity : BaseActivity() {
 
     val defaultSharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -103,14 +101,39 @@ class MainActivity : BaseActivity() {
 
         setRoutingRules()
 
+        this.lifecycleScope.launch {
+            mainViewModel.mainActivityEvent.collectLatest { event ->
+                when(event){
+                    is MainActivityEvents.ActivateApp -> activateApp(event.status)
+                    is MainActivityEvents.GetConfigMessage -> toastLong(event.message ?: "")
+                }
+
+            }
+        }
+
         listeners()
         initView()
     }
 
+    private fun activateApp(status: Boolean) {
+        binding.navToolbar.activeVpn.apply {
+            if(status){
+                    text = getString(R.string.activated)
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorSelected))
+            } else{
+                text = getString(R.string.active)
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPingRed))
+            }
+        }
+    }
+
     private fun initView() {
+        mainViewModel.checkAppActivated()
         this.lifecycleScope.launch {
-            enterVoucherViewModel.config.collectLatest {
-                importClipboard(it)
+            mainViewModel.config.collectLatest {
+                Timber.tag("ConfigApi").d("config : $it")
+                if(it.isNotEmpty())
+                    importClipboard(it)
             }
         }
     }
@@ -118,15 +141,7 @@ class MainActivity : BaseActivity() {
     private fun listeners() {
         binding.apply {
             navToolbar.apply {
-//                idImportConfig.setOnClickListener { view ->
-//                    this@MainActivity.lifecycleScope.launch {
-//                        importClipboard()
-//                        view.isEnabled = false
-//                        delay(2000)
-//                        view.isEnabled = true
-//                    }
-//                }
-                activeVpn.setOnClickListener { view ->
+                activeVpn.setOnClickListener {
                         mainViewModel.onActiveVpnClicked(this@MainActivity)
                 }
             }
@@ -146,19 +161,22 @@ class MainActivity : BaseActivity() {
 
             fab.setOnClickListener {view ->
                 this@MainActivity.lifecycleScope.launch {
+
                     if (mainViewModel.isRunning.value == true) {
                         Utils.stopVService(this@MainActivity)
+                        mainViewModel.disconnectApi()
                     } else if ((settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN") == "VPN") {
                         val intent = VpnService.prepare(this@MainActivity)
                         if (intent == null) {
+                            mainViewModel.listenToken()
                             startV2Ray()
                         } else {
                             requestVpnPermission.launch(intent)
                         }
                     } else {
+                        mainViewModel.listenToken()
                         startV2Ray()
                     }
-                    mainViewModel.getConfig()
                     view.isEnabled = false
                     delay(500)
                     view.isEnabled = true
@@ -233,13 +251,11 @@ class MainActivity : BaseActivity() {
                                 input.copyTo(output)
                             }
                         }
-                        Log.i(
-                            ANG_PACKAGE,
-                            "Copied from apk assets folder to ${target.absolutePath}"
-                        )
+                        Timber.tag(ANG_PACKAGE)
+                            .i("Copied from apk assets folder to " + target.absolutePath)
                     }
             } catch (e: Exception) {
-                Log.e(ANG_PACKAGE, "asset copy failed", e)
+                Timber.tag(ANG_PACKAGE).e(e, "asset copy failed")
             }
         }
     }
@@ -311,7 +327,7 @@ class MainActivity : BaseActivity() {
     /**
      * import config from clipboard
      */
-    fun importClipboard(config : String)
+    private fun importClipboard(config : String)
             : Boolean {
         try {
 //            val clipboard = Utils.getClipboard(this)
@@ -372,7 +388,7 @@ class MainActivity : BaseActivity() {
     /**
      * import config from url
      */
-    fun importConfigCustomUrl(url: String?): Boolean {
+    private fun importConfigCustomUrl(url: String?): Boolean {
         try {
             if (!Utils.isValidUrl(url)) {
                 toast(R.string.toast_invalid_url)

@@ -212,7 +212,7 @@
     <string name="connect" translatable="false">Connect</string>
     <string name="connected" translatable="false">Connected</string>
     <string name="import_server" translatable="false">Import from clipboard</string>
-    <string name="wrong_confige" translatable="false">Please copy correct config and import again</string>
+    <string name="wrong_confige" translatable="false">Pleas Contact Us and Report Problem</string>
     <string name="server_name" translatable="false">Running: %1$s</string>
     <string name="active" translatable="false">Activate VPN</string>
     <string name="activated" translatable="false">Activated</string>

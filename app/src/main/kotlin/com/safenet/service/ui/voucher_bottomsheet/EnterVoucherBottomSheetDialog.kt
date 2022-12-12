@@ -47,6 +47,14 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
                 when (it) {
                     EnterVoucherBottomSheetEvents.InitViews -> initViews()
                     is EnterVoucherBottomSheetEvents.NavigateToEnterCode -> TODO()
+                    EnterVoucherBottomSheetEvents.Success ->{
+                        requireContext().toast("Success")
+                        this@EnterVoucherBottomSheetDialog.dismiss()
+                    }
+                    EnterVoucherBottomSheetEvents.Error ->{
+                        requireContext().toast("Error")
+                        this@EnterVoucherBottomSheetDialog.dismiss()
+                    }
                 }
             }
         }
@@ -62,10 +70,11 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
             viewModel.state.collectLatest { state ->
                 binding.pbVerification.isVisible = state?.isLoading ?: false
                 state?.let {
-                    if(state.error.isNotBlank())
+                    if(state.error.isNotBlank()) {
                         activity?.toast(state.error)
+                        viewModel.state.value = null
+                    }
                 }
-
             }
         }
 

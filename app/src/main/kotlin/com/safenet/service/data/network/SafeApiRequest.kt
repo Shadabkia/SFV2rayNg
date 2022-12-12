@@ -35,7 +35,7 @@ abstract class SafeApiRequest {
                                 val message = Gson().fromJson(
                                     errorBody,
                                     ErrorResponse::class.java
-                                )?.message?.fold("") { acc, s -> if (acc.isBlank()) s else "$acc\n$s" }
+                                )?.message?.fold("") { acc, s -> "$acc\n$s" }?.trim()
                                 // Convert Error to AuthErrorResponse (for keycloak) when cant convert to ErrorResponse
                                     ?: Gson().fromJson(
                                         errorBody,

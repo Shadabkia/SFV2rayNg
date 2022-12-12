@@ -8,7 +8,7 @@ data class VerifyResponse(
     val status: Status,
     @SerializedName("token")
     val token: String,
-    @SerializedName("public_s")
-    val public_s: String
+    @SerializedName("publicS")
+    val publicS: String
 )
 

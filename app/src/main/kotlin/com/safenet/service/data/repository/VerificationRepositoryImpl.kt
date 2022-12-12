@@ -4,6 +4,7 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.RetrofitService
 import com.safenet.service.data.network.SafeApiRequest
 import com.safenet.service.data.network.dto.ConfigResponse
+import com.safenet.service.data.network.dto.Status
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -18,5 +19,10 @@ class VerificationRepositoryImpl @Inject constructor(
     override fun getConfig(token: String): Flow<Result<ConfigResponse>> =
         apiRequest {
             api.getConfig(token = token)
+        }
+
+    override fun disconnect(): Flow<Result<Status>> =
+        apiRequest {
+            api.disconnect()
         }
 }
