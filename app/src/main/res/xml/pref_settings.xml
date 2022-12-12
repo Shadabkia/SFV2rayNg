@@ -44,7 +44,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:isPreferenceVisible="false"
+        app:isPreferenceVisible="true"
         android:title="@string/title_pref_routing">
         <ListPreference
             android:defaultValue="IPIfNonMatch"

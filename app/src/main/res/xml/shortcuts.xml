@@ -15,7 +15,7 @@
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
     <shortcut
-        android:enabled="false"
+        android:enabled="true"
         android:icon="@drawable/ic_qu_settings_black_24dp"
         android:shortcutDisabledMessage="@string/title_settings"
         android:shortcutId="shortcuts_settings"
