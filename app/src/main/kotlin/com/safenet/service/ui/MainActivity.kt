@@ -331,7 +331,8 @@ class MainActivity : BaseActivity() {
             : Boolean {
         try {
 //            val clipboard = Utils.getClipboard(this)
-            mainViewModel.importBatchConfig(KeyManage.instance.getConfig(config), "",this@MainActivity)
+            Timber.tag("vmesss").d(KeyManage.instance.getConfig(config))
+            mainViewModel.importBatchConfig("vmess://eyJhZGQiOiIxODUuMjExLjU5LjQ0IiwiYWlkIjoiMCIsImFscG4iOiIiLCJob3N0IjoiIiwiaWQiOiJhNzg3ZjI3ZC03MzkyLTRmODctY2U3Ny1lZTJmNDQ2YmJjNDQiLCJuZXQiOiJ3cyIsInBhdGgiOiIvbWV0cm9nZSIsInBvcnQiOiIzNzc5IiwicHMiOiJHZXJtYW4zIiwic2N5IjoiYXV0byIsInNuaSI6IiIsInRscyI6IiIsInR5cGUiOiIiLCJ2IjoiMiJ9", "",this@MainActivity)
         } catch (e: Exception) {
             e.printStackTrace()
             toastLong(R.string.wrong_confige)

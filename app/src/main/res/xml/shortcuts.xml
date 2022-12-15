@@ -28,4 +28,19 @@
             android:targetPackage="com.safenet.service" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_file_white_24dp"
+        android:shortcutDisabledMessage="@string/title_user_asset_setting"
+        android:shortcutId="shortcuts_geo"
+        android:shortcutLongLabel="@string/title_user_asset_setting"
+        android:shortcutShortLabel="@string/title_user_asset_setting">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.safenet.service.ui.UserAssetActivity"
+            android:targetPackage="com.safenet.service" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
 </shortcuts>
