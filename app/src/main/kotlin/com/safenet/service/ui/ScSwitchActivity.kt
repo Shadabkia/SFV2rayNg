@@ -5,6 +5,7 @@ import com.safenet.service.util.Utils
 import android.os.Bundle
 import com.safenet.service.service.V2RayServiceManager
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ScSwitchActivity : BaseActivity() {
@@ -17,6 +18,7 @@ class ScSwitchActivity : BaseActivity() {
         if (V2RayServiceManager.v2rayPoint.isRunning) {
             Utils.stopVService(this)
         } else {
+            Timber.d("startService 4")
             Utils.startVServiceFromToggle(this)
         }
         finish()

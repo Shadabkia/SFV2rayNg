@@ -63,7 +63,11 @@ object V2RayServiceManager {
         if (settingsStorage?.decodeBool(AppConfig.PREF_PROXY_SHARING) == true) {
             context.toast(R.string.toast_warning_pref_proxysharing_short)
         } else {
-            context.toast(R.string.toast_services_start)
+            try {
+                context.toast(R.string.toast_services_start)
+            } catch (e : Exception){
+
+            }
         }
         val intent = if (settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN" == "VPN") {
             Intent(context.applicationContext, V2RayVpnService::class.java)

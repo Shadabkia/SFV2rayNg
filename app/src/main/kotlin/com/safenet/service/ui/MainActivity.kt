@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -29,6 +30,7 @@ import com.safenet.service.helper.SimpleItemTouchHelperCallback
 import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.ui.main.MainActivityEvents
 import com.safenet.service.ui.main.MainViewModel
+import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.AngConfigManager
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.MmkvManager
@@ -71,13 +73,14 @@ class MainActivity : BaseActivity() {
     private val requestVpnPermission =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
-                startV2Ray()
+//                startV2Ray()
             }
+            binding.fab.isEnabled = true
         }
     private var mItemTouchHelper: ItemTouchHelper? = null
     val mainViewModel: MainViewModel by viewModels()
 
-    val defaultSharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
+    val defaultSharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(this@MainActivity) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +88,7 @@ class MainActivity : BaseActivity() {
         val view = binding.root
         setContentView(view)
         title = ""
-
+        setRoutingRules()
 
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -98,14 +101,22 @@ class MainActivity : BaseActivity() {
         setupViewModel()
         copyAssets()
         migrateLegacy()
+        activeRouting()
 
-        setRoutingRules()
 
         this.lifecycleScope.launch {
             mainViewModel.mainActivityEvent.collectLatest { event ->
                 when(event){
                     is MainActivityEvents.ActivateApp -> activateApp(event.status)
-                    is MainActivityEvents.GetConfigMessage -> toastLong(event.message ?: "")
+                    is MainActivityEvents.GetConfigMessage -> {
+                        hideCircle()
+                        binding.fab.isEnabled = true
+                        toastLong(event.message ?: "Error")
+                    }
+                    is MainActivityEvents.Disconnected -> {
+                        binding.fab.isEnabled = true
+                        hideCircle()
+                    }
                 }
 
             }
@@ -116,13 +127,17 @@ class MainActivity : BaseActivity() {
     }
 
     private fun activateApp(status: Boolean) {
-        binding.navToolbar.activeVpn.apply {
-            if(status){
-                    text = getString(R.string.activated)
-                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorSelected))
-            } else{
-                text = getString(R.string.active)
-                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPingRed))
+        Timber.d("appstatus $status")
+        binding.apply {
+            if (status) {
+                navToolbar.activeVpn.text = getString(R.string.activated)
+                navToolbar.activeVpn.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorSelected))
+                binding.fab.isEnabled = true
+            } else {
+                navToolbar.activeVpn.text = getString(R.string.active)
+                navToolbar.activeVpn.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPingRed))
+//                binding.serverAvailability.text = getString(R.string.no_server)
+                binding.fab.isEnabled = false
             }
         }
     }
@@ -131,9 +146,12 @@ class MainActivity : BaseActivity() {
         mainViewModel.checkAppActivated()
         this.lifecycleScope.launch {
             mainViewModel.config.collectLatest {
-                Timber.tag("ConfigApi").d("config : $it")
-                if(it.isNotEmpty())
+//                Timber.tag("ConfigApi").d("config : $it")
+                if (it.isNotEmpty()) {
                     importClipboard(it)
+                }
+                hideCircle()
+                binding.fab.isEnabled = true
             }
         }
     }
@@ -142,44 +160,48 @@ class MainActivity : BaseActivity() {
         binding.apply {
             navToolbar.apply {
                 activeVpn.setOnClickListener {
-                        mainViewModel.onActiveVpnClicked(this@MainActivity)
+                    mainViewModel.onActiveVpnClicked(this@MainActivity)
                 }
             }
 
-            contactUs.setOnClickListener{
+            contactUs.setOnClickListener {
                 val intent =
                     Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/safenet_vpn_admin"))
                 startActivity(intent)
             }
 
             this@MainActivity.lifecycleScope.launch {
-                mainViewModel.serverAvailability.collect{
+                mainViewModel.serverAvailability.collect {
                     serverAvailability.text = it
                 }
 
             }
-
-            fab.setOnClickListener {view ->
+            fab.setOnClickListener { view ->
                 this@MainActivity.lifecycleScope.launch {
 
                     if (mainViewModel.isRunning.value == true) {
-                        Utils.stopVService(this@MainActivity)
                         mainViewModel.disconnectApi()
-                    } else if ((settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN") == "VPN") {
+                        Utils.stopVService(this@MainActivity)
+                    } else if ((settingsStorage?.decodeString(AppConfig.PREF_MODE)
+                            ?: "VPN") == "VPN"
+                    ) {
                         val intent = VpnService.prepare(this@MainActivity)
-                        if (intent == null) {
-                            mainViewModel.listenToken()
-                            startV2Ray()
+                        if (intent == null ) {
+                            if(fab.isEnabled) {
+                                mainViewModel.listenToken()
+                                showCircle()
+                            }
+                            view.isEnabled = false
                         } else {
                             requestVpnPermission.launch(intent)
                         }
                     } else {
-                        mainViewModel.listenToken()
-                        startV2Ray()
+                        if(fab.isEnabled) {
+                            mainViewModel.listenToken()
+                            showCircle()
+                        }
+                        view.isEnabled = false
                     }
-                    view.isEnabled = false
-                    delay(500)
-                    view.isEnabled = true
                 }
             }
 
@@ -191,10 +213,8 @@ class MainActivity : BaseActivity() {
 //                tv_test_state.text = getString(R.string.connection_test_fail)
                 }
             }
-
         }
     }
-
 
     private fun setRoutingRules() {
         defaultSharedPreferences.edit()
@@ -203,6 +223,17 @@ class MainActivity : BaseActivity() {
         defaultSharedPreferences.edit()
             .putString(AppConfig.PREF_V2RAY_ROUTING_DIRECT, getString(R.string.direct_url_or_ip))
             .apply()
+    }
+
+    private fun activeRouting() {
+        // add routing
+        settingsStorage?.encode(
+            AppConfig.PREF_V2RAY_ROUTING_DIRECT, defaultSharedPreferences.getString(AppConfig.PREF_V2RAY_ROUTING_DIRECT, "")
+        )
+        settingsStorage?.encode(
+            AppConfig.PREF_V2RAY_ROUTING_BLOCKED, defaultSharedPreferences.getString(AppConfig.PREF_V2RAY_ROUTING_BLOCKED, "")
+        )
+
     }
 
     private fun setupViewModel() {
@@ -222,7 +253,8 @@ class MainActivity : BaseActivity() {
                 setTestState(getString(R.string.connection_connected))
                 binding.layoutTest.isFocusable = true
                 binding.fabText.text = getString(R.string.connected)
-                binding.serverAvailability.text = getString(R.string.server_name, mainViewModel.serverAvailability.value)
+                binding.serverAvailability.text =
+                    getString(R.string.server_name, mainViewModel.serverAvailability.value)
             } else {
                 binding.fab.backgroundTintList =
                     ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorUnselected))
@@ -231,7 +263,6 @@ class MainActivity : BaseActivity() {
                 binding.fabText.text = getString(R.string.connect)
                 binding.serverAvailability.text = mainViewModel.serverAvailability.value
             }
-            hideCircle()
         }
         mainViewModel.startListenBroadcast()
     }
@@ -276,15 +307,13 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    fun startV2Ray() {
-        if (mainStorage?.decodeString(MmkvManager.KEY_SELECTED_SERVER).isNullOrEmpty()) {
-            return
-        }
-        showCircle()
-//        toast(R.string.toast_services_start)
-        V2RayServiceManager.startV2Ray(this)
-        hideCircle()
-    }
+//    fun startV2Ray() {
+//        if (mainStorage?.decodeString(MmkvManager.KEY_SELECTED_SERVER).isNullOrEmpty()) {
+//            return
+//        }
+//        showCircle()
+////        toast(R.string.toast_services_start)
+//    }
 
     fun restartV2Ray() {
         if (mainViewModel.isRunning.value == true) {
@@ -293,7 +322,7 @@ class MainActivity : BaseActivity() {
         Observable.timer(500, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                startV2Ray()
+//                startV2Ray()
             }
     }
 
@@ -327,12 +356,13 @@ class MainActivity : BaseActivity() {
     /**
      * import config from clipboard
      */
-    private fun importClipboard(config : String)
+    private fun importClipboard(config: String)
             : Boolean {
         try {
 //            val clipboard = Utils.getClipboard(this)
-            Timber.tag("vmesss").d(KeyManage.instance.getConfig(config))
-            mainViewModel.importBatchConfig("vmess://eyJhZGQiOiIxODUuMjExLjU5LjQ0IiwiYWlkIjoiMCIsImFscG4iOiIiLCJob3N0IjoiIiwiaWQiOiJhNzg3ZjI3ZC03MzkyLTRmODctY2U3Ny1lZTJmNDQ2YmJjNDQiLCJuZXQiOiJ3cyIsInBhdGgiOiIvbWV0cm9nZSIsInBvcnQiOiIzNzc5IiwicHMiOiJHZXJtYW4zIiwic2N5IjoiYXV0byIsInNuaSI6IiIsInRscyI6IiIsInR5cGUiOiIiLCJ2IjoiMiJ9", "",this@MainActivity)
+            val deConfig = KeyManage.instance.getConfig(config)
+            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("config : $deConfig" )
+            mainViewModel.importBatchConfig(deConfig, "",this@MainActivity)
         } catch (e: Exception) {
             e.printStackTrace()
             toastLong(R.string.wrong_confige)
@@ -416,46 +446,46 @@ class MainActivity : BaseActivity() {
     /**
      * import config from sub
      */
-    fun importConfigViaSub()
-            : Boolean {
-        try {
-            toast(R.string.title_sub_update)
-            MmkvManager.decodeSubscriptions().forEach {
-                if (TextUtils.isEmpty(it.first)
-                    || TextUtils.isEmpty(it.second.remarks)
-                    || TextUtils.isEmpty(it.second.url)
-                ) {
-                    return@forEach
-                }
-                if (!it.second.enabled) {
-                    return@forEach
-                }
-                val url = it.second.url
-                if (!Utils.isValidUrl(url)) {
-                    return@forEach
-                }
-                Log.d(ANG_PACKAGE, url)
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val configText = try {
-                        Utils.getUrlContentWithCustomUserAgent(url)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        launch(Dispatchers.Main) {
-                            toast("\"" + it.second.remarks + "\" " + getString(R.string.toast_failure))
-                        }
-                        return@launch
-                    }
-                    launch(Dispatchers.Main) {
-                        mainViewModel.importBatchConfig(configText, it.first, this@MainActivity)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return false
-        }
-        return true
-    }
+//    fun importConfigViaSub()
+//            : Boolean {
+//        try {
+//            toast(R.string.title_sub_update)
+//            MmkvManager.decodeSubscriptions().forEach {
+//                if (TextUtils.isEmpty(it.first)
+//                    || TextUtils.isEmpty(it.second.remarks)
+//                    || TextUtils.isEmpty(it.second.url)
+//                ) {
+//                    return@forEach
+//                }
+//                if (!it.second.enabled) {
+//                    return@forEach
+//                }
+//                val url = it.second.url
+//                if (!Utils.isValidUrl(url)) {
+//                    return@forEach
+//                }
+//                Log.d(ANG_PACKAGE, url)
+//                lifecycleScope.launch(Dispatchers.IO) {
+//                    val configText = try {
+//                        Utils.getUrlContentWithCustomUserAgent(url)
+//                    } catch (e: Exception) {
+//                        e.printStackTrace()
+//                        launch(Dispatchers.Main) {
+//                            toast("\"" + it.second.remarks + "\" " + getString(R.string.toast_failure))
+//                        }
+//                        return@launch
+//                    }
+//                    launch(Dispatchers.Main) {
+//                        mainViewModel.importBatchConfig(configText, it.first, this@MainActivity)
+//                    }
+//                }
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            return false
+//        }
+//        return true
+//    }
 
     /**
      * show file chooser
@@ -551,24 +581,13 @@ class MainActivity : BaseActivity() {
     }
 
     fun showCircle() {
-        binding.fabProgressCircle.show()
+//        binding.fabProgressCircle.show()
+        binding.progress.isVisible = true
     }
 
     fun hideCircle() {
-        try {
-            Observable.timer(300, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    try {
-                        if (binding.fabProgressCircle.isShown) {
-                            binding.fabProgressCircle.hide()
-                        }
-                    } catch (e: Exception) {
-                        Log.w(ANG_PACKAGE, e)
-                    }
-                }
-        } catch (e: Exception) {
-            Log.d(ANG_PACKAGE, e.toString())
+        if (binding.progress.isShown) {
+            binding.progress.isVisible = false
         }
     }
 

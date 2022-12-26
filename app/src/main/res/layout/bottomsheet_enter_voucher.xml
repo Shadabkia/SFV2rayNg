@@ -56,7 +56,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:text="uF3xD17cJhk5If"
                     android:hint="@string/enter_voucher"
                     android:inputType="textEmailAddress" />
 

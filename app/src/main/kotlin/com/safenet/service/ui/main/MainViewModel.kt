@@ -2,9 +2,6 @@ package com.safenet.service.ui.main
 
 import android.content.*
 import android.util.Log
-import android.view.LayoutInflater
-import android.widget.ArrayAdapter
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -18,7 +15,6 @@ import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.repository.VerificationRepository
-import com.safenet.service.databinding.DialogConfigFilterBinding
 import com.safenet.service.dto.*
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
@@ -34,6 +30,7 @@ import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 import com.safenet.service.data.network.Result
+import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.ui.MainActivity
 import kotlinx.coroutines.channels.Channel
 
@@ -329,7 +326,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun importBatchConfig(server: String?, subside: String = "", context: Context) {
-
+        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("server : $server")
         val subside2 = if (subside.isNullOrEmpty()) {
             subscriptionId
         } else {
@@ -359,6 +356,8 @@ class MainViewModel @Inject constructor(
             }
 
             reloadServerList()
+            V2RayServiceManager.startV2Ray(context)
+
         }
         _serverAvailability.value =
             MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
@@ -366,19 +365,43 @@ class MainViewModel @Inject constructor(
     }
 
     fun disconnectApi() = viewModelScope.launch {
-        verificationRepository.disconnect()
+//        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
+        dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
+            if (token != null) {
+                try {
+//                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi2")
+                    val publicS = dataStoreManager.getData(PUBLIC_S).first()
+                    val tokenE = KeyManage.instance.getToken(
+                        token,
+                        publicS ?: ""
+                    )
+//                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi3")
+                    verificationRepository.disconnect(tokenE).collectLatest {
+//                        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi4")
+                        mainActivityEventChannel.send(MainActivityEvents.Disconnected(""))
+                    }
+                } catch (e: Exception) {
+                    mainActivityEventChannel.send(MainActivityEvents.Disconnected(""))
+                }
+            }
+        }
     }
 
     fun listenToken() = viewModelScope.launch {
         Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("listenToken")
         dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
             if (token != null) {
-                val publicS = dataStoreManager.getData(PUBLIC_S).first()
-                val tokenE = KeyManage.instance.getToken(
-                    token,
-                    publicS ?: ""
-                )
-                getConfig(tokenE)
+                try {
+                    val publicS = dataStoreManager.getData(PUBLIC_S).first()
+                    val tokenE = KeyManage.instance.getToken(
+                        token,
+                        publicS ?: ""
+                    )
+                    getConfig(tokenE)
+                } catch (e: Exception) {
+                    setAppActivated(false)
+                    mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage("Activate Again"))
+                }
             }
             else {
                 setAppActivated(false)
@@ -393,6 +416,7 @@ class MainViewModel @Inject constructor(
             when(res){
                 is Result.Error -> {
                     Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(res.message)
+                    mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.message))
                 }
                 is Result.Loading ->{
                 }
@@ -430,11 +454,13 @@ class MainViewModel @Inject constructor(
                 removeServer(serversCache[serversCache.size - 1].guid)
             }
         }
+
         mainActivityEventChannel.send(MainActivityEvents.ActivateApp(status))
     }
 
     fun checkAppActivated() = viewModelScope.launch {
         dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
+            Timber.d("appstatus token $token")
             setAppActivated(token != null)
         }
     }

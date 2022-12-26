@@ -29,6 +29,7 @@ import com.safenet.service.R
 import com.safenet.service.extension.toast
 import java.net.*
 import com.safenet.service.service.V2RayServiceManager
+import timber.log.Timber
 import java.io.IOException
 
 object Utils {
@@ -282,6 +283,7 @@ object Utils {
     }
 
     fun startVServiceFromToggle(context: Context): Boolean {
+        Timber.d("startService startVServiceFromToggle")
         if (mainStorage?.decodeString(MmkvManager.KEY_SELECTED_SERVER).isNullOrEmpty()) {
             context.toast(R.string.app_tile_first_use)
             return false

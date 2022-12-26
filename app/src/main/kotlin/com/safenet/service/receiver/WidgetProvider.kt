@@ -12,6 +12,7 @@ import com.safenet.service.R
 import com.safenet.service.AppConfig
 import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.util.Utils
+import timber.log.Timber
 
 class WidgetProvider : AppWidgetProvider() {
     /**
@@ -65,6 +66,7 @@ class WidgetProvider : AppWidgetProvider() {
             if (V2RayServiceManager.v2rayPoint.isRunning) {
                 Utils.stopVService(context)
             } else {
+                Timber.d("startService 2")
                 Utils.startVServiceFromToggle(context)
             }
         } else if (AppConfig.BROADCAST_ACTION_ACTIVITY == intent.action) {

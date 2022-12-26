@@ -19,6 +19,7 @@
             android:id="@+id/server_availability"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="@string/server_available"
             android:textSize="10pt"
             app:layout_constraintBottom_toTopOf="@+id/fabProgressCircle"
@@ -27,13 +28,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
-            android:visibility="visible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:visibility="visible"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.recyclerview.widget.RecyclerView
+                android:visibility="gone"
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -80,55 +82,57 @@
         <!--                    app:layout_constraintBottom_toBottomOf="parent"-->
         <!--                    app:layout_constraintTop_toTopOf="parent"/>-->
 
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="190dp"
+            android:layout_height="190dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/fabProgressCircle"
+            app:layout_constraintLeft_toLeftOf="@id/fabProgressCircle"
+            app:layout_constraintRight_toRightOf="@id/fabProgressCircle"
+            app:layout_constraintTop_toTopOf="@id/fabProgressCircle" />
 
-        <com.github.jorgecastilloprz.FABProgressCircle
+        <FrameLayout
             android:id="@+id/fabProgressCircle"
-            android:layout_width="60dp"
-            android:layout_height="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="4dp"
             android:layout_marginBottom="24dp"
-            android:scaleX="3"
-            android:scaleY="3"
+            android:scaleX="1"
+            android:scaleY="1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <FrameLayout
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusLeft="@+id/layout_test"
+                android:scaleX="1"
+                android:scaleY="1"
+                app:layout_anchorGravity="bottom|right|end" />
+
+            <TextView
+                android:id="@+id/fab_text"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:elevation="10dp"
+                android:text="@string/connect"
+                android:textColor="@color/white"
+                android:textSize="24dp" />
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginRight="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:nextFocusLeft="@+id/layout_test"
-                    android:scaleX="2"
-                    android:scaleY="2"
-                    app:layout_anchorGravity="bottom|right|end" />
-
-                <TextView
-                    android:id="@+id/fab_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:elevation="10dp"
-                    android:text="@string/connect"
-                    android:textColor="@color/white"
-                    android:textSize="9sp" />
-
-            </FrameLayout>
-
-
-        </com.github.jorgecastilloprz.FABProgressCircle>
+        </FrameLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/contact_us"
@@ -139,11 +143,11 @@
             android:text="@string/contact_us"
             android:textAllCaps="false"
             android:textColor="#787878"
-            app:rippleColor="#787878"
             app:layout_constraintBottom_toTopOf="@+id/layout_test"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fabProgressCircle" />
+            app:layout_constraintTop_toBottomOf="@+id/fabProgressCircle"
+            app:rippleColor="#787878" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

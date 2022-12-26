@@ -9,5 +9,5 @@ import com.safenet.service.data.network.dto.Status
 interface VerificationRepository {
     fun verifyVoucher(voucher: String,  publicIdU : String) : Flow<Result<VerifyResponse>>
     fun getConfig(token : String) : Flow<Result<ConfigResponse>>
-    fun disconnect() : Flow<Result<Status>>
+    fun disconnect(token : String) : Flow<Result<Status>>
 }

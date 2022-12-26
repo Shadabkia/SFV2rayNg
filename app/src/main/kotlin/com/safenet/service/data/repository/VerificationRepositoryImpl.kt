@@ -21,8 +21,8 @@ class VerificationRepositoryImpl @Inject constructor(
             api.getConfig(token = token)
         }
 
-    override fun disconnect(): Flow<Result<Status>> =
+    override fun disconnect(token: String): Flow<Result<Status>> =
         apiRequest {
-            api.disconnect()
+            api.disconnect(token = token)
         }
 }

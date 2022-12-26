@@ -11,6 +11,7 @@ import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.util.MmkvManager
 
 import com.safenet.service.util.Utils
+import timber.log.Timber
 
 class TaskerReceiver : BroadcastReceiver() {
     private val mainStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_MAIN, MMKV.MULTI_PROCESS_MODE) }
@@ -26,9 +27,11 @@ class TaskerReceiver : BroadcastReceiver() {
                 return
             } else if (switch) {
                 if (guid == AppConfig.TASKER_DEFAULT_GUID) {
+                    Timber.d("startService 1")
                     Utils.startVServiceFromToggle(context)
                 } else {
                     mainStorage?.encode(MmkvManager.KEY_SELECTED_SERVER, guid)
+                    Timber.d("startService TaskerReceiver")
                     V2RayServiceManager.startV2Ray(context)
                 }
             } else {

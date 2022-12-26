@@ -27,6 +27,8 @@ interface RetrofitService {
 
     @FormUrlEncoded
     @POST("/api/disconnect")
-    suspend fun disconnect(): Response<Status>
+    suspend fun disconnect(
+        @Field("token") token: String,
+    ): Response<Status>
 
 }

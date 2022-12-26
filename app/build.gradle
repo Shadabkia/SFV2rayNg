@@ -5,11 +5,18 @@ plugins {
     id 'dagger.hilt.android.plugin'
 }
 
-
 Properties props = new Properties()
 props.load(new FileInputStream(new File('local.properties')))
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('/Users/hamidreza/Downloads/apps/v2rayNG-master/V2rayNG/app/ShoppersBlissKeyStore.jks')
+            storePassword 'Bliss.1234'
+            keyAlias 'ShoppersBliss'
+            keyPassword 'Bliss.1234'
+        }
+    }
     compileSdkVersion Integer.parseInt("$compileSdkVer")
     buildToolsVersion "$buildToolsVer"
 
@@ -24,7 +31,8 @@ android {
         targetSdkVersion Integer.parseInt("$targetSdkVer")
         multiDexEnabled true
         versionCode 480
-        versionName "1.7.23"
+//        versionName1 "1.7.23"
+        versionName "1.0.0"
     }
 
     if (props["sign"]) {
@@ -46,19 +54,19 @@ android {
 
     buildTypes {
         release {
-            buildConfigField "String", "BASE_URL", '"https://pintomarket.ir"'
-            minifyEnabled true
+            buildConfigField "String", "BASE_URL", '"http://185.218.139.103:3027"'
+            minifyEnabled false
             debuggable = true
             jniDebuggable = false
-            shrinkResources = true
+            shrinkResources = false
             if (props["sign"]) {
                 signingConfig signingConfigs.release
             }
 //            ndk.abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            buildConfigField "String", "BASE_URL", '"http://193.151.129.59:3000"'
+            buildConfigField "String", "BASE_URL", '"http://185.218.139.103:3027"'
             debuggable = true
             jniDebuggable = true
             minifyEnabled false
