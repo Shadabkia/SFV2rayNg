@@ -32,7 +32,7 @@ android {
         multiDexEnabled true
         versionCode 480
 //        versionName1 "1.7.23"
-        versionName "1.0.0"
+        versionName "1.0.2"
     }
 
     if (props["sign"]) {
@@ -54,7 +54,7 @@ android {
 
     buildTypes {
         release {
-            buildConfigField "String", "BASE_URL", '"http://185.218.139.103:3027"'
+            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3027"'
             minifyEnabled false
             debuggable = true
             jniDebuggable = false
@@ -66,7 +66,7 @@ android {
 //            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            buildConfigField "String", "BASE_URL", '"http://185.218.139.103:3027"'
+            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3027"'
             debuggable = true
             jniDebuggable = true
             minifyEnabled false
@@ -105,7 +105,7 @@ android {
     android.applicationVariants.all { variant ->
         // assign different version code for each output
         variant.outputs.each { output ->
-            output.outputFileName = "SafeNet_" + variant.versionName + "_" + output.getFilter(com.android.build.OutputFile.ABI) + ".apk"
+            output.outputFileName = "SafeNet_Android_" + variant.versionName + ".apk"
 
                 output.versionCodeOverride =
                     project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) *

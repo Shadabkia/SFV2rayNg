@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -213,6 +214,7 @@ class MainActivity : BaseActivity() {
 //                tv_test_state.text = getString(R.string.connection_test_fail)
                 }
             }
+
         }
     }
 

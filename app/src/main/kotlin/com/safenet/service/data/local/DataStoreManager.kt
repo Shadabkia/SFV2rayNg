@@ -20,6 +20,10 @@ class DataStoreManager @Inject constructor(@ApplicationContext val context: Cont
         preferences[key]
     }
 
+    fun <T> getData2(key: Preferences.Key<T>) = context.dataStore.data.map { preferences ->
+        preferences[key]
+    }
+
     suspend fun <T> updateData(key: Preferences.Key<T>, value: T) =
         context.dataStore.edit { preferences ->
             preferences[key] = value
@@ -34,6 +38,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext val context: Cont
     object PreferenceKeys {
         val ACCESS_TOKEN = stringPreferencesKey(name = "access_token")
         val PUBLIC_S = stringPreferencesKey(name = "public_s")
+        val IS_CONNECTED = booleanPreferencesKey(name = "is_connected")
         val USER_ID = longPreferencesKey(name = "user_id")
         val TIME_OPENED_DETAILS = intPreferencesKey(name = "time_opened_details")
         val TIME_OPENED_WISH_LIST = intPreferencesKey(name = "time_opened_details")

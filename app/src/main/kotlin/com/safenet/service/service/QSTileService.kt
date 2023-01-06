@@ -57,9 +57,6 @@ class QSTileService : TileService() {
     var serverList = MmkvManager.decodeServerList()
     val serversCache = mutableListOf<ServersCache>()
 
-    val defaultSharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
-
-
 
     fun setState(state: Int) {
         if (state == Tile.STATE_INACTIVE) {
@@ -71,7 +68,6 @@ class QSTileService : TileService() {
             qsTile?.label = V2RayServiceManager.currentConfig?.remarks
             qsTile?.icon = Icon.createWithResource(applicationContext, R.drawable.ic_stat_name)
         }
-
 
         qsTile?.updateTile()
     }
@@ -97,7 +93,7 @@ class QSTileService : TileService() {
             Tile.STATE_INACTIVE -> {
                 Timber.d("startService 3")
 //                listenToken(this)
-                Utils.startVServiceFromToggle(this)
+                toast("Will be enabled in next version")
             }
             Tile.STATE_ACTIVE -> {
 //                disconnectApi()
@@ -132,28 +128,28 @@ class QSTileService : TileService() {
         }
     }
 
-    fun listenToken(context: Context) = scope.launch {
-        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("listenToken")
-        dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN)
-            .collectLatest { token ->
-                if (token != null) {
-                    try {
-                        val publicS =
-                            dataStoreManager.getData(DataStoreManager.PreferenceKeys.PUBLIC_S)
-                                .first()
-                        val tokenE = KeyManage.instance.getToken(
-                            token,
-                            publicS ?: ""
-                        )
-                        getConfig(tokenE, context)
-                    } catch (e: Exception) {
-//                    setAppActivated(false)
-                    }
-                } else {
-//                setAppActivated(false)
-                }
-            }
-    }
+//    fun listenToken(context: Context) = scope.launch {
+//        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("listenToken")
+//        dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN)
+//            .collectLatest { token ->
+//                if (token != null) {
+//                    try {
+//                        val publicS =
+//                            dataStoreManager.getData(DataStoreManager.PreferenceKeys.PUBLIC_S)
+//                                .first()
+//                        val tokenE = KeyManage.instance.getToken(
+//                            token,
+//                            publicS ?: ""
+//                        )
+//                        getConfig(tokenE, context)
+//                    } catch (e: Exception) {
+////                    setAppActivated(false)
+//                    }
+//                } else {
+////                setAppActivated(false)
+//                }
+//            }
+//    }
 
     private fun getConfig(tokenE: String, context: Context) = scope.launch {
         verificationRepository.getConfig(
@@ -251,30 +247,30 @@ class QSTileService : TileService() {
         )
     }
 
-    fun disconnectApi() = scope.launch {
-//        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
-        dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN).collectLatest { token ->
-            if (token != null) {
-                try {
-//                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi2")
-                    val publicS = dataStoreManager.getData(DataStoreManager.PreferenceKeys.PUBLIC_S).first()
-                    val tokenE = KeyManage.instance.getToken(
-                        token,
-                        publicS ?: ""
-                    )
-//                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi3")
-                    verificationRepository.disconnect(tokenE).collectLatest {
-                        Utils.stopVService(this@QSTileService)
-//                        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi4")
-                    }
-                } catch (e: Exception) {
-                    Utils.stopVService(this@QSTileService)
-                }
-            } else {
-                Utils.stopVService(this@QSTileService)
-            }
-        }
-    }
+//    fun disconnectApi() = scope.launch {
+////        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
+//        dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN).collectLatest { token ->
+//            if (token != null) {
+//                try {
+////                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi2")
+//                    val publicS = dataStoreManager.getData(DataStoreManager.PreferenceKeys.PUBLIC_S).first()
+//                    val tokenE = KeyManage.instance.getToken(
+//                        token,
+//                        publicS ?: ""
+//                    )
+////                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi3")
+//                    verificationRepository.disconnect(tokenE).collectLatest {
+//                        Utils.stopVService(this@QSTileService)
+////                        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi4")
+//                    }
+//                } catch (e: Exception) {
+//                    Utils.stopVService(this@QSTileService)
+//                }
+//            } else {
+//                Utils.stopVService(this@QSTileService)
+//            }
+//        }
+//    }
 
 
     override fun onDestroy() {

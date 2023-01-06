@@ -13,6 +13,7 @@ import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.R
 import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.IS_CONNECTED
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.dto.*
@@ -366,73 +367,76 @@ class MainViewModel @Inject constructor(
 
     fun disconnectApi() = viewModelScope.launch {
 //        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
-        dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
-            if (token != null) {
-                try {
+        val token = dataStoreManager.getData(ACCESS_TOKEN).first()
+        if (token != null) {
+            try {
 //                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi2")
-                    val publicS = dataStoreManager.getData(PUBLIC_S).first()
-                    val tokenE = KeyManage.instance.getToken(
-                        token,
-                        publicS ?: ""
-                    )
+                val publicS = dataStoreManager.getData(PUBLIC_S).first()
+                val tokenE = KeyManage.instance.getToken(
+                    token,
+                    publicS ?: ""
+                )
 //                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi3")
-                    verificationRepository.disconnect(tokenE).collectLatest {
+                verificationRepository.disconnect(tokenE).collectLatest {
 //                        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi4")
-                        mainActivityEventChannel.send(MainActivityEvents.Disconnected(""))
-                    }
-                } catch (e: Exception) {
+                    dataStoreManager.updateData(IS_CONNECTED, false);
                     mainActivityEventChannel.send(MainActivityEvents.Disconnected(""))
                 }
+            } catch (e: Exception) {
+                mainActivityEventChannel.send(MainActivityEvents.Disconnected(""))
             }
         }
     }
 
     fun listenToken() = viewModelScope.launch {
         Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("listenToken")
-        dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
-            if (token != null) {
-                try {
-                    val publicS = dataStoreManager.getData(PUBLIC_S).first()
-                    val tokenE = KeyManage.instance.getToken(
-                        token,
-                        publicS ?: ""
-                    )
-                    getConfig(tokenE)
-                } catch (e: Exception) {
-                    setAppActivated(false)
-                    mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage("Activate Again"))
-                }
-            }
-            else {
+        val token = dataStoreManager.getData(ACCESS_TOKEN).first()
+        if (token != null) {
+            try {
+                val publicS = dataStoreManager.getData(PUBLIC_S).first()
+                val tokenE = KeyManage.instance.getToken(
+                    token,
+                    publicS ?: ""
+                )
+                getConfig(tokenE)
+            } catch (e: Exception) {
                 setAppActivated(false)
+                mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage("Activate Again"))
             }
+        } else {
+            setAppActivated(false)
         }
+
     }
 
     fun getConfig(token: String) = viewModelScope.launch(Dispatchers.IO) {
+        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getConfig")
         verificationRepository.getConfig(
             token
         ).collectLatest { res ->
-            when(res){
+            when (res) {
                 is Result.Error -> {
                     Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(res.message)
                     mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.message))
                 }
-                is Result.Loading ->{
+                is Result.Loading -> {
                 }
                 is Result.Success -> {
-                    when(res.data?.status?.code){
+                    when (res.data?.status?.code) {
                         0 -> {
                             config.value = res.data.config
                             setAppActivated(true)
+                            dataStoreManager.updateData(IS_CONNECTED, true);
                         }
                         -1 -> {
                             mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.massage))
                         }
                         -2 -> {
-                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(
-                                "Your Voucher Time has been Expired!"
-                            ))
+                            mainActivityEventChannel.send(
+                                MainActivityEvents.GetConfigMessage(
+                                    "Your Voucher Time has been Expired!"
+                                )
+                            )
                             dataStoreManager.clearDataStore()
                         }
                         -3 -> {
@@ -444,12 +448,11 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
-            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getConfig")
         }
     }
 
-    private fun setAppActivated(status : Boolean) = viewModelScope.launch {
-        if (!status){
+    private fun setAppActivated(status: Boolean) = viewModelScope.launch {
+        if (!status) {
             while (serversCache.size > 0) {
                 removeServer(serversCache[serversCache.size - 1].guid)
             }
