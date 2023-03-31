@@ -9,20 +9,25 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class VerificationRepositoryImpl @Inject constructor(
-    private val api : RetrofitService,
-) : VerificationRepository, SafeApiRequest(){
-    override fun verifyVoucher(voucher: String, publicIdU: String) =
+    private val api: RetrofitService,
+) : VerificationRepository, SafeApiRequest() {
+    override fun verifyVoucher(voucher: String, publicIdU: String, osInfo: String, force: Int) =
         apiRequest {
-            api.verifyVoucher(voucher, publicIdU)
+            api.verifyVoucher(voucher, publicIdU, osInfo, force)
         }
 
-    override fun getConfig(token: String): Flow<Result<ConfigResponse>> =
+    override fun getConfig(token: String, osInfo: String): Flow<Result<ConfigResponse>> =
         apiRequest {
-            api.getConfig(token = token)
+            api.getConfig(token = token, osInfo)
         }
 
     override fun disconnect(token: String): Flow<Result<Status>> =
         apiRequest {
             api.disconnect(token = token)
+        }
+
+    override fun logout(token: String): Flow<Result<Status>> =
+        apiRequest {
+            api.logout(token)
         }
 }

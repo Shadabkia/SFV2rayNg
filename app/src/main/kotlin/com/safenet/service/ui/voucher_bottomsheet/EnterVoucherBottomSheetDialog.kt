@@ -1,5 +1,6 @@
 package com.safenet.service.ui.voucher_bottomsheet
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -50,14 +51,15 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
                 when (it) {
                     EnterVoucherBottomSheetEvents.InitViews -> initViews()
                     is EnterVoucherBottomSheetEvents.NavigateToEnterCode -> TODO()
-                    EnterVoucherBottomSheetEvents.Success ->{
+                    EnterVoucherBottomSheetEvents.Success -> {
                         requireContext().toast("You can connect now!")
                         this@EnterVoucherBottomSheetDialog.dismiss()
                     }
-                    EnterVoucherBottomSheetEvents.Error ->{
+                    EnterVoucherBottomSheetEvents.Error -> {
                         requireContext().toast("Error")
                         this@EnterVoucherBottomSheetDialog.dismiss()
                     }
+                    EnterVoucherBottomSheetEvents.MaxUserDialog -> showMaxUserDialog()
                 }
             }
         }
@@ -66,28 +68,41 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
 
     }
 
+    private fun showMaxUserDialog() {
+
+        val dialog = AlertDialog.Builder(requireContext())
+        dialog.setMessage("You reached Max user of this code. \nif you continue another device will be disconnected ")
+            .setPositiveButton(R.string.continue_verify) { _, _ ->
+                viewModel.onConfirmClicked(binding.etVoucher.text.toString(), force = 1)
+            }
+            .setNegativeButton(R.string.cancel) { _, _ ->
+
+            }
+            .show()
+
+    }
+
 
     private fun initViews() {
         initListeners()
-        viewLifecycleOwner.lifecycleScope.launch{
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.state.collectLatest { state ->
                 binding.pbVerification.isVisible = state?.isLoading ?: false
                 state?.let {
-                    if(state.error.isNotBlank()) {
+                    if (state.error.isNotBlank()) {
                         activity?.toast(state.error)
                         viewModel.state.value = null
                     }
                 }
             }
         }
-
     }
 
     private fun initListeners() {
         binding.apply {
-            btConfirm.setOnClickListener{
-                if(etVoucher.text.toString().isNotEmpty()){
-                    viewModel.onConfirmClicked(etVoucher.text.toString())
+            btConfirm.setOnClickListener {
+                if (etVoucher.text.toString().isNotEmpty()) {
+                    viewModel.onConfirmClicked(etVoucher.text.toString(), force = 0)
                 }
             }
         }

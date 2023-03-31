@@ -21,11 +21,13 @@ import android.os.LocaleList
 import android.util.Log
 import android.util.Patterns
 import android.webkit.URLUtil
+import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.BuildConfig
 import com.safenet.service.R
+import com.safenet.service.data.network.dto.OsInfo
 import com.safenet.service.extension.toast
 import java.net.*
 import com.safenet.service.service.V2RayServiceManager
@@ -296,7 +298,7 @@ object Utils {
      * stopVService
      */
     fun stopVService(context: Context) {
-        context.toast(R.string.toast_services_stop)
+//        context.toast(R.string.toast_services_stop)
         MessageUtil.sendMsg2Service(context, AppConfig.MSG_STATE_STOP, "")
     }
 
@@ -429,6 +431,16 @@ object Utils {
 
     fun removeWhiteSpace(str: String?): String? {
         return str?.replace(" ", "")
+    }
+
+    fun getOsInfo() : String {
+        val gson = Gson()
+        val osInfo = OsInfo(
+            osVersion = Build.VERSION.SDK_INT.toString(),
+            architecture = System.getProperty("os.arch") ?: "error",
+            appVersion = BuildConfig.VERSION_NAME.toString()
+        )
+        return gson.toJson(osInfo)
     }
 }
 

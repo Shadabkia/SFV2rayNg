@@ -412,7 +412,8 @@ class MainViewModel @Inject constructor(
     fun getConfig(token: String) = viewModelScope.launch(Dispatchers.IO) {
         Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getConfig")
         verificationRepository.getConfig(
-            token
+            token,
+            Utils.getOsInfo()
         ).collectLatest { res ->
             when (res) {
                 is Result.Error -> {
@@ -434,7 +435,7 @@ class MainViewModel @Inject constructor(
                         -2 -> {
                             mainActivityEventChannel.send(
                                 MainActivityEvents.GetConfigMessage(
-                                    "Your Voucher Time has been Expired!"
+                                    res.data.status.massage
                                 )
                             )
                             dataStoreManager.clearDataStore()
@@ -452,19 +453,85 @@ class MainViewModel @Inject constructor(
     }
 
     private fun setAppActivated(status: Boolean) = viewModelScope.launch {
+        mainActivityEventChannel.send(MainActivityEvents.ActivateApp(status))
         if (!status) {
             while (serversCache.size > 0) {
                 removeServer(serversCache[serversCache.size - 1].guid)
             }
         }
-
-        mainActivityEventChannel.send(MainActivityEvents.ActivateApp(status))
     }
 
     fun checkAppActivated() = viewModelScope.launch {
         dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
             Timber.d("appstatus token $token")
             setAppActivated(token != null)
+        }
+    }
+
+    fun onLogoutClicked() = viewModelScope.launch {
+        disconnectApi()
+        mainActivityEventChannel.send(MainActivityEvents.ShowLogoutDialog)
+    }
+
+
+    fun logout() = viewModelScope.launch {
+        val token = dataStoreManager.getData(ACCESS_TOKEN).first()
+        if (token != null) {
+            try {
+                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("onLogoutClicked")
+                val publicS = dataStoreManager.getData(PUBLIC_S).first()
+                val tokenE = KeyManage.instance.getToken(
+                    token,
+                    publicS ?: ""
+                )
+                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("onLogoutClicked2")
+                verificationRepository.logout(tokenE).collectLatest { res ->
+                    when (res) {
+                        is Result.Error -> {
+                            mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.message ?: "Error"))
+                        }
+                        is Result.Loading -> {
+
+                        }
+                        is Result.Success -> {
+                            when (res.data?.code) {
+                                0 -> {
+                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.massage))
+                                    dataStoreManager.clearDataStore()
+//                                    dataStoreManager.updateData(IS_CONNECTED, false);
+                                    setAppActivated(false)
+//                                    checkAppActivated()
+                                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("onLogoutClicked4")
+
+                                }
+                                -1 -> {
+                                    // wrong token ke karbar nemikhorad
+                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.massage))
+                                }
+                                -2 -> {
+                                    //
+                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.massage))
+                                }
+                                -4 -> {
+                                    // max reset
+                                    mainActivityEventChannel.send(MainActivityEvents.MaxLoginDialog)
+                                }
+                                else -> {
+                                    //
+                                    mainActivityEventChannel.send(
+                                        MainActivityEvents.ShowMessage(
+                                            res.data?.massage ?: "Error"
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("onLogoutClicked3")
+
+                }
+            } catch (e: Exception) {
+            }
         }
     }
 }

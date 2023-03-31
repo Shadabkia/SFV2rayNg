@@ -10,21 +10,14 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.util.Log
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.preference.PreferenceManager
 import com.safenet.service.AngApplication
 import com.safenet.service.AppConfig
 import com.safenet.service.R
 import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.network.Result
-import com.safenet.service.data.network.dto.VerifyResponse
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.dto.ServersCache
 import com.safenet.service.extension.toast
-import com.safenet.service.extension.toastLong
-import com.safenet.service.ui.MainActivity
-import com.safenet.service.ui.main.MainActivityEvents
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,7 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.ref.SoftReference
@@ -153,7 +145,8 @@ class QSTileService : TileService() {
 
     private fun getConfig(tokenE: String, context: Context) = scope.launch {
         verificationRepository.getConfig(
-            tokenE
+            tokenE,
+            Utils.getOsInfo()
         ).collectLatest{
                 res ->
             when(res){

@@ -216,10 +216,14 @@
     <string name="import_server" translatable="false">Import from clipboard</string>
     <string name="wrong_confige" translatable="false">Please Contact Us and Report Problem</string>
     <string name="server_name" translatable="false">Running: %1$s</string>
-    <string name="active" translatable="false">Activate VPN</string>
-    <string name="activated" translatable="false">Activated</string>
+    <string name="login" translatable="false">Login</string>
+    <string name="logout" translatable="false">Logout</string>
+    <string name="logout_message" translatable="false">Are you sure to logout?</string>
     <string name="enter_voucher" translatable="false">Enter your Code</string>
     <string name="confirm" translatable="false">Confirm</string>
+    <string name="cancel" translatable="false">Cancel</string>
+    <string name="continue_verify" translatable="false">continue</string>
+    <string name="max_logout_message" translatable="false">You reached your code max logout. \n you can logout again tommorow</string>
 
     <string-array name="share_method">
         <item>QRcode</item>

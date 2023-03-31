@@ -11,6 +11,7 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.VerifyResponse
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.util.KeyManage
+import com.safenet.service.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -41,18 +42,20 @@ constructor(
         private set
 
 
-    fun onConfirmClicked(voucher: String) {
+    fun onConfirmClicked(voucher: String, force: Int) {
         Timber.tag("ConfigApi").d("verification getPublic : ${KeyManage.instance.getPublic()}")
         val publicS = KeyManage.instance.getPublic()
-        verification(voucher.trim(), publicS.trim())
-
+        verification(voucher.trim(), publicS.trim(), force)
     }
 
-    private fun verification(voucher: String, publicU: String) =
+    private fun verification(voucher: String, publicU: String, force : Int) =
         viewModelScope.launch(Dispatchers.IO) {
+            Timber.tag("osinfo").d("osinfo: ${Utils.getOsInfo()}" )
             verificationRepository.verifyVoucher(
                 voucher = voucher,
-                publicIdU = publicU
+                publicIdU = publicU,
+                Utils.getOsInfo(),
+                force
             ).collectLatest { res ->
                 when (res) {
                     is Result.Error -> {
@@ -66,11 +69,30 @@ constructor(
                     }
                     is Result.Success -> {
                         Timber.tag("ConfigApi").d("verification success ${res.data}")
-                        if(res.data?.status?.code == 0){
-                            enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Success)
-                            setTokenAndPublicKeyToDataStore(res.data)
-                        } else{
-                            state.value = ModelState(error = res.data?.status?.massage ?: "")
+                        when(res.data?.status?.code){
+                            0 -> {
+                                enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Success)
+                                setTokenAndPublicKeyToDataStore(res.data)
+                            }
+                            -1 -> {
+                                // wrong serial
+                                state.value = ModelState(error = "Wrong code")
+                            }
+                            -2 -> {
+                                // max user -- mitavani force verify konid --> call again in "yes" ignore in "no"
+                                enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.MaxUserDialog)
+                            }
+                            -4 -> {
+                                state.value = ModelState(error = " You reached your code max login. \nyou can login again at 00:00")
+
+                            }
+                            -3 -> {
+                                // wrong public key
+                                state.value = ModelState(error = res.data.status.massage)
+                            }
+                            else -> {
+                                state.value = ModelState(error = res.data?.status?.massage ?: "")
+                            }
                         }
                     }
                 }

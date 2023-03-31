@@ -8,27 +8,28 @@ import android.net.Uri
 import android.net.VpnService
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.button.MaterialButton
 import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.R
+import com.safenet.service.data.network.dto.OsInfo
 import com.safenet.service.databinding.ActivityMainBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.helper.SimpleItemTouchHelperCallback
-import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.ui.main.MainActivityEvents
 import com.safenet.service.ui.main.MainViewModel
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
@@ -40,8 +41,6 @@ import com.tbruyelle.rxpermissions.RxPermissions
 import com.tencent.mmkv.MMKV
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.drakeet.support.toast.ToastCompat
@@ -54,7 +53,6 @@ import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
-
 
     private lateinit var binding: ActivityMainBinding
 
@@ -85,6 +83,7 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
@@ -107,7 +106,7 @@ class MainActivity : BaseActivity() {
 
         this.lifecycleScope.launch {
             mainViewModel.mainActivityEvent.collectLatest { event ->
-                when(event){
+                when (event) {
                     is MainActivityEvents.ActivateApp -> activateApp(event.status)
                     is MainActivityEvents.GetConfigMessage -> {
                         hideCircle()
@@ -116,8 +115,12 @@ class MainActivity : BaseActivity() {
                     }
                     is MainActivityEvents.Disconnected -> {
                         binding.fab.isEnabled = true
+                        Utils.stopVService(this@MainActivity)
                         hideCircle()
                     }
+                    MainActivityEvents.ShowLogoutDialog -> showLogoutDialog()
+                    is MainActivityEvents.ShowMessage -> toast(event.message)
+                    MainActivityEvents.MaxLoginDialog -> showMaxLoginDialog()
                 }
 
             }
@@ -127,16 +130,47 @@ class MainActivity : BaseActivity() {
         initView()
     }
 
+    private fun showMaxLoginDialog() {
+        val dialog =  AlertDialog.Builder(this)
+        dialog.setMessage(R.string.max_logout_message)
+            .setPositiveButton(android.R.string.ok) { _,_ ->
+
+            }
+            .show()
+    }
+
+    private fun showLogoutDialog() {
+        val dialog =  AlertDialog.Builder(this)
+        dialog.setMessage(R.string.logout_message)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                mainViewModel.logout()
+            }
+            .setNegativeButton(R.string.cancel){_,_ ->
+
+            }
+            .show()
+    }
+
     private fun activateApp(status: Boolean) {
         Timber.d("appstatus $status")
         binding.apply {
             if (status) {
-                navToolbar.activeVpn.text = getString(R.string.activated)
-                navToolbar.activeVpn.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorSelected))
+                navToolbar.activeVpn.text = getString(R.string.logout)
+                navToolbar.activeVpn.setTextColor(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        R.color.colorPingRed
+                    )
+                )
                 binding.fab.isEnabled = true
             } else {
-                navToolbar.activeVpn.text = getString(R.string.active)
-                navToolbar.activeVpn.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPingRed))
+                navToolbar.activeVpn.text = getString(R.string.login)
+                navToolbar.activeVpn.setTextColor(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        R.color.colorSelected
+                    )
+                )
 //                binding.serverAvailability.text = getString(R.string.no_server)
                 binding.fab.isEnabled = false
             }
@@ -161,7 +195,10 @@ class MainActivity : BaseActivity() {
         binding.apply {
             navToolbar.apply {
                 activeVpn.setOnClickListener {
-                    mainViewModel.onActiveVpnClicked(this@MainActivity)
+                    if ((it as MaterialButton).text == getString(R.string.logout)) {
+                        mainViewModel.onLogoutClicked()
+                    } else
+                        mainViewModel.onActiveVpnClicked(this@MainActivity)
                 }
             }
 
@@ -182,13 +219,12 @@ class MainActivity : BaseActivity() {
 
                     if (mainViewModel.isRunning.value == true) {
                         mainViewModel.disconnectApi()
-                        Utils.stopVService(this@MainActivity)
                     } else if ((settingsStorage?.decodeString(AppConfig.PREF_MODE)
                             ?: "VPN") == "VPN"
                     ) {
                         val intent = VpnService.prepare(this@MainActivity)
-                        if (intent == null ) {
-                            if(fab.isEnabled) {
+                        if (intent == null) {
+                            if (fab.isEnabled) {
                                 mainViewModel.listenToken()
                                 showCircle()
                             }
@@ -197,7 +233,7 @@ class MainActivity : BaseActivity() {
                             requestVpnPermission.launch(intent)
                         }
                     } else {
-                        if(fab.isEnabled) {
+                        if (fab.isEnabled) {
                             mainViewModel.listenToken()
                             showCircle()
                         }
@@ -230,10 +266,12 @@ class MainActivity : BaseActivity() {
     private fun activeRouting() {
         // add routing
         settingsStorage?.encode(
-            AppConfig.PREF_V2RAY_ROUTING_DIRECT, defaultSharedPreferences.getString(AppConfig.PREF_V2RAY_ROUTING_DIRECT, "")
+            AppConfig.PREF_V2RAY_ROUTING_DIRECT,
+            defaultSharedPreferences.getString(AppConfig.PREF_V2RAY_ROUTING_DIRECT, "")
         )
         settingsStorage?.encode(
-            AppConfig.PREF_V2RAY_ROUTING_BLOCKED, defaultSharedPreferences.getString(AppConfig.PREF_V2RAY_ROUTING_BLOCKED, "")
+            AppConfig.PREF_V2RAY_ROUTING_BLOCKED,
+            defaultSharedPreferences.getString(AppConfig.PREF_V2RAY_ROUTING_BLOCKED, "")
         )
 
     }
@@ -363,8 +401,8 @@ class MainActivity : BaseActivity() {
         try {
 //            val clipboard = Utils.getClipboard(this)
             val deConfig = KeyManage.instance.getConfig(config)
-            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("config : $deConfig" )
-            mainViewModel.importBatchConfig(deConfig, "",this@MainActivity)
+            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("config : $deConfig")
+            mainViewModel.importBatchConfig(deConfig, "", this@MainActivity)
         } catch (e: Exception) {
             e.printStackTrace()
             toastLong(R.string.wrong_confige)

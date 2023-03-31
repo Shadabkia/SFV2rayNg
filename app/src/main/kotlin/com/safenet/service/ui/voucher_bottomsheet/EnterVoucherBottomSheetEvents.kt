@@ -5,4 +5,6 @@ sealed class EnterVoucherBottomSheetEvents{
     object InitViews: EnterVoucherBottomSheetEvents()
     object Success: EnterVoucherBottomSheetEvents()
     object Error: EnterVoucherBottomSheetEvents()
+    object
+    MaxUserDialog : EnterVoucherBottomSheetEvents()
 }
