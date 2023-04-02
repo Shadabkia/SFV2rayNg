@@ -32,7 +32,6 @@ import java.util.*
 import javax.inject.Inject
 import com.safenet.service.data.network.Result
 import com.safenet.service.service.V2RayServiceManager
-import com.safenet.service.ui.MainActivity
 import kotlinx.coroutines.channels.Channel
 
 
@@ -338,7 +337,7 @@ class MainViewModel @Inject constructor(
         var count = AngConfigManager.importBatchConfig(server, subside2, append)
         if (count <= 0) {
             AngConfigManager.importBatchConfig(Utils.decode(server!!), subside2, append)
-            context.toastLong(R.string.wrong_confige)
+            context.toastLong(R.string.wrong_config)
         } else {
             if (serverList.size >= 1) {
                 // Delete servers
@@ -365,7 +364,7 @@ class MainViewModel @Inject constructor(
                 ?: "No server!"
     }
 
-    fun disconnectApi() = viewModelScope.launch {
+    fun disconnectApi()  = viewModelScope.launch {
 //        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
         val token = dataStoreManager.getData(ACCESS_TOKEN).first()
         if (token != null) {
@@ -469,12 +468,15 @@ class MainViewModel @Inject constructor(
     }
 
     fun onLogoutClicked() = viewModelScope.launch {
-        disconnectApi()
         mainActivityEventChannel.send(MainActivityEvents.ShowLogoutDialog)
     }
 
+    fun disconnectAndLogout(){
+        disconnectApi()
+        logout()
+    }
 
-    fun logout() = viewModelScope.launch {
+    private fun logout() = viewModelScope.launch {
         val token = dataStoreManager.getData(ACCESS_TOKEN).first()
         if (token != null) {
             try {
@@ -488,29 +490,31 @@ class MainViewModel @Inject constructor(
                 verificationRepository.logout(tokenE).collectLatest { res ->
                     when (res) {
                         is Result.Error -> {
-                            mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.message ?: "Error"))
+                            mainActivityEventChannel.send(MainActivityEvents.ShowMessage("Couldn't Logout. Check your internet connection"))
                         }
                         is Result.Loading -> {
-
+                            mainActivityEventChannel.send(MainActivityEvents.ShowMessage("Logging out ..."))
                         }
                         is Result.Success -> {
-                            when (res.data?.code) {
+                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout message: ${res.data?.status?.massage}")
+                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout code: ${res.data?.status?.code}")
+                            when (res.data?.status?.code) {
                                 0 -> {
-                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.massage))
+                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Logged Out"))
                                     dataStoreManager.clearDataStore()
 //                                    dataStoreManager.updateData(IS_CONNECTED, false);
                                     setAppActivated(false)
 //                                    checkAppActivated()
-                                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("onLogoutClicked4")
+                                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout message: ${res.data.status.massage}")
 
                                 }
                                 -1 -> {
                                     // wrong token ke karbar nemikhorad
-                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.massage))
+                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.status.massage))
                                 }
                                 -2 -> {
                                     //
-                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.massage))
+                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.status.massage))
                                 }
                                 -4 -> {
                                     // max reset
@@ -520,7 +524,7 @@ class MainViewModel @Inject constructor(
                                     //
                                     mainActivityEventChannel.send(
                                         MainActivityEvents.ShowMessage(
-                                            res.data?.massage ?: "Error"
+                                            res.data?.status?.massage ?: "Error"
                                         )
                                     )
                                 }

@@ -7,6 +7,7 @@ import com.google.zxing.WriterException
 import com.safenet.service.R
 import com.safenet.service.databinding.ActivityLogcatBinding
 import com.safenet.service.extension.toast
+import com.safenet.service.ui.main.MainActivity
 import com.safenet.service.util.AngConfigManager
 import dagger.hilt.android.AndroidEntryPoint
 

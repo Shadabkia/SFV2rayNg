@@ -7,4 +7,6 @@ sealed class EnterVoucherBottomSheetEvents{
     object Error: EnterVoucherBottomSheetEvents()
     object
     MaxUserDialog : EnterVoucherBottomSheetEvents()
+
+    class MaxLoginDialog(val message : String) : EnterVoucherBottomSheetEvents()
 }

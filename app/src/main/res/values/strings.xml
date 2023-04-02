@@ -214,7 +214,7 @@
     <string name="connect" translatable="false">Connect</string>
     <string name="connected" translatable="false">Connected</string>
     <string name="import_server" translatable="false">Import from clipboard</string>
-    <string name="wrong_confige" translatable="false">Please Contact Us and Report Problem</string>
+    <string name="wrong_config" translatable="false">Please login again</string>
     <string name="server_name" translatable="false">Running: %1$s</string>
     <string name="login" translatable="false">Login</string>
     <string name="logout" translatable="false">Logout</string>

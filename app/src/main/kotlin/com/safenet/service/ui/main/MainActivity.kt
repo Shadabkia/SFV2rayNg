@@ -1,4 +1,4 @@
-package com.safenet.service.ui
+package com.safenet.service.ui.main
 
 import android.Manifest
 import android.content.ActivityNotFoundException
@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.Menu
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -25,13 +24,13 @@ import com.google.android.material.button.MaterialButton
 import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.R
-import com.safenet.service.data.network.dto.OsInfo
 import com.safenet.service.databinding.ActivityMainBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.helper.SimpleItemTouchHelperCallback
-import com.safenet.service.ui.main.MainActivityEvents
-import com.safenet.service.ui.main.MainViewModel
+import com.safenet.service.ui.BaseActivity
+import com.safenet.service.ui.MainRecyclerAdapter
+import com.safenet.service.ui.ServerActivity
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.AngConfigManager
 import com.safenet.service.util.KeyManage
@@ -143,7 +142,7 @@ class MainActivity : BaseActivity() {
         val dialog =  AlertDialog.Builder(this)
         dialog.setMessage(R.string.logout_message)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                mainViewModel.logout()
+                mainViewModel.disconnectAndLogout()
             }
             .setNegativeButton(R.string.cancel){_,_ ->
 
@@ -405,7 +404,7 @@ class MainActivity : BaseActivity() {
             mainViewModel.importBatchConfig(deConfig, "", this@MainActivity)
         } catch (e: Exception) {
             e.printStackTrace()
-            toastLong(R.string.wrong_confige)
+            toastLong(R.string.wrong_config)
             return false
         }
         return true

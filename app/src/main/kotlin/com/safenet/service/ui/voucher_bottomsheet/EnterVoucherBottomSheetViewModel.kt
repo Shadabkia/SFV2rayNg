@@ -83,8 +83,8 @@ constructor(
                                 enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.MaxUserDialog)
                             }
                             -4 -> {
-                                state.value = ModelState(error = " You reached your code max login. \nyou can login again at 00:00")
-
+                                enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.MaxLoginDialog("max login"))
+                                state.value = ModelState(error = "")
                             }
                             -3 -> {
                                 // wrong public key

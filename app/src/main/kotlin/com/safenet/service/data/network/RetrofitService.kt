@@ -37,6 +37,6 @@ interface RetrofitService {
     @POST("/api/logout")
     suspend fun logout(
         @Field("token") token: String,
-    ): Response<Status>
+    ): Response<ConfigResponse>
 
 }

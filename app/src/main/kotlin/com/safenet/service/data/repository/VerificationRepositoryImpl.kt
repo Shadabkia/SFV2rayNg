@@ -26,7 +26,7 @@ class VerificationRepositoryImpl @Inject constructor(
             api.disconnect(token = token)
         }
 
-    override fun logout(token: String): Flow<Result<Status>> =
+    override fun logout(token: String): Flow<Result<ConfigResponse>> =
         apiRequest {
             api.logout(token)
         }

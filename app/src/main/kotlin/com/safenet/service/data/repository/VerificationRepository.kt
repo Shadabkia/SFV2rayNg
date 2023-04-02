@@ -10,5 +10,5 @@ interface VerificationRepository {
     fun verifyVoucher(voucher: String,  publicIdU : String, osInfo: String, force: Int) : Flow<Result<VerifyResponse>>
     fun getConfig(token : String, osInfo: String) : Flow<Result<ConfigResponse>>
     fun disconnect(token : String) : Flow<Result<Status>>
-    fun logout(token: String) : Flow<com.safenet.service.data.network.Result<Status>>
+    fun logout(token: String) : Flow<Result<ConfigResponse>>
 }
