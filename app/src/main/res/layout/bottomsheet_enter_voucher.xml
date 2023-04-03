@@ -48,7 +48,6 @@
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:hint="@string/enter_voucher"
-                    android:text="rTgTHbn7It"
                     android:inputType="textEmailAddress" />
 
             </com.google.android.material.textfield.TextInputLayout>

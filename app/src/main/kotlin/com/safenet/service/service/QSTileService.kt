@@ -159,7 +159,7 @@ class QSTileService : TileService() {
                 is Result.Success -> {
                     when(res.data?.status?.code){
                         0 -> {
-                            importBatchConfig(KeyManage.instance.getConfig(res?.data?.config), "",context)
+                            importBatchConfig(KeyManage.instance.getConfig(res.data.config), "",context)
                         }
                         else -> {
                             context.toast("unsuccessful")

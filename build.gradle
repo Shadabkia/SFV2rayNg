@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        hilt_version = '2.40.5'
+        hilt_version = '2.44.2'
         retrofit_version = '2.9.0'
     }
     repositories {
@@ -12,7 +12,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.1'
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
 
