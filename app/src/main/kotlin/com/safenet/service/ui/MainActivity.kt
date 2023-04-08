@@ -1,4 +1,4 @@
-package com.safenet.service.ui.main
+package com.safenet.service.ui
 
 import android.Manifest
 import android.content.ActivityNotFoundException
@@ -28,9 +28,8 @@ import com.safenet.service.databinding.ActivityMainBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.helper.SimpleItemTouchHelperCallback
-import com.safenet.service.ui.BaseActivity
-import com.safenet.service.ui.MainRecyclerAdapter
-import com.safenet.service.ui.ServerActivity
+import com.safenet.service.ui.main.MainActivityEvents
+import com.safenet.service.ui.main.MainViewModel
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.AngConfigManager
 import com.safenet.service.util.KeyManage
@@ -108,18 +107,19 @@ class MainActivity : BaseActivity() {
                 when (event) {
                     is MainActivityEvents.ActivateApp -> activateApp(event.status)
                     is MainActivityEvents.GetConfigMessage -> {
-                        hideCircle()
+                        hideCircle(1)
                         binding.fab.isEnabled = true
                         toastLong(event.message ?: "Error")
                     }
                     is MainActivityEvents.Disconnected -> {
                         binding.fab.isEnabled = true
-                        Utils.stopVService(this@MainActivity)
-                        hideCircle()
                     }
                     MainActivityEvents.ShowLogoutDialog -> showLogoutDialog()
                     is MainActivityEvents.ShowMessage -> toast(event.message)
                     MainActivityEvents.MaxLoginDialog -> showMaxLoginDialog()
+                    MainActivityEvents.HideCircle -> {
+                        hideCircle(2)
+                    }
                 }
 
             }
@@ -142,7 +142,7 @@ class MainActivity : BaseActivity() {
         val dialog =  AlertDialog.Builder(this)
         dialog.setMessage(R.string.logout_message)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                mainViewModel.disconnectAndLogout()
+                mainViewModel.disconnectAndLogout(this@MainActivity)
             }
             .setNegativeButton(R.string.cancel){_,_ ->
 
@@ -184,7 +184,6 @@ class MainActivity : BaseActivity() {
                 if (it.isNotEmpty()) {
                     importClipboard(it)
                 }
-                hideCircle()
                 binding.fab.isEnabled = true
             }
         }
@@ -217,6 +216,8 @@ class MainActivity : BaseActivity() {
                 this@MainActivity.lifecycleScope.launch {
 
                     if (mainViewModel.isRunning.value == true) {
+                        Utils.stopVService(this@MainActivity)
+                        hideCircle(3)
                         mainViewModel.disconnectApi()
                     } else if ((settingsStorage?.decodeString(AppConfig.PREF_MODE)
                             ?: "VPN") == "VPN"
@@ -322,7 +323,7 @@ class MainActivity : BaseActivity() {
                             }
                         }
                         Timber.tag(ANG_PACKAGE)
-                            .i("Copied from apk assets folder to " + target.absolutePath)
+                            .i("Copied from apk assets folder to %s", target.absolutePath)
                     }
             } catch (e: Exception) {
                 Timber.tag(ANG_PACKAGE).e(e, "asset copy failed")
@@ -405,6 +406,7 @@ class MainActivity : BaseActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
             toastLong(R.string.wrong_config)
+            mainViewModel.setAppActivated(false)
             return false
         }
         return true
@@ -624,7 +626,8 @@ class MainActivity : BaseActivity() {
         binding.progress.isVisible = true
     }
 
-    fun hideCircle() {
+    fun hideCircle(int: Int) {
+        Timber.tag("circle").d("hideCircle! $int")
         if (binding.progress.isShown) {
             binding.progress.isVisible = false
         }

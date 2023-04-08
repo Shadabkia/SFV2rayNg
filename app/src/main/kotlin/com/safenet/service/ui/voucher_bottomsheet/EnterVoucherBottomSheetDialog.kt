@@ -66,7 +66,7 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
 
     private fun showMaxLoginDialog() {
         val dialog = AlertDialog.Builder(requireContext())
-        dialog.setMessage("You reached your code max login today. \nyou can login again at 00:00")
+        dialog.setMessage("The account has reached its maximum Login for today! Try again tomorrow")
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 //bottomsheet dismiss
                 dismiss()
@@ -78,7 +78,7 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
     private fun showMaxUserDialog() {
 
         val dialog = AlertDialog.Builder(requireContext())
-        dialog.setMessage("You reached Max user of this code. \nif you continue another device will be disconnected ")
+        dialog.setMessage("Apparently, your account is full. If you Continue, another user will be disconnected")
             .setPositiveButton(R.string.continue_verify) { _, _ ->
                 viewModel.onConfirmClicked(binding.etVoucher.text.toString(), force = 1)
             }

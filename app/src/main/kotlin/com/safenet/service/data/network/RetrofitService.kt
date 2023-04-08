@@ -1,7 +1,6 @@
 package com.safenet.service.data.network
 
 import com.safenet.service.data.network.dto.ConfigResponse
-import com.safenet.service.data.network.dto.Status
 import com.safenet.service.data.network.dto.VerifyResponse
 import retrofit2.Response
 import retrofit2.http.Field
@@ -31,7 +30,7 @@ interface RetrofitService {
     @POST("/api/disconnect")
     suspend fun disconnect(
         @Field("token") token: String,
-    ): Response<Status>
+    ): Response<ConfigResponse>
 
     @FormUrlEncoded
     @POST("/api/logout")

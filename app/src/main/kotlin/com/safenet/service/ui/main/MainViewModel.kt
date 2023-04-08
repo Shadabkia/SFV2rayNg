@@ -1,7 +1,6 @@
 package com.safenet.service.ui.main
 
 import android.content.*
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -32,6 +31,7 @@ import java.util.*
 import javax.inject.Inject
 import com.safenet.service.data.network.Result
 import com.safenet.service.service.V2RayServiceManager
+import com.safenet.service.ui.MainActivity
 import kotlinx.coroutines.channels.Channel
 
 
@@ -91,13 +91,13 @@ class MainViewModel @Inject constructor(
         application.unregisterReceiver(mMsgReceiver)
         tcpingTestScope.coroutineContext[Job]?.cancelChildren()
         SpeedtestUtil.closeAllTcpSockets()
-        Log.i(ANG_PACKAGE, "Main ViewModel is cleared")
+        Timber.tag(ANG_PACKAGE).i("Main ViewModel is cleared")
         super.onCleared()
     }
 
     fun reloadServerList() {
         serverList = MmkvManager.decodeServerList()
-        Log.d("ServersList", "serverlist size : ${serverList.size}")
+        Timber.tag("ServersList").d("serverlist size : %s", serverList.size)
 
         updateCache()
         updateListAction.value = -1
@@ -114,7 +114,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun removeServer(guid: String) {
-        Log.d("MainViewModel", guid)
+        Timber.tag("MainViewModel").d(guid)
         serverList.remove(guid)
         MmkvManager.removeServer(guid)
         val index = getPosition(guid)
@@ -338,6 +338,7 @@ class MainViewModel @Inject constructor(
         if (count <= 0) {
             AngConfigManager.importBatchConfig(Utils.decode(server!!), subside2, append)
             context.toastLong(R.string.wrong_config)
+            setAppActivated(false)
         } else {
             if (serverList.size >= 1) {
                 // Delete servers
@@ -362,6 +363,11 @@ class MainViewModel @Inject constructor(
         _serverAvailability.value =
             MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
                 ?: "No server!"
+
+        viewModelScope.launch {
+            mainActivityEventChannel.send(MainActivityEvents.HideCircle)
+        }
+
     }
 
     fun disconnectApi()  = viewModelScope.launch {
@@ -432,15 +438,20 @@ class MainViewModel @Inject constructor(
                             mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.massage))
                         }
                         -2 -> {
+                            // deactive app
                             mainActivityEventChannel.send(
                                 MainActivityEvents.GetConfigMessage(
-                                    res.data.status.massage
+                                    "You have Logged Out.Please Login Again."
                                 )
                             )
                             dataStoreManager.clearDataStore()
                         }
                         -3 -> {
                             mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.massage))
+                        }
+                        -7 -> {
+                            // active tunnel problem
+                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage("Technical Problem.Please Contact Support"))
                         }
                         else -> {
                             mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data?.status?.massage))
@@ -451,7 +462,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun setAppActivated(status: Boolean) = viewModelScope.launch {
+    fun setAppActivated(status: Boolean) = viewModelScope.launch {
         mainActivityEventChannel.send(MainActivityEvents.ActivateApp(status))
         if (!status) {
             while (serversCache.size > 0) {
@@ -471,7 +482,8 @@ class MainViewModel @Inject constructor(
         mainActivityEventChannel.send(MainActivityEvents.ShowLogoutDialog)
     }
 
-    fun disconnectAndLogout(){
+    fun disconnectAndLogout(context: Context){
+        Utils.stopVService(context)
         disconnectApi()
         logout()
     }
@@ -502,9 +514,7 @@ class MainViewModel @Inject constructor(
                                 0 -> {
                                     mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Logged Out"))
                                     dataStoreManager.clearDataStore()
-//                                    dataStoreManager.updateData(IS_CONNECTED, false);
                                     setAppActivated(false)
-//                                    checkAppActivated()
                                     Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout message: ${res.data.status.massage}")
 
                                 }
@@ -524,7 +534,7 @@ class MainViewModel @Inject constructor(
                                     //
                                     mainActivityEventChannel.send(
                                         MainActivityEvents.ShowMessage(
-                                            res.data?.status?.massage ?: "Error"
+                                            "Error code ${res.data?.status?.code}"
                                         )
                                     )
                                 }

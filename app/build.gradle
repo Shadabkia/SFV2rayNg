@@ -30,9 +30,9 @@ android {
         minSdkVersion 21
         targetSdkVersion Integer.parseInt("$targetSdkVer")
         multiDexEnabled true
-        versionCode 110
+        versionCode 484
 //        versionName1 "1.7.23"
-        versionName "1.1.0"
+        versionName "1.1.2"
     }
 
     if (props["sign"]) {

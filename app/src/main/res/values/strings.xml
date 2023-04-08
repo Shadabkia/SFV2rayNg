@@ -223,7 +223,7 @@
     <string name="confirm" translatable="false">Confirm</string>
     <string name="cancel" translatable="false">Cancel</string>
     <string name="continue_verify" translatable="false">continue</string>
-    <string name="max_logout_message" translatable="false">You reached your code max logout. \n you can logout again tommorow</string>
+    <string name="max_logout_message" translatable="false">You have reached your maximum Logout. Try again tomorrow</string>
 
     <string-array name="share_method">
         <item>QRcode</item>

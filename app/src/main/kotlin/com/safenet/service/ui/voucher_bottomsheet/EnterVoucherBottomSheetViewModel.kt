@@ -10,6 +10,7 @@ import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.VerifyResponse
 import com.safenet.service.data.repository.VerificationRepository
+import com.safenet.service.ui.main.MainActivityEvents
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -81,6 +82,7 @@ constructor(
                             -2 -> {
                                 // max user -- mitavani force verify konid --> call again in "yes" ignore in "no"
                                 enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.MaxUserDialog)
+                                state.value = ModelState(isLoading = false)
                             }
                             -4 -> {
                                 enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.MaxLoginDialog("max login"))
@@ -89,6 +91,10 @@ constructor(
                             -3 -> {
                                 // wrong public key
                                 state.value = ModelState(error = res.data.status.massage)
+                            }
+                            -7 -> {
+                                // active tunnel problem
+                                state.value = ModelState(error = "Technical Problem.Please Contact Support")
                             }
                             else -> {
                                 state.value = ModelState(error = res.data?.status?.massage ?: "")

@@ -18,7 +18,7 @@ import com.safenet.service.R
 import com.safenet.service.dto.ServerConfig
 import com.safenet.service.extension.toSpeedString
 import com.safenet.service.extension.toast
-import com.safenet.service.ui.main.MainActivity
+import com.safenet.service.ui.MainActivity
 import com.safenet.service.util.MessageUtil
 import com.safenet.service.util.MmkvManager
 import com.safenet.service.util.Utils
@@ -64,7 +64,7 @@ object V2RayServiceManager {
             context.toast(R.string.toast_warning_pref_proxysharing_short)
         } else {
             try {
-                context.toast(R.string.toast_services_start)
+//                context.toast(R.string.toast_services_start)
             } catch (e : Exception){
 
             }
