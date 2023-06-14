@@ -90,14 +90,14 @@ constructor(
                             }
                             -3 -> {
                                 // wrong public key
-                                state.value = ModelState(error = res.data.status.massage)
+                                state.value = ModelState(error = res.data.status.message)
                             }
                             -7 -> {
                                 // active tunnel problem
                                 state.value = ModelState(error = "Technical Problem.Please Contact Support")
                             }
                             else -> {
-                                state.value = ModelState(error = res.data?.status?.massage ?: "")
+                                state.value = ModelState(error = res.data?.status?.message ?: "")
                             }
                         }
                     }

@@ -435,7 +435,7 @@ class MainViewModel @Inject constructor(
                             dataStoreManager.updateData(IS_CONNECTED, true);
                         }
                         -1 -> {
-                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.massage))
+                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.message))
                         }
                         -2 -> {
                             // deactive app
@@ -447,14 +447,14 @@ class MainViewModel @Inject constructor(
                             dataStoreManager.clearDataStore()
                         }
                         -3 -> {
-                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.massage))
+                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.message))
                         }
                         -7 -> {
                             // active tunnel problem
                             mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage("Technical Problem.Please Contact Support"))
                         }
                         else -> {
-                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data?.status?.massage))
+                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data?.status?.message))
                         }
                     }
                 }
@@ -508,23 +508,23 @@ class MainViewModel @Inject constructor(
                             mainActivityEventChannel.send(MainActivityEvents.ShowMessage("Logging out ..."))
                         }
                         is Result.Success -> {
-                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout message: ${res.data?.status?.massage}")
+                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout message: ${res.data?.status?.message}")
                             Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout code: ${res.data?.status?.code}")
                             when (res.data?.status?.code) {
                                 0 -> {
                                     mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Logged Out"))
                                     dataStoreManager.clearDataStore()
                                     setAppActivated(false)
-                                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout message: ${res.data.status.massage}")
+                                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout message: ${res.data.status.message}")
 
                                 }
                                 -1 -> {
                                     // wrong token ke karbar nemikhorad
-                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.status.massage))
+                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.status.message))
                                 }
                                 -2 -> {
                                     //
-                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.status.massage))
+                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.status.message))
                                 }
                                 -4 -> {
                                     // max reset
