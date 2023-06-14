@@ -145,8 +145,7 @@ class QSTileService : TileService() {
 
     private fun getConfig(tokenE: String, context: Context) = scope.launch {
         verificationRepository.getConfig(
-            tokenE,
-            Utils.getOsInfo()
+            tokenE
         ).collectLatest{
                 res ->
             when(res){

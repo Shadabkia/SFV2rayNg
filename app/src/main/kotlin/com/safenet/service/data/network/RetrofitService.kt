@@ -23,7 +23,6 @@ interface RetrofitService {
     @POST("/api/config")
     suspend fun getConfig(
         @Field("token") token: String,
-        @Field("osInfo") osInfo: String
     ): Response<ConfigResponse>
 
     @FormUrlEncoded

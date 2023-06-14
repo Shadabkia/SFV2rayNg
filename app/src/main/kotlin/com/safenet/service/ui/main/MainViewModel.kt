@@ -418,7 +418,6 @@ class MainViewModel @Inject constructor(
         Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getConfig")
         verificationRepository.getConfig(
             token,
-            Utils.getOsInfo()
         ).collectLatest { res ->
             when (res) {
                 is Result.Error -> {

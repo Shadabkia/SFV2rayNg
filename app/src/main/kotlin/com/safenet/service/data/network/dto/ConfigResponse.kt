@@ -8,4 +8,6 @@ data class ConfigResponse(
     val status: Status,
     @SerializedName("config")
     val config: String,
+    @SerializedName("lastVersion")
+    val lastVersion: LastVersion,
 )

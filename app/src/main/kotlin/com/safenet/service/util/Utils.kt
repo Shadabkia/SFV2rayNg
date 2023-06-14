@@ -438,7 +438,7 @@ object Utils {
         val osInfo = OsInfo(
             osVersion = Build.VERSION.SDK_INT.toString(),
             architecture = System.getProperty("os.arch") ?: "error",
-            appVersion = BuildConfig.VERSION_NAME.toString()
+            appVersion = BuildConfig.VERSION_CODE.toString()
         )
         return gson.toJson(osInfo)
     }
