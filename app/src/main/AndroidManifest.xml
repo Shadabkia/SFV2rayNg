@@ -38,7 +38,7 @@
             android:exported="true"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:name="com.safenet.service.ui.MainActivity"
+            android:name="com.safenet.service.ui.main.MainActivity"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -15,6 +15,7 @@
     <color name="colorAccent">#D81B60</color>
     <color name="colorBg">#FFFFFF</color>
     <color name="colorText">#000000</color>
+    <color name="colorUpdate">#E4CD02</color>
 
     <color name="colorPrimaryByDark">#2B2B2B</color>
     <color name="colorPrimaryDarkByDark">#161616</color>

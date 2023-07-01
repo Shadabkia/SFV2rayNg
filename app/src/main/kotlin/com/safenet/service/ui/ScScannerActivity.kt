@@ -8,6 +8,7 @@ import com.safenet.service.util.AngConfigManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import com.safenet.service.extension.toast
+import com.safenet.service.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

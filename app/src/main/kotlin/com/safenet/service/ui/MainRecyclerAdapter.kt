@@ -23,6 +23,7 @@ import com.safenet.service.extension.toast
 import com.safenet.service.helper.ItemTouchHelperAdapter
 import com.safenet.service.helper.ItemTouchHelperViewHolder
 import com.safenet.service.service.V2RayServiceManager
+import com.safenet.service.ui.main.MainActivity
 import com.safenet.service.util.AngConfigManager
 import com.safenet.service.util.MmkvManager
 import com.safenet.service.util.Utils

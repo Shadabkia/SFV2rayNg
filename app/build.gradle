@@ -54,7 +54,7 @@ android {
 
     buildTypes {
         release {
-            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3027"'
+            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3027/api/app/"'
             minifyEnabled false
             debuggable = true
             jniDebuggable = false
@@ -66,7 +66,7 @@ android {
 //            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3027"'
+            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3027/api/app/"'
             debuggable = true
             jniDebuggable = true
             minifyEnabled false

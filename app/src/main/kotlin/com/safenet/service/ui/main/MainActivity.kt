@@ -1,4 +1,4 @@
-package com.safenet.service.ui
+package com.safenet.service.ui.main
 
 import android.Manifest
 import android.content.ActivityNotFoundException
@@ -28,8 +28,9 @@ import com.safenet.service.databinding.ActivityMainBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.helper.SimpleItemTouchHelperCallback
-import com.safenet.service.ui.main.MainActivityEvents
-import com.safenet.service.ui.main.MainViewModel
+import com.safenet.service.ui.BaseActivity
+import com.safenet.service.ui.MainRecyclerAdapter
+import com.safenet.service.ui.ServerActivity
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.AngConfigManager
 import com.safenet.service.util.KeyManage
@@ -120,6 +121,7 @@ class MainActivity : BaseActivity() {
                     MainActivityEvents.HideCircle -> {
                         hideCircle(2)
                     }
+                    is MainActivityEvents.ShowUpdateUI -> binding.btUpdate.isVisible = event.status
                 }
 
             }

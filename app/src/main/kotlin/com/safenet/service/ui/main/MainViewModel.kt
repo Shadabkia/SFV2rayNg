@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import com.safenet.service.AngApplication
 import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
+import com.safenet.service.BuildConfig
 import com.safenet.service.R
 import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
@@ -30,8 +31,9 @@ import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 import com.safenet.service.data.network.Result
+import com.safenet.service.data.network.dto.ConfigResponse
+import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.service.V2RayServiceManager
-import com.safenet.service.ui.MainActivity
 import kotlinx.coroutines.channels.Channel
 
 
@@ -77,6 +79,8 @@ class MainViewModel @Inject constructor(
 
 
     private val tcpingTestScope by lazy { CoroutineScope(Dispatchers.IO) }
+
+    var isUpdateRequired = false
 
     fun startListenBroadcast() {
         isRunning.value = false
@@ -419,6 +423,7 @@ class MainViewModel @Inject constructor(
         verificationRepository.getConfig(
             token,
         ).collectLatest { res ->
+            if(res.data != null) checkVersionCode(res)
             when (res) {
                 is Result.Error -> {
                     Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(res.message)
@@ -457,6 +462,36 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private suspend fun checkVersionCode(res: Result<ConfigResponse>) {
+        if(res.data?.lastVersion!! > BuildConfig.VERSION_CODE) {
+
+            mainActivityEventChannel.send(MainActivityEvents.ShowUpdateUI(true))
+            getUpdateLink()
+        }
+    }
+
+    fun getUpdateLink() = viewModelScope.launch(Dispatchers.IO) {
+        val token = dataStoreManager.getData(ACCESS_TOKEN).first()
+        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getUpdateLink $token")
+        if (token != null) {
+            try {
+                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getUpdateLink")
+                val publicS = dataStoreManager.getData(PUBLIC_S).first()
+                val tokenE = KeyManage.instance.getToken(
+                    token,
+                    publicS ?: ""
+                )
+                verificationRepository.getUpdateLink(UpdateLinkRequest(tokenE, BuildConfig.VERSION_CODE)).collectLatest { res ->
+                    if (res.data?.status?.code == 0){
+                        isUpdateRequired = res.data.required == 1
+                        // update download link
+                    }
+                }
+            } catch (_: Exception){
             }
         }
     }

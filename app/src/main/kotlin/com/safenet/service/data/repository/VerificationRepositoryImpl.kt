@@ -4,6 +4,8 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.RetrofitService
 import com.safenet.service.data.network.SafeApiRequest
 import com.safenet.service.data.network.dto.ConfigResponse
+import com.safenet.service.data.network.dto.UpdateLinkRequest
+import com.safenet.service.data.network.dto.UpdateLinkResponse
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -28,5 +30,12 @@ class VerificationRepositoryImpl @Inject constructor(
     override fun logout(token: String): Flow<Result<ConfigResponse>> =
         apiRequest {
             api.logout(token)
+        }
+
+    override fun getUpdateLink(
+        req: UpdateLinkRequest
+    ): Flow<Result<UpdateLinkResponse>> =
+        apiRequest {
+            api.getUpdateLink(req)
         }
 }

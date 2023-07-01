@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <include
@@ -22,10 +23,35 @@
             android:gravity="center"
             android:text="@string/server_available"
             android:textSize="10pt"
+            app:layout_constraintVertical_bias="0.45"
             app:layout_constraintBottom_toTopOf="@+id/fabProgressCircle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/bt_update"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:letterSpacing="0"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/update_available"
+            android:textAllCaps="false"
+            app:icon="@drawable/arrow_pointing_up"
+            app:iconTint="@color/colorUpdate"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/colorBlack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintVertical_bias="0.59"
+            app:layout_constraintBottom_toTopOf="@+id/fabProgressCircle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/server_availability"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -125,9 +151,10 @@
             <TextView
                 android:id="@+id/fab_text"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="43dp"
                 android:layout_gravity="center"
                 android:elevation="10dp"
+                android:gravity="center"
                 android:text="@string/connect"
                 android:textColor="@color/white"
                 android:textSize="24dp" />
@@ -135,8 +162,8 @@
         </FrameLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/contact_us"
             style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:id="@+id/contact_us"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:letterSpacing="0"
