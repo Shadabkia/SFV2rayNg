@@ -1,12 +1,17 @@
 package com.safenet.service.ui.main
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.net.Uri
 import android.net.VpnService
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.Menu
@@ -15,7 +20,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -23,7 +30,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
+import com.safenet.service.BuildConfig
 import com.safenet.service.R
+import com.safenet.service.data.local.dataStore
 import com.safenet.service.databinding.ActivityMainBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
@@ -70,15 +79,17 @@ class MainActivity : BaseActivity() {
     }
     private val requestVpnPermission =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) {
-//                startV2Ray()
-            }
             binding.fab.isEnabled = true
         }
     private var mItemTouchHelper: ItemTouchHelper? = null
     val mainViewModel: MainViewModel by viewModels()
 
-    val defaultSharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(this@MainActivity) }
+
+    val defaultSharedPreferences: SharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(
+            this@MainActivity
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,10 +113,10 @@ class MainActivity : BaseActivity() {
         migrateLegacy()
         activeRouting()
 
-
         this.lifecycleScope.launch {
             mainViewModel.mainActivityEvent.collectLatest { event ->
                 when (event) {
+                    MainActivityEvents.InitViews -> initView()
                     is MainActivityEvents.ActivateApp -> activateApp(event.status)
                     is MainActivityEvents.GetConfigMessage -> {
                         hideCircle(1)
@@ -121,32 +132,110 @@ class MainActivity : BaseActivity() {
                     MainActivityEvents.HideCircle -> {
                         hideCircle(2)
                     }
-                    is MainActivityEvents.ShowUpdateUI -> binding.btUpdate.isVisible = event.status
+                    is MainActivityEvents.ShowUpdateUI -> showUpdateUI(event.status)
+                    is MainActivityEvents.OpenBrowser -> Utils.openWebPage(
+                        this@MainActivity,
+                        event.link
+                    )
+                    MainActivityEvents.DownloadFailed -> downloadStatus(DownloadAppStatus.FAILED, 0)
+                    is MainActivityEvents.DownloadFinished -> downloadStatus(
+                        DownloadAppStatus.FINISHED,
+                        event.progress
+                    )
+                    MainActivityEvents.DownloadStarted -> downloadStatus(
+                        DownloadAppStatus.STARTED,
+                        0
+                    )
                 }
 
             }
         }
+        mainViewModel.activityCreated()
+    }
 
-        listeners()
-        initView()
+    private fun showUpdateUI(status: Boolean) {
+        when (mainViewModel.savedStateHandle.get<DownloadAppStatus>("downloading")) {
+            DownloadAppStatus.STARTED -> {
+                binding.btUpdate.isVisible = false
+                binding.clDownloadProgressbar.isVisible = true
+            }
+            DownloadAppStatus.FINISHED, DownloadAppStatus.FAILED -> {
+                binding.apply {
+                    btUpdate.isVisible = true
+                    clDownloadProgressbar.isVisible = false
+                }
+            }
+            else -> {
+                binding.btUpdate.isVisible = status
+            }
+        }
+    }
+
+    private fun downloadStatus(downloadStatus: DownloadAppStatus, progress: Int) {
+        Timber.d("downloadStatus $downloadStatus")
+        when (downloadStatus) {
+            DownloadAppStatus.STARTED -> {
+                toastLong("app is disabled during download")
+                binding.apply {
+                    fab.isEnabled = false
+                    btUpdate.isVisible = false
+                    clDownloadProgressbar.isVisible = true
+                }
+            }
+            DownloadAppStatus.FINISHED -> {
+                if (progress == 100) {
+                    toast("app is enabled")
+                    binding.apply {
+                        fab.isEnabled = true
+                        btUpdate.isVisible = true
+                        clDownloadProgressbar.isVisible = false
+                        // install app and restart
+                        requestPackageInstallationsPermission()
+                        // change update status
+                        // delete update link
+                    }
+                } else {
+                    toastLong("download failed")
+                    binding.apply {
+                        fab.isEnabled = true
+                        btUpdate.isVisible = true
+                        clDownloadProgressbar.isVisible = false
+                        // delete imperfect app
+                        deleteAppFile(mainViewModel.appFileName)
+                    }
+                }
+            }
+            DownloadAppStatus.FAILED -> {
+                toastLong("download failed")
+                binding.apply {
+                    fab.isEnabled = true
+                    btUpdate.isVisible = true
+                    clDownloadProgressbar.isVisible = false
+                    // delete imperfect app
+                    deleteAppFile(mainViewModel.appFileName)
+                }
+            }
+
+        }
+
     }
 
     private fun showMaxLoginDialog() {
-        val dialog =  AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
         dialog.setMessage(R.string.max_logout_message)
-            .setPositiveButton(android.R.string.ok) { _,_ ->
+            .setPositiveButton(android.R.string.ok) { _, _ ->
 
             }
             .show()
     }
 
     private fun showLogoutDialog() {
-        val dialog =  AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
         dialog.setMessage(R.string.logout_message)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 mainViewModel.disconnectAndLogout(this@MainActivity)
             }
-            .setNegativeButton(R.string.cancel){_,_ ->
+            .setNegativeButton(R.string.cancel) { _, _ ->
 
             }
             .show()
@@ -178,8 +267,9 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initView() {
-        mainViewModel.checkAppActivated()
+        listeners()
         this.lifecycleScope.launch {
             mainViewModel.config.collectLatest {
 //                Timber.tag("ConfigApi").d("config : $it")
@@ -189,6 +279,40 @@ class MainActivity : BaseActivity() {
                 binding.fab.isEnabled = true
             }
         }
+
+        this@MainActivity.lifecycleScope.launch {
+            mainViewModel.serverAvailability.collect {
+                binding.serverAvailability.text = it
+            }
+
+        }
+
+        this.lifecycleScope.launch {
+            mainViewModel.downloadPercentage.collectLatest { percentage ->
+                if (percentage != null) {
+                    binding.tvPercentage.text = "$percentage%"
+                }
+            }
+        }
+
+        this.lifecycleScope.launch {
+            mainViewModel.isUpdateRequired.collectLatest { isRequired ->
+                if (isRequired) {
+                    binding.fab.isEnabled = false
+                    binding.fab.backgroundTintList =
+                        ColorStateList.valueOf(
+                            ContextCompat.getColor(
+                                this@MainActivity,
+                                R.color.colorUpdate
+                            )
+                        )
+                    toastLong("Please Update the app")
+                }
+            }
+        }
+
+        deleteAppFile("SafeNet-${BuildConfig.VERSION_CODE}.apk")
+
     }
 
     private fun listeners() {
@@ -208,15 +332,12 @@ class MainActivity : BaseActivity() {
                 startActivity(intent)
             }
 
-            this@MainActivity.lifecycleScope.launch {
-                mainViewModel.serverAvailability.collect {
-                    serverAvailability.text = it
-                }
-
-            }
             fab.setOnClickListener { view ->
                 this@MainActivity.lifecycleScope.launch {
-
+                    if (mainViewModel.isUpdateRequired.value) {
+                        toastLong("Please Update the app")
+                        return@launch
+                    }
                     if (mainViewModel.isRunning.value == true) {
                         Utils.stopVService(this@MainActivity)
                         hideCircle(3)
@@ -252,6 +373,19 @@ class MainActivity : BaseActivity() {
 //                tv_test_state.text = getString(R.string.connection_test_fail)
                 }
             }
+
+            btUpdate.setOnClickListener {
+                this@MainActivity.lifecycleScope.launch {
+                    if (File(
+                            application.getExternalFilesDir(null),
+                            mainViewModel.appFileName
+                        ).exists()
+                    )
+                        installUpdatedAPK()
+                    else mainViewModel.downloadAPKFromServer(this@MainActivity)
+                }
+            }
+
 
         }
     }
@@ -375,6 +509,7 @@ class MainActivity : BaseActivity() {
 
     public override fun onPause() {
         super.onPause()
+        hideCircle(4)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -486,49 +621,6 @@ class MainActivity : BaseActivity() {
         return true
     }
 
-    /**
-     * import config from sub
-     */
-//    fun importConfigViaSub()
-//            : Boolean {
-//        try {
-//            toast(R.string.title_sub_update)
-//            MmkvManager.decodeSubscriptions().forEach {
-//                if (TextUtils.isEmpty(it.first)
-//                    || TextUtils.isEmpty(it.second.remarks)
-//                    || TextUtils.isEmpty(it.second.url)
-//                ) {
-//                    return@forEach
-//                }
-//                if (!it.second.enabled) {
-//                    return@forEach
-//                }
-//                val url = it.second.url
-//                if (!Utils.isValidUrl(url)) {
-//                    return@forEach
-//                }
-//                Log.d(ANG_PACKAGE, url)
-//                lifecycleScope.launch(Dispatchers.IO) {
-//                    val configText = try {
-//                        Utils.getUrlContentWithCustomUserAgent(url)
-//                    } catch (e: Exception) {
-//                        e.printStackTrace()
-//                        launch(Dispatchers.Main) {
-//                            toast("\"" + it.second.remarks + "\" " + getString(R.string.toast_failure))
-//                        }
-//                        return@launch
-//                    }
-//                    launch(Dispatchers.Main) {
-//                        mainViewModel.importBatchConfig(configText, it.first, this@MainActivity)
-//                    }
-//                }
-//            }
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            return false
-//        }
-//        return true
-//    }
 
     /**
      * show file chooser
@@ -635,7 +727,80 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
+    private fun requestPackageInstallationsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!packageManager.canRequestPackageInstalls()) {
+                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                intent.data = Uri.parse("package:$packageName")
+                requestInstallPackagesLauncher.launch(intent)
+            } else {
+                installUpdatedAPK()
+            }
+        }
     }
+
+    private val requestInstallPackagesLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            toast("installing ...")
+            installUpdatedAPK()
+        } else {
+            toast("Permission is necessary for updating app")
+        }
+    }
+
+    private fun installUpdatedAPK() {
+        try {
+            val apkFile = File(application.getExternalFilesDir(null), mainViewModel.appFileName)
+
+            val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                FileProvider.getUriForFile(this, "$packageName.provider", apkFile)
+            } else {
+                Uri.fromFile(apkFile)
+            }
+
+            val installIntent = Intent(Intent.ACTION_VIEW)
+            installIntent.setDataAndType(uri, "application/vnd.android.package-archive")
+            installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+            requestInstallAppLauncher.launch(installIntent)
+
+        } catch (e: Exception) {
+            toast("unable to install: ${e.message}")
+        }
+    }
+
+    private val requestInstallAppLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            toast("app updated")
+            deleteAppFile(mainViewModel.appFileName)
+            mainViewModel.showUpdateUI(false)
+        } else {
+//            toast("not installed")
+        }
+    }
+
+    private fun deleteAppFile(appName: String) {
+        try {
+            Timber.tag("downloads").d("deleteAppFile $appName")
+            val apkFile = File(application.getExternalFilesDir(null), appName)
+            if (apkFile.exists())
+                apkFile.delete()
+        } catch (_: Exception) {
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        deleteAppFile(mainViewModel.appFileName)
+    }
+
+
 }

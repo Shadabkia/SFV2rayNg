@@ -442,5 +442,13 @@ object Utils {
         )
         return gson.toJson(osInfo)
     }
+
+    fun openWebPage(context: Context, url : String){
+        Timber.d("openWebPage")
+
+        val webpage: Uri = Uri.parse(url)
+        val intent = Intent(Intent.ACTION_VIEW, webpage)
+        context.startActivity(intent)
+    }
 }
 

@@ -11,6 +11,7 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.VerifyResponse
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.ui.main.MainActivityEvents
+import com.safenet.service.util.ApiUrl.base_url_counter
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,6 +64,7 @@ constructor(
                         state.value = ModelState(error = res.message ?: "")
                         enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Error)
                         Timber.tag("ConfigApi").d("verification error")
+                        base_url_counter.value++
 
                     }
                     is Result.Loading -> {
@@ -70,6 +72,7 @@ constructor(
                     }
                     is Result.Success -> {
                         Timber.tag("ConfigApi").d("verification success ${res.data}")
+                        base_url_counter.value = 0
                         when(res.data?.status?.code){
                             0 -> {
                                 enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Success)

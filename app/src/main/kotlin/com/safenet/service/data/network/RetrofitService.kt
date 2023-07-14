@@ -45,4 +45,8 @@ interface RetrofitService {
         @Body req : UpdateLinkRequest
     ): Response<UpdateLinkResponse>
 
+    @POST("baseAddress")
+    suspend fun getBaseAddress(
+    ): Response<UpdateLinkResponse>
+
 }

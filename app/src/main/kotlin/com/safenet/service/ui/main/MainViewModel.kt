@@ -2,9 +2,12 @@ package com.safenet.service.ui.main
 
 import android.content.*
 import androidx.core.content.ContextCompat
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.multidex.BuildConfig.VERSION_CODE
 import com.google.gson.Gson
 import com.safenet.service.AngApplication
 import com.safenet.service.AppConfig
@@ -34,14 +37,20 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.ConfigResponse
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.service.V2RayServiceManager
+import com.safenet.service.util.ApiUrl.base_url_counter
 import kotlinx.coroutines.channels.Channel
+import java.io.File
+import java.io.FileOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val verificationRepository: VerificationRepository,
     val application: AngApplication,
-    private val dataStoreManager: DataStoreManager
+    val dataStoreManager: DataStoreManager,
+    val savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
     private val mainStorage by lazy {
         MMKV.mmkvWithID(
@@ -65,8 +74,13 @@ class MainViewModel @Inject constructor(
     val updateListAction by lazy { MutableLiveData<Int>() }
     val updateTestResultAction by lazy { MutableLiveData<String>() }
 
+    var appFileName = "safenet.apk"
+
     private val _serverAvailability = MutableStateFlow<String?>(null)
     val serverAvailability: StateFlow<String?> get() = _serverAvailability
+
+    private val _downloadPercentage = MutableStateFlow<Int?>(null)
+    val downloadPercentage: StateFlow<Int?> get() = _downloadPercentage
 
     var config = MutableStateFlow("")
         private set
@@ -77,10 +91,19 @@ class MainViewModel @Inject constructor(
     private val mainActivityEventChannel = Channel<MainActivityEvents>()
     val mainActivityEvent = mainActivityEventChannel.receiveAsFlow()
 
-
     private val tcpingTestScope by lazy { CoroutineScope(Dispatchers.IO) }
 
-    var isUpdateRequired = false
+    var isUpdateRequired = MutableStateFlow(false)
+
+    fun activityCreated() = viewModelScope.launch {
+        mainActivityEventChannel.send(MainActivityEvents.InitViews)
+        checkAppActivated()
+        dataStoreManager.getData(DataStoreManager.PreferenceKeys.IS_UPDATE_MODE).collectLatest {
+            it?.let {
+                mainActivityEventChannel.send(MainActivityEvents.ShowUpdateUI(it))
+            }
+        }
+    }
 
     fun startListenBroadcast() {
         isRunning.value = false
@@ -163,107 +186,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-//    fun testAllTcping() {
-//        tcpingTestScope.coroutineContext[Job]?.cancelChildren()
-//        SpeedtestUtil.closeAllTcpSockets()
-//        MmkvManager.clearAllTestDelayResults()
-//        updateListAction.value = -1 // update all
-//
-//        application.toast(R.string.connection_test_testing)
-//        for (item in serversCache) {
-//            item.config.getProxyOutbound()?.let { outbound ->
-//                val serverAddress = outbound.getServerAddress()
-//                val serverPort = outbound.getServerPort()
-//                if (serverAddress != null && serverPort != null) {
-//                    tcpingTestScope.launch {
-//                        val testResult = SpeedtestUtil.tcping(serverAddress, serverPort)
-//                        launch(Dispatchers.Main) {
-//                            MmkvManager.encodeServerTestDelayMillis(item.guid, testResult)
-//                            updateListAction.value = getPosition(item.guid)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    fun testAllRealPing() {
-//        MessageUtil.sendMsg2TestService(getApplication(), AppConfig.MSG_MEASURE_CONFIG_CANCEL, "")
-//        MmkvManager.clearAllTestDelayResults()
-//        updateListAction.value = -1 // update all
-//
-//        application.toast(R.string.connection_test_testing)
-//        viewModelScope.launch(Dispatchers.Default) { // without Dispatchers.Default viewModelScope will launch in main thread
-//            for (item in serversCache) {
-//                val config = V2rayConfigUtil.getV2rayConfig(getApplication(), item.guid)
-//                if (config.status) {
-//                    MessageUtil.sendMsg2TestService(
-//                        getApplication(),
-//                        AppConfig.MSG_MEASURE_CONFIG,
-//                        Pair(item.guid, config.content)
-//                    )
-//                }
-//            }
-//        }
-//    }
-
     fun testCurrentServerRealPing() {
         MessageUtil.sendMsg2Service(getApplication(), AppConfig.MSG_MEASURE_DELAY, "")
     }
-
-//    fun filterConfig(context: Context) {
-//        val subscriptions = MmkvManager.decodeSubscriptions()
-//        val listId = subscriptions.map { it.first }.toList().toMutableList()
-//        val listRemarks = subscriptions.map { it.second.remarks }.toList().toMutableList()
-//        listRemarks += context.getString(R.string.filter_config_all)
-//        val checkedItem = if (subscriptionId.isNotEmpty()) {
-//            listId.indexOf(subscriptionId)
-//        } else {
-//            listRemarks.count() - 1
-//        }
-//
-//        val ivBinding = DialogConfigFilterBinding.inflate(LayoutInflater.from(context))
-//        ivBinding.spSubscriptionId.adapter = ArrayAdapter<String>(
-//            context,
-//            android.R.layout.simple_spinner_dropdown_item,
-//            listRemarks
-//        )
-//        ivBinding.spSubscriptionId.setSelection(checkedItem)
-//        ivBinding.etKeyword.text = Utils.getEditable(keywordFilter)
-//        val builder = AlertDialog.Builder(context).setView(ivBinding.root)
-//        builder.setTitle(R.string.title_filter_config)
-//        builder.setPositiveButton(R.string.tasker_setting_confirm) { dialogInterface: DialogInterface?, _: Int ->
-//            try {
-//                val position = ivBinding.spSubscriptionId.selectedItemPosition
-//                subscriptionId = if (listRemarks.count() - 1 == position) {
-//                    ""
-//                } else {
-//                    subscriptions[position].first
-//                }
-//                keywordFilter = ivBinding.etKeyword.text.toString()
-//                reloadServerList()
-//
-//                dialogInterface?.dismiss()
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-//        builder.show()
-////        AlertDialog.Builder(context)
-////            .setSingleChoiceItems(listRemarks.toTypedArray(), checkedItem) { dialog, i ->
-////                try {
-////                    subscriptionId = if (listRemarks.count() - 1 == i) {
-////                        ""
-////                    } else {
-////                        subscriptions[i].first
-////                    }
-////                    reloadServerList()
-////                    dialog.dismiss()
-////                } catch (e: Exception) {
-////                    e.printStackTrace()
-////                }
-////            }.show()
-//    }
 
     fun getPosition(guid: String): Int {
         serversCache.forEachIndexed { index, it ->
@@ -374,7 +299,7 @@ class MainViewModel @Inject constructor(
 
     }
 
-    fun disconnectApi()  = viewModelScope.launch {
+    fun disconnectApi() = viewModelScope.launch {
 //        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
         val token = dataStoreManager.getData(ACCESS_TOKEN).first()
         if (token != null) {
@@ -423,58 +348,69 @@ class MainViewModel @Inject constructor(
         verificationRepository.getConfig(
             token,
         ).collectLatest { res ->
-            if(res.data != null) checkVersionCode(res)
             when (res) {
                 is Result.Error -> {
                     Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(res.message)
                     mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.message))
+                    base_url_counter.value++
                 }
                 is Result.Loading -> {
                 }
                 is Result.Success -> {
-                    when (res.data?.status?.code) {
-                        0 -> {
-                            config.value = res.data.config
-                            setAppActivated(true)
-                            dataStoreManager.updateData(IS_CONNECTED, true);
-                        }
-                        -1 -> {
-                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.message))
-                        }
-                        -2 -> {
-                            // deactive app
-                            mainActivityEventChannel.send(
-                                MainActivityEvents.GetConfigMessage(
-                                    "You have Logged Out.Please Login Again."
-                                )
-                            )
-                            dataStoreManager.clearDataStore()
-                        }
-                        -3 -> {
-                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.message))
-                        }
-                        -7 -> {
-                            // active tunnel problem
-                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage("Technical Problem.Please Contact Support"))
-                        }
-                        else -> {
-                            mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data?.status?.message))
-                        }
-                    }
+                    base_url_counter.value = 0
+                    checkVersionCode(res)
                 }
             }
         }
     }
 
     private suspend fun checkVersionCode(res: Result<ConfigResponse>) {
-        if(res.data?.lastVersion!! > BuildConfig.VERSION_CODE) {
-
-            mainActivityEventChannel.send(MainActivityEvents.ShowUpdateUI(true))
-            getUpdateLink()
+        when (res.data?.status?.code) {
+            0 -> {
+                if (res.data.lastVersion > BuildConfig.VERSION_CODE) {
+                    showUpdateUI(true)
+                    getUpdateLink(res.data.config)
+                } else {
+                    dataStoreManager.updateData(
+                        DataStoreManager.PreferenceKeys.IS_UPDATE_MODE,
+                        false
+                    )
+                    config.value = res.data.config
+                    setAppActivated(true)
+                    dataStoreManager.updateData(IS_CONNECTED, true);
+                }
+            }
+            -1 -> {
+                mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.message))
+            }
+            -2 -> {
+                // deactivate app
+                mainActivityEventChannel.send(
+                    MainActivityEvents.GetConfigMessage(
+                        "You have Logged Out.Please Login Again."
+                    )
+                )
+                dataStoreManager.clearDataStore()
+            }
+            -3 -> {
+                mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.message))
+            }
+            -7 -> {
+                // active tunnel problem
+                mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage("Technical Problem.Please Contact Support"))
+            }
+            else -> {
+                mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data?.status?.message))
+            }
         }
     }
 
-    fun getUpdateLink() = viewModelScope.launch(Dispatchers.IO) {
+    fun showUpdateUI(isUpdate: Boolean) = viewModelScope.launch {
+        dataStoreManager.updateData(DataStoreManager.PreferenceKeys.IS_UPDATE_MODE, isUpdate)
+        mainActivityEventChannel.send(MainActivityEvents.ShowUpdateUI(isUpdate))
+    }
+
+    private fun getUpdateLink(newConfig: String?) = viewModelScope.launch(Dispatchers.IO) {
         val token = dataStoreManager.getData(ACCESS_TOKEN).first()
         Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getUpdateLink $token")
         if (token != null) {
@@ -485,13 +421,43 @@ class MainViewModel @Inject constructor(
                     token,
                     publicS ?: ""
                 )
-                verificationRepository.getUpdateLink(UpdateLinkRequest(tokenE, BuildConfig.VERSION_CODE)).collectLatest { res ->
-                    if (res.data?.status?.code == 0){
-                        isUpdateRequired = res.data.required == 1
-                        // update download link
+                verificationRepository.getUpdateLink(
+                    UpdateLinkRequest(
+                        tokenE,
+                        BuildConfig.VERSION_CODE
+                    )
+                ).collectLatest { res ->
+                    when (res.data?.status?.code) {
+                        0 -> {
+                            if (res.data.required == 1) {
+                                isUpdateRequired.value = true
+                                mainActivityEventChannel.send(MainActivityEvents.HideCircle)
+                            } else {
+                                isUpdateRequired.value = false
+                                if (newConfig != null) {
+                                    config.value = newConfig
+                                    setAppActivated(true)
+                                    dataStoreManager.updateData(IS_CONNECTED, true);
+                                }
+                            }
+                            dataStoreManager.updateData(
+                                DataStoreManager.PreferenceKeys.UPP_LLIINK,
+                                res.data.link
+                            )
+                            if (newConfig == null) downloadAppFileRecursive(application.applicationContext)
+                        }
+                        else -> {
+                            if (res.data != null) {
+                                if (newConfig != null) {
+                                    config.value = newConfig
+                                    setAppActivated(true)
+                                    dataStoreManager.updateData(IS_CONNECTED, true)
+                                }
+                            }
+                        }
                     }
                 }
-            } catch (_: Exception){
+            } catch (_: Exception) {
             }
         }
     }
@@ -505,7 +471,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun checkAppActivated() = viewModelScope.launch {
+    private fun checkAppActivated() = viewModelScope.launch {
         dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
             Timber.d("appstatus token $token")
             setAppActivated(token != null)
@@ -516,7 +482,7 @@ class MainViewModel @Inject constructor(
         mainActivityEventChannel.send(MainActivityEvents.ShowLogoutDialog)
     }
 
-    fun disconnectAndLogout(context: Context){
+    fun disconnectAndLogout(context: Context) {
         Utils.stopVService(context)
         disconnectApi()
         logout()
@@ -542,14 +508,17 @@ class MainViewModel @Inject constructor(
                             mainActivityEventChannel.send(MainActivityEvents.ShowMessage("Logging out ..."))
                         }
                         is Result.Success -> {
-                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout message: ${res.data?.status?.message}")
-                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout code: ${res.data?.status?.code}")
+                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG)
+                                .d("logout message: ${res.data?.status?.message}")
+                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG)
+                                .d("logout code: ${res.data?.status?.code}")
                             when (res.data?.status?.code) {
                                 0 -> {
                                     mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Logged Out"))
                                     dataStoreManager.clearDataStore()
                                     setAppActivated(false)
-                                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("logout message: ${res.data.status.message}")
+                                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG)
+                                        .d("logout message: ${res.data.status.message}")
 
                                 }
                                 -1 -> {
@@ -582,4 +551,81 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    //control request count
+    private var counter_401 = 0
+
+    fun downloadAPKFromServer(context: Context?) = viewModelScope.launch(Dispatchers.IO) {
+        // Create a URL object from the download URL(
+        context?.let { Utils.stopVService(it) }
+        var statusCode = 0
+        try {
+            val link =
+                dataStoreManager.getData(DataStoreManager.PreferenceKeys.UPP_LLIINK).firstOrNull()
+            val url = URL(link)
+
+            // Open a connection to the server
+            val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
+            Timber.tag("downloads").d("link $link")
+            statusCode = connection.responseCode
+            Timber.tag("downloadss").d("statusCode $statusCode")
+
+            // Set up the connection parameters
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 15000
+            connection.readTimeout = 15000
+
+            // Get the filename from the Content-Disposition header
+            val contentDisposition = connection.getHeaderField("Content-Disposition")
+            if (contentDisposition != null) {
+                val index = contentDisposition.indexOf("filename=")
+                if (index > 0) {
+                    appFileName = contentDisposition.substring(index + 9, contentDisposition.length)
+                        .replace("\"", "")
+                }
+            }
+            // Get the input stream from the connection
+            val inputStream = connection.inputStream
+            // Create a FileOutputStream to save the downloaded APK
+            val apkFile = File(application.getExternalFilesDir(null), appFileName)
+            Timber.tag("downloads").d("appFileName $appFileName")
+            val outputStream = FileOutputStream(apkFile)
+            savedStateHandle.set("downloading", DownloadAppStatus.STARTED)
+            mainActivityEventChannel.send(MainActivityEvents.DownloadStarted)
+            // Buffer to read data in chunks
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+            var totalBytesRead: Long = 0
+            val totalFileSize = connection.contentLength.toLong()
+            // Download the APK and save it to the file
+            var progress = 0
+            while (inputStream.read(buffer).also { bytesRead = it } > 0) {
+                outputStream.write(buffer, 0, bytesRead)
+                totalBytesRead += bytesRead
+                progress = (totalBytesRead * 100 / totalFileSize).toInt()
+                _downloadPercentage.value = progress
+            }
+
+            // Close the streams
+            outputStream.close()
+            inputStream.close()
+            savedStateHandle.set("downloading", DownloadAppStatus.FINISHED)
+            mainActivityEventChannel.send(MainActivityEvents.DownloadFinished(progress, apkFile))
+        } catch (e: Exception) {
+            Timber.tag("downloads").d("e ${e.message}")
+            if (statusCode == 401 && counter_401 < 2) {
+                getUpdateLink(newConfig = null)
+                counter_401 ++
+            } else {
+                counter_401 = 0
+                savedStateHandle.set("downloading", DownloadAppStatus.FAILED)
+                mainActivityEventChannel.send(MainActivityEvents.DownloadFailed)
+            }
+        }
+    }
+
+    private fun downloadAppFileRecursive(context: Context?){
+        downloadAPKFromServer(context)
+    }
+
 }

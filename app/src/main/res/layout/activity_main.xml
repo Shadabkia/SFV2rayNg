@@ -33,8 +33,9 @@
             android:id="@+id/bt_update"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:visibility="gone"
-            tools:visibility="visible"
+            tools:visibility="gone"
             android:insetLeft="0dp"
+            android:backgroundTint="@color/white"
             android:insetRight="0dp"
             android:letterSpacing="0"
             android:insetTop="0dp"
@@ -42,7 +43,7 @@
             android:text="@string/update_available"
             android:textAllCaps="false"
             app:icon="@drawable/arrow_pointing_up"
-            app:iconTint="@color/colorUpdate"
+            app:iconTint="@color/colorAccent"
             app:strokeWidth="1dp"
             app:strokeColor="@color/colorBlack"
             android:layout_width="wrap_content"
@@ -52,6 +53,46 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/server_availability"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:clickable="false"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:id="@+id/cl_download_progressbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintVertical_bias="0.59"
+            app:layout_constraintBottom_toTopOf="@+id/fabProgressCircle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/server_availability">
+
+            <ProgressBar
+                android:clickable="false"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                style="?android:attr/progressBarStyle"
+                android:indeterminateDrawable="@drawable/progressbar_custom"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_percentage"
+                app:layout_constraintEnd_toEndOf="@+id/tv_percentage"
+                app:layout_constraintStart_toStartOf="@+id/tv_percentage"
+                app:layout_constraintTop_toTopOf="@+id/tv_percentage" />
+
+            <TextView
+                android:clickable="false"
+                android:id="@+id/tv_percentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="100%"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -38,4 +38,10 @@ class VerificationRepositoryImpl @Inject constructor(
         apiRequest {
             api.getUpdateLink(req)
         }
+
+
+    override fun getBaseAddress(): Flow<Result<UpdateLinkResponse>> =
+        apiRequest {
+            api.getBaseAddress()
+        }
 }

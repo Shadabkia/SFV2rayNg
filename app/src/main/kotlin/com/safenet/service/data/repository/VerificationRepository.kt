@@ -13,4 +13,5 @@ interface VerificationRepository {
     fun disconnect(token : String) : Flow<Result<ConfigResponse>>
     fun logout(token: String) : Flow<Result<ConfigResponse>>
     fun getUpdateLink(req : UpdateLinkRequest) : Flow<Result<UpdateLinkResponse>>
+    fun getBaseAddress() : Flow<Result<UpdateLinkResponse>>
 }

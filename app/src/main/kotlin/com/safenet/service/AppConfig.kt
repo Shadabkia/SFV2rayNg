@@ -41,6 +41,7 @@ object AppConfig {
     const val PREF_PER_APP_PROXY_SET = "pref_per_app_proxy_set"
     const val PREF_BYPASS_APPS = "pref_bypass_apps"
     const val PREF_CONFIRM_REMOVE = "pref_confirm_remove"
+    const val PREF_IS_UPDATE = "pref_is_update"
 
     const val HTTP_PROTOCOL: String = "http://"
     const val HTTPS_PROTOCOL: String = "https://"
