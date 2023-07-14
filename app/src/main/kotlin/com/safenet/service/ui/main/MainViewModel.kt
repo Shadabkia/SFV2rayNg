@@ -2,12 +2,10 @@ package com.safenet.service.ui.main
 
 import android.content.*
 import androidx.core.content.ContextCompat
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.multidex.BuildConfig.VERSION_CODE
 import com.google.gson.Gson
 import com.safenet.service.AngApplication
 import com.safenet.service.AppConfig
@@ -515,7 +513,8 @@ class MainViewModel @Inject constructor(
                             when (res.data?.status?.code) {
                                 0 -> {
                                     mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Logged Out"))
-                                    dataStoreManager.clearDataStore()
+                                    dataStoreManager.updateData(ACCESS_TOKEN, "")
+                                    dataStoreManager.updateData(PUBLIC_S, "")
                                     setAppActivated(false)
                                     Timber.tag(EnterVoucherBottomSheetViewModel.TAG)
                                         .d("logout message: ${res.data.status.message}")
@@ -590,7 +589,7 @@ class MainViewModel @Inject constructor(
             val apkFile = File(application.getExternalFilesDir(null), appFileName)
             Timber.tag("downloads").d("appFileName $appFileName")
             val outputStream = FileOutputStream(apkFile)
-            savedStateHandle.set("downloading", DownloadAppStatus.STARTED)
+            savedStateHandle["downloading"] = DownloadAppStatus.STARTED
             mainActivityEventChannel.send(MainActivityEvents.DownloadStarted)
             // Buffer to read data in chunks
             val buffer = ByteArray(1024)
@@ -609,7 +608,7 @@ class MainViewModel @Inject constructor(
             // Close the streams
             outputStream.close()
             inputStream.close()
-            savedStateHandle.set("downloading", DownloadAppStatus.FINISHED)
+            savedStateHandle["downloading"] = DownloadAppStatus.FINISHED
             mainActivityEventChannel.send(MainActivityEvents.DownloadFinished(progress, apkFile))
         } catch (e: Exception) {
             Timber.tag("downloads").d("e ${e.message}")
@@ -618,7 +617,7 @@ class MainViewModel @Inject constructor(
                 counter_401 ++
             } else {
                 counter_401 = 0
-                savedStateHandle.set("downloading", DownloadAppStatus.FAILED)
+                savedStateHandle["downloading"] = DownloadAppStatus.FAILED
                 mainActivityEventChannel.send(MainActivityEvents.DownloadFailed)
             }
         }

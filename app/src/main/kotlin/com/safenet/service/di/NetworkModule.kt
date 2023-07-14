@@ -6,6 +6,7 @@ import com.safenet.service.data.network.RetrofitService
 import com.safenet.service.AngApplication
 import com.safenet.service.BuildConfig.BASE_URL
 import com.safenet.service.data.local.DataStoreManager
+import com.safenet.service.util.ApiUrl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -77,7 +78,7 @@ object NetworkModule {
     fun provideApiService(okHttpClient: OkHttpClient): RetrofitService =
         Retrofit.Builder()
             .client(okHttpClient)
-            .baseUrl(BASE_URL)
+            .baseUrl(ApiUrl.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(RetrofitService::class.java)

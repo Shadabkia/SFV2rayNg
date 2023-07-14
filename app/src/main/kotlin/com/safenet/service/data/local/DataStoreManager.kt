@@ -40,9 +40,6 @@ class DataStoreManager @Inject constructor(@ApplicationContext val context: Cont
         val ACCESS_TOKEN = stringPreferencesKey(name = "access_token")
         val PUBLIC_S = stringPreferencesKey(name = "public_s")
         val IS_CONNECTED = booleanPreferencesKey(name = "is_connected")
-        val USER_ID = longPreferencesKey(name = "user_id")
-        val TIME_OPENED_DETAILS = intPreferencesKey(name = "time_opened_details")
-        val TIME_OPENED_WISH_LIST = intPreferencesKey(name = "time_opened_details")
         val BASE_URL_COUNTER = intPreferencesKey(name = "base_url_counter")
         val UPP_LLIINK = stringPreferencesKey(name = "upp_lliink")
     }
