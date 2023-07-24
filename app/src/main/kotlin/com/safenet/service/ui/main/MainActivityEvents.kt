@@ -16,6 +16,7 @@ sealed class MainActivityEvents {
     class GetConfigMessage(val message : String?) : MainActivityEvents()
     class Disconnected(val message: String) : MainActivityEvents()
     class ShowMessage(val message: String) : MainActivityEvents()
+    object ShowTimeDialog : MainActivityEvents()
     class ShowUpdateUI(val status: Boolean) : MainActivityEvents()
     class DownloadFinished(val progress: Int, val file : File) : MainActivityEvents()
 }

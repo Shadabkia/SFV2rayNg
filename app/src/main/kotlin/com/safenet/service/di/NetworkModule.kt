@@ -1,15 +1,13 @@
 package com.safenet.service.di
 
-import com.safenet.service.data.network.HeaderInterceptor
-import com.safenet.service.data.network.NetworkConnectionInterceptor
-import com.safenet.service.data.network.RetrofitService
 import com.safenet.service.AngApplication
-import com.safenet.service.BuildConfig.BASE_URL
 import com.safenet.service.data.local.DataStoreManager
+import com.safenet.service.data.network.*
 import com.safenet.service.util.ApiUrl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
@@ -82,5 +80,26 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(RetrofitService::class.java)
+
+
+    @Singleton
+    @Provides
+    fun provideNewApiService(okHttpClient: OkHttpClient): RetrofitServiceNew =
+        Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl(ApiUrl.New_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(RetrofitServiceNew::class.java)
+
+    @ActivityScoped
+    @Provides
+    fun provideTimeApiService(okHttpClient: OkHttpClient): RetrofitServiceTime =
+        Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl(ApiUrl.TIME_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(RetrofitServiceTime::class.java)
 
 }

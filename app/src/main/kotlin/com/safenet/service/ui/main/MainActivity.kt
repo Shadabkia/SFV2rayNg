@@ -22,7 +22,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -32,7 +31,6 @@ import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.BuildConfig
 import com.safenet.service.R
-import com.safenet.service.data.local.dataStore
 import com.safenet.service.databinding.ActivityMainBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
@@ -41,10 +39,7 @@ import com.safenet.service.ui.BaseActivity
 import com.safenet.service.ui.MainRecyclerAdapter
 import com.safenet.service.ui.ServerActivity
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
-import com.safenet.service.util.AngConfigManager
-import com.safenet.service.util.KeyManage
-import com.safenet.service.util.MmkvManager
-import com.safenet.service.util.Utils
+import com.safenet.service.util.*
 import com.tbruyelle.rxpermissions.RxPermissions
 import com.tencent.mmkv.MMKV
 import dagger.hilt.android.AndroidEntryPoint
@@ -128,6 +123,7 @@ class MainActivity : BaseActivity() {
                     }
                     MainActivityEvents.ShowLogoutDialog -> showLogoutDialog()
                     is MainActivityEvents.ShowMessage -> toast(event.message)
+                    MainActivityEvents.ShowTimeDialog -> showTimeErrorDialog()
                     MainActivityEvents.MaxLoginDialog -> showMaxLoginDialog()
                     MainActivityEvents.HideCircle -> {
                         hideCircle(2)
@@ -173,6 +169,7 @@ class MainActivity : BaseActivity() {
 
     private fun downloadStatus(downloadStatus: DownloadAppStatus, progress: Int) {
         Timber.d("downloadStatus $downloadStatus")
+        binding.btUpdate.isEnabled = true
         when (downloadStatus) {
             DownloadAppStatus.STARTED -> {
                 toastLong("app is disabled during download")
@@ -229,6 +226,15 @@ class MainActivity : BaseActivity() {
             .show()
     }
 
+    private fun showTimeErrorDialog() {
+        val dialog = AlertDialog.Builder(this)
+        dialog.setMessage(R.string.time_error_dialog)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+
+            }
+            .show()
+    }
+
     private fun showLogoutDialog() {
         val dialog = AlertDialog.Builder(this)
         dialog.setMessage(R.string.logout_message)
@@ -270,6 +276,11 @@ class MainActivity : BaseActivity() {
     @SuppressLint("SetTextI18n")
     private fun initView() {
         listeners()
+
+
+
+
+
         this.lifecycleScope.launch {
             mainViewModel.config.collectLatest {
 //                Timber.tag("ConfigApi").d("config : $it")
@@ -307,6 +318,14 @@ class MainActivity : BaseActivity() {
                             )
                         )
                     toastLong("Please Update the app")
+                }
+            }
+        }
+
+        this.lifecycleScope.launch {
+            ApiUrl.base_url_counter.collectLatest {
+                if(it > 9){
+                    mainViewModel.getBaseAddress()
                 }
             }
         }
@@ -382,7 +401,10 @@ class MainActivity : BaseActivity() {
                         ).exists()
                     )
                         installUpdatedAPK()
-                    else mainViewModel.downloadAPKFromServer(this@MainActivity)
+                    else {
+                        mainViewModel.downloadAPKFromServer(this@MainActivity)
+                        btUpdate.isEnabled = false
+                    }
                 }
             }
 

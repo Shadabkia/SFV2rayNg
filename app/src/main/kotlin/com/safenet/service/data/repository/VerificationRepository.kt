@@ -6,6 +6,7 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.ConfigResponse
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.network.dto.UpdateLinkResponse
+import com.safenet.service.data.network.dto.time.TimeResponse
 
 interface VerificationRepository {
     fun verifyVoucher(voucher: String,  publicIdU : String, osInfo: String, force: Int) : Flow<Result<VerifyResponse>>
@@ -14,4 +15,5 @@ interface VerificationRepository {
     fun logout(token: String) : Flow<Result<ConfigResponse>>
     fun getUpdateLink(req : UpdateLinkRequest) : Flow<Result<UpdateLinkResponse>>
     fun getBaseAddress() : Flow<Result<UpdateLinkResponse>>
+    fun getTime() : Flow<Result<TimeResponse>>
 }

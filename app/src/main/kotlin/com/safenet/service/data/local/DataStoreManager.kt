@@ -34,13 +34,12 @@ class DataStoreManager @Inject constructor(@ApplicationContext val context: Cont
             it.clear()
         }
 
-
     object PreferenceKeys {
         val IS_UPDATE_MODE = booleanPreferencesKey(name = "is_update_mode")
         val ACCESS_TOKEN = stringPreferencesKey(name = "access_token")
         val PUBLIC_S = stringPreferencesKey(name = "public_s")
         val IS_CONNECTED = booleanPreferencesKey(name = "is_connected")
-        val BASE_URL_COUNTER = intPreferencesKey(name = "base_url_counter")
+        val BASE_URL = stringPreferencesKey(name = "base_url_counter")
         val UPP_LLIINK = stringPreferencesKey(name = "upp_lliink")
     }
 

@@ -170,6 +170,7 @@ class QSTileService : TileService() {
         }
     }
 
+
     fun getPosition(guid: String): Int {
         serversCache.forEachIndexed { index, it ->
             if (it.guid == guid)

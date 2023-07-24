@@ -224,6 +224,7 @@
     <string name="cancel" translatable="false">Cancel</string>
     <string name="continue_verify" translatable="false">continue</string>
     <string name="max_logout_message" translatable="false">You have reached your maximum Logout. Try again tomorrow</string>
+    <string name="time_error_dialog" translatable="false">Please Switch Your Device Time to Automatic</string>
     <string name="update_available" translatable="false">Update available</string>
 
     <string-array name="share_method">

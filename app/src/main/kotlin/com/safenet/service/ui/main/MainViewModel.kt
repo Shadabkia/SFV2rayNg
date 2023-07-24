@@ -16,31 +16,34 @@ import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.IS_CONNECTED
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
+import com.safenet.service.data.network.Result
+import com.safenet.service.data.network.dto.ConfigResponse
+import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.repository.VerificationRepository
-import com.safenet.service.dto.*
+import com.safenet.service.dto.EConfigType
+import com.safenet.service.dto.ServerConfig
+import com.safenet.service.dto.ServersCache
+import com.safenet.service.dto.V2rayConfig
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
+import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetDialog
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
+import com.safenet.service.util.ApiUrl.base_url_counter
 import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
 import com.tencent.mmkv.MMKV
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
-import java.util.*
-import javax.inject.Inject
-import com.safenet.service.data.network.Result
-import com.safenet.service.data.network.dto.ConfigResponse
-import com.safenet.service.data.network.dto.UpdateLinkRequest
-import com.safenet.service.service.V2RayServiceManager
-import com.safenet.service.util.ApiUrl.base_url_counter
-import kotlinx.coroutines.channels.Channel
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.*
+import javax.inject.Inject
 
 
 @HiltViewModel
@@ -99,6 +102,16 @@ class MainViewModel @Inject constructor(
         dataStoreManager.getData(DataStoreManager.PreferenceKeys.IS_UPDATE_MODE).collectLatest {
             it?.let {
                 mainActivityEventChannel.send(MainActivityEvents.ShowUpdateUI(it))
+            }
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            dataStoreManager.getData(DataStoreManager.PreferenceKeys.BASE_URL).collectLatest { url ->
+                url?.let {
+                    ApiUrl.BASE_URL = it
+                }
             }
         }
     }
@@ -331,6 +344,7 @@ class MainViewModel @Inject constructor(
                     publicS ?: ""
                 )
                 getConfig(tokenE)
+                getTime()
             } catch (e: Exception) {
                 setAppActivated(false)
                 mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage("Activate Again"))
@@ -460,6 +474,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
+
     fun setAppActivated(status: Boolean) = viewModelScope.launch {
         mainActivityEventChannel.send(MainActivityEvents.ActivateApp(status))
         if (!status) {
@@ -475,6 +490,21 @@ class MainViewModel @Inject constructor(
             setAppActivated(token != null)
         }
     }
+
+    private fun getTime() = viewModelScope.launch {
+        verificationRepository.getTime().collectLatest { res ->
+            res.data?.unix?.en.let { en ->
+                Timber.d("enn $en")
+                val unixTime = System.currentTimeMillis()
+                var serverUnix = en?.times(1000L)
+                val acceptableDiffrence = 600000L
+                if(Math.abs(unixTime - (serverUnix ?: unixTime)) > acceptableDiffrence)
+                    mainActivityEventChannel.send(MainActivityEvents.ShowTimeDialog)
+
+            }
+        }
+    }
+
 
     fun onLogoutClicked() = viewModelScope.launch {
         mainActivityEventChannel.send(MainActivityEvents.ShowLogoutDialog)
@@ -506,18 +536,12 @@ class MainViewModel @Inject constructor(
                             mainActivityEventChannel.send(MainActivityEvents.ShowMessage("Logging out ..."))
                         }
                         is Result.Success -> {
-                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG)
-                                .d("logout message: ${res.data?.status?.message}")
-                            Timber.tag(EnterVoucherBottomSheetViewModel.TAG)
-                                .d("logout code: ${res.data?.status?.code}")
                             when (res.data?.status?.code) {
                                 0 -> {
-                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Logged Out"))
+                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Are Logged Out"))
                                     dataStoreManager.updateData(ACCESS_TOKEN, "")
                                     dataStoreManager.updateData(PUBLIC_S, "")
                                     setAppActivated(false)
-                                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG)
-                                        .d("logout message: ${res.data.status.message}")
 
                                 }
                                 -1 -> {
@@ -614,7 +638,7 @@ class MainViewModel @Inject constructor(
             Timber.tag("downloads").d("e ${e.message}")
             if (statusCode == 401 && counter_401 < 2) {
                 getUpdateLink(newConfig = null)
-                counter_401 ++
+                counter_401++
             } else {
                 counter_401 = 0
                 savedStateHandle["downloading"] = DownloadAppStatus.FAILED
@@ -623,8 +647,25 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun downloadAppFileRecursive(context: Context?){
+    private fun downloadAppFileRecursive(context: Context?) {
         downloadAPKFromServer(context)
+    }
+
+    fun getBaseAddress() = viewModelScope.launch {
+        verificationRepository.getBaseAddress().collectLatest { res ->
+            when (res.data?.status?.code) {
+                0 -> {
+                    ApiUrl.BASE_URL = res.data.link
+                    ApiUrl.base_url_counter.value = 0
+                    dataStoreManager.updateData(DataStoreManager.PreferenceKeys.BASE_URL, res.data.link)
+                    Timber.d("getBaseurl succeed")
+                }
+                else -> {
+                    Timber.d("getBaseurl failed")
+                }
+            }
+        }
+
     }
 
 }
