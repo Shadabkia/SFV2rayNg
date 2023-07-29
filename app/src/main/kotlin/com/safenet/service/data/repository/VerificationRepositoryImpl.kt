@@ -5,14 +5,28 @@ import com.safenet.service.data.network.dto.ConfigResponse
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.network.dto.UpdateLinkResponse
 import com.safenet.service.data.network.dto.time.TimeResponse
+import com.safenet.service.di.RetrofitFactory
 import kotlinx.coroutines.flow.Flow
+import retrofit2.Retrofit
 import javax.inject.Inject
 
 class VerificationRepositoryImpl @Inject constructor(
-    private val api: RetrofitService,
-    private val newApi: RetrofitServiceNew,
-    private val timeApi : RetrofitServiceTime
+    var retrofit: RetrofitFactory,
+    var api: RetrofitService,
+    var newApi: RetrofitServiceNew,
+    var timeApi : RetrofitServiceTime
 ) : VerificationRepository, SafeApiRequest() {
+
+
+    lateinit var newRetrofit: Retrofit
+
+    override fun setBaseUrl(baseUrl: String) {
+        if (baseUrl.isNotEmpty()) {
+            newRetrofit  = retrofit.create(baseUrl+":3028/api/app/")
+            api = newRetrofit.create(RetrofitService::class.java)
+        }
+    }
+
     override fun verifyVoucher(voucher: String, publicIdU: String, osInfo: String, force: Int) =
         apiRequest {
             api.verifyVoucher(voucher, publicIdU, osInfo, force)

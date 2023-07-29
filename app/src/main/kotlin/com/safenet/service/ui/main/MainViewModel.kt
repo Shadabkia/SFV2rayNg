@@ -53,6 +53,7 @@ class MainViewModel @Inject constructor(
     val dataStoreManager: DataStoreManager,
     val savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
+
     private val mainStorage by lazy {
         MMKV.mmkvWithID(
             MmkvManager.ID_MAIN,
@@ -110,7 +111,8 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             dataStoreManager.getData(DataStoreManager.PreferenceKeys.BASE_URL).collectLatest { url ->
                 url?.let {
-                    ApiUrl.BASE_URL = it
+                    Timber.tag("baseurl").d("base : $url")
+                    verificationRepository.setBaseUrl(it)
                 }
             }
         }
@@ -365,6 +367,7 @@ class MainViewModel @Inject constructor(
                     Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(res.message)
                     mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.message))
                     base_url_counter.value++
+                    Timber.tag("baseurl").d("base_url_counter ${base_url_counter.value}")
                 }
                 is Result.Loading -> {
                 }

@@ -7,15 +7,21 @@ import com.safenet.service.util.ApiUrl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.security.SecureRandom
+import java.security.cert.CertificateException
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 
 @Module
@@ -59,10 +65,38 @@ object NetworkModule {
         dispatcher: Dispatcher
     ): OkHttpClient {
 
-        return OkHttpClient.Builder()
+        // Create a trust manager that does not validate certificate chains
+        val trustAllCerts = arrayOf<TrustManager>(
+            object : X509TrustManager {
+                @Throws(CertificateException::class)
+                override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+                }
+
+                @Throws(CertificateException::class)
+                override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+                }
+
+                override fun getAcceptedIssuers(): Array<X509Certificate> {
+                    return arrayOf()
+                }
+            }
+        )
+        // Install the all-trusting trust manager
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, trustAllCerts, SecureRandom())
+        // Create an ssl socket factory with our all-trusting manager
+        val sslSocketFactory = sslContext.socketFactory
+
+        val trustManager = trustAllCerts.get(0) as X509TrustManager
+
+        val okhttp = OkHttpClient.Builder()
+
+        return okhttp
+            .sslSocketFactory(sslSocketFactory, trustManager)
+            .hostnameVerifier(HostnameVerifier { _, _ -> true })
             .addInterceptor(logging)
-            .addInterceptor(headerInterceptor)
             .addInterceptor(networkConnectionInterceptor)
+            .addInterceptor(headerInterceptor)
             .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
             .writeTimeout(20, TimeUnit.SECONDS) // write timeout
             .readTimeout(20, TimeUnit.SECONDS) // read timeout
@@ -71,7 +105,6 @@ object NetworkModule {
             .build()
     }
 
-    @Singleton
     @Provides
     fun provideApiService(okHttpClient: OkHttpClient): RetrofitService =
         Retrofit.Builder()
@@ -82,7 +115,6 @@ object NetworkModule {
             .create(RetrofitService::class.java)
 
 
-    @Singleton
     @Provides
     fun provideNewApiService(okHttpClient: OkHttpClient): RetrofitServiceNew =
         Retrofit.Builder()
@@ -92,7 +124,7 @@ object NetworkModule {
             .build()
             .create(RetrofitServiceNew::class.java)
 
-    @ActivityScoped
+    @Singleton
     @Provides
     fun provideTimeApiService(okHttpClient: OkHttpClient): RetrofitServiceTime =
         Retrofit.Builder()
@@ -102,4 +134,19 @@ object NetworkModule {
             .build()
             .create(RetrofitServiceTime::class.java)
 
+    @Provides
+    fun provideRetrofitFactory(okHttpClient: OkHttpClient): RetrofitFactory =
+        object : RetrofitFactory {
+            override fun create(baseUrl: String): Retrofit {
+                return Retrofit.Builder()
+                    .client(okHttpClient)
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+            }
+        }
+}
+
+interface RetrofitFactory {
+    fun create(baseUrl: String): Retrofit
 }

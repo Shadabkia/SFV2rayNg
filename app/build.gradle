@@ -30,9 +30,9 @@ android {
         minSdkVersion 21
         targetSdkVersion Integer.parseInt("$targetSdkVer")
         multiDexEnabled true
-        versionCode 485
+        versionCode 501
 //        versionName1 "1.7.23"
-        versionName "1.1.2"
+        versionName "5.0.1"
     }
 
     if (props["sign"]) {
@@ -54,7 +54,7 @@ android {
 
     buildTypes {
         release {
-            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3027/api/app/"'
+            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3028/api/app/"'
             minifyEnabled false
             debuggable = true
             jniDebuggable = false
@@ -66,7 +66,7 @@ android {
 //            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3027/api/app/"'
+            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3028/api/app/"'
             debuggable = true
             jniDebuggable = true
             minifyEnabled false

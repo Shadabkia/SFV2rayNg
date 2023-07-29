@@ -31,7 +31,7 @@ constructor(
     savedStateHandle: SavedStateHandle,
     private val verificationRepository: VerificationRepository,
     private val dataStoreManager: DataStoreManager,
-) :ViewModel() {
+) : ViewModel() {
 
     private val enterVoucherEventChannel = Channel<EnterVoucherBottomSheetEvents>()
     val enterVoucherEvent = enterVoucherEventChannel.receiveAsFlow()
@@ -43,6 +43,17 @@ constructor(
     var state = MutableStateFlow<ModelState<VerifyResponse>?>(null)
         private set
 
+    init {
+        viewModelScope.launch {
+            dataStoreManager.getData(DataStoreManager.PreferenceKeys.BASE_URL)
+                .collectLatest { url ->
+                    url?.let {
+                        Timber.tag("baseurl").d("base : $url")
+                        verificationRepository.setBaseUrl(it)
+                    }
+                }
+        }
+    }
 
     fun onConfirmClicked(voucher: String, force: Int) {
         Timber.tag("ConfigApi").d("verification getPublic : ${KeyManage.instance.getPublic()}")
@@ -50,9 +61,9 @@ constructor(
         verification(voucher.trim(), publicS.trim(), force)
     }
 
-    private fun verification(voucher: String, publicU: String, force : Int) =
+    private fun verification(voucher: String, publicU: String, force: Int) =
         viewModelScope.launch(Dispatchers.IO) {
-            Timber.tag("osinfo").d("osinfo: ${Utils.getOsInfo()}" )
+            Timber.tag("osinfo").d("osinfo: ${Utils.getOsInfo()}")
             verificationRepository.verifyVoucher(
                 voucher = voucher,
                 publicIdU = publicU,
@@ -73,7 +84,7 @@ constructor(
                     is Result.Success -> {
                         Timber.tag("ConfigApi").d("verification success ${res.data}")
                         base_url_counter.value = 0
-                        when(res.data?.status?.code){
+                        when (res.data?.status?.code) {
                             0 -> {
                                 enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Success)
                                 setTokenAndPublicKeyToDataStore(res.data)
@@ -88,7 +99,11 @@ constructor(
                                 state.value = ModelState(isLoading = false)
                             }
                             -4 -> {
-                                enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.MaxLoginDialog("max login"))
+                                enterVoucherEventChannel.send(
+                                    EnterVoucherBottomSheetEvents.MaxLoginDialog(
+                                        "max login"
+                                    )
+                                )
                                 state.value = ModelState(error = "")
                             }
                             -3 -> {
@@ -97,7 +112,8 @@ constructor(
                             }
                             -7 -> {
                                 // active tunnel problem
-                                state.value = ModelState(error = "Technical Problem.Please Contact Support")
+                                state.value =
+                                    ModelState(error = "Technical Problem.Please Contact Support")
                             }
                             else -> {
                                 state.value = ModelState(error = res.data?.status?.message ?: "")
@@ -128,10 +144,14 @@ constructor(
         Timber.tag(TAG).d("pair f : ${pair.first}")
         Timber.tag(TAG).d("pair s : ${pair.second}")
 
-        Timber.tag(TAG).d("token decompiled : ${KeyManage.instance.getToken(
-            pair.first,
-            pair.second
-        )}")
+        Timber.tag(TAG).d(
+            "token decompiled : ${
+                KeyManage.instance.getToken(
+                    pair.first,
+                    pair.second
+                )
+            }"
+        )
 
         state.value = ModelState(response = data)
     }

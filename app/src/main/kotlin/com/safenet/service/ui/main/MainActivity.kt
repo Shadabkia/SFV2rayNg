@@ -31,6 +31,7 @@ import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.BuildConfig
 import com.safenet.service.R
+import com.safenet.service.data.network.HeaderInterceptor
 import com.safenet.service.databinding.ActivityMainBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
@@ -47,12 +48,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.drakeet.support.toast.ToastCompat
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.OkHttpClient
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -324,7 +329,7 @@ class MainActivity : BaseActivity() {
 
         this.lifecycleScope.launch {
             ApiUrl.base_url_counter.collectLatest {
-                if(it > 9){
+                if(it > 3){
                     mainViewModel.getBaseAddress()
                 }
             }

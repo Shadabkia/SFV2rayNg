@@ -7,8 +7,10 @@ import com.safenet.service.data.network.dto.ConfigResponse
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.network.dto.UpdateLinkResponse
 import com.safenet.service.data.network.dto.time.TimeResponse
+import retrofit2.Retrofit
 
 interface VerificationRepository {
+    fun setBaseUrl(baseUrl : String)
     fun verifyVoucher(voucher: String,  publicIdU : String, osInfo: String, force: Int) : Flow<Result<VerifyResponse>>
     fun getConfig(token : String) : Flow<Result<ConfigResponse>>
     fun disconnect(token : String) : Flow<Result<ConfigResponse>>
@@ -17,3 +19,4 @@ interface VerificationRepository {
     fun getBaseAddress() : Flow<Result<UpdateLinkResponse>>
     fun getTime() : Flow<Result<TimeResponse>>
 }
+
