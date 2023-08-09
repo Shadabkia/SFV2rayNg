@@ -157,16 +157,19 @@ class MainActivity : BaseActivity() {
     private fun showUpdateUI(status: Boolean) {
         when (mainViewModel.savedStateHandle.get<DownloadAppStatus>("downloading")) {
             DownloadAppStatus.STARTED -> {
+                Timber.tag("showUpdateUI").d("showUpdateUI STARTED")
                 binding.btUpdate.isVisible = false
                 binding.clDownloadProgressbar.isVisible = true
             }
             DownloadAppStatus.FINISHED, DownloadAppStatus.FAILED -> {
+                Timber.tag("showUpdateUI").d("showUpdateUI FAILED")
                 binding.apply {
                     btUpdate.isVisible = true
                     clDownloadProgressbar.isVisible = false
                 }
             }
             else -> {
+                Timber.tag("showUpdateUI").d("showUpdateUI $status")
                 binding.btUpdate.isVisible = status
             }
         }
@@ -235,7 +238,8 @@ class MainActivity : BaseActivity() {
         val dialog = AlertDialog.Builder(this)
         dialog.setMessage(R.string.time_error_dialog)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-
+                // go to time setting
+                startActivity(Intent(android.provider.Settings.ACTION_DATE_SETTINGS));
             }
             .show()
     }
@@ -282,13 +286,9 @@ class MainActivity : BaseActivity() {
     private fun initView() {
         listeners()
 
-
-
-
-
         this.lifecycleScope.launch {
             mainViewModel.config.collectLatest {
-//                Timber.tag("ConfigApi").d("config : $it")
+                Timber.tag("ConfigApi").d("config : $it")
                 if (it.isNotEmpty()) {
                     importClipboard(it)
                 }
@@ -329,7 +329,7 @@ class MainActivity : BaseActivity() {
 
         this.lifecycleScope.launch {
             ApiUrl.base_url_counter.collectLatest {
-                if(it > 3){
+                if(it > 8){
                     mainViewModel.getBaseAddress()
                 }
             }

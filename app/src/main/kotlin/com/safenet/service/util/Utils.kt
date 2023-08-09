@@ -21,6 +21,7 @@ import android.os.LocaleList
 import android.util.Log
 import android.util.Patterns
 import android.webkit.URLUtil
+import android.widget.Toast
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.safenet.service.AppConfig
@@ -298,7 +299,6 @@ object Utils {
      * stopVService
      */
     fun stopVService(context: Context) {
-//        context.toast(R.string.toast_services_stop)
         MessageUtil.sendMsg2Service(context, AppConfig.MSG_STATE_STOP, "")
     }
 

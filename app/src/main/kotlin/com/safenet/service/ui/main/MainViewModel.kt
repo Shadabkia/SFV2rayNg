@@ -102,6 +102,7 @@ class MainViewModel @Inject constructor(
         checkAppActivated()
         dataStoreManager.getData(DataStoreManager.PreferenceKeys.IS_UPDATE_MODE).collectLatest {
             it?.let {
+                Timber.tag("showUpdateUI").d("showUpdateUI IS_UPDATE_MODE $it")
                 mainActivityEventChannel.send(MainActivityEvents.ShowUpdateUI(it))
             }
         }
@@ -314,6 +315,7 @@ class MainViewModel @Inject constructor(
 
     fun disconnectApi() = viewModelScope.launch {
 //        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
+        config.value = ""
         val token = dataStoreManager.getData(ACCESS_TOKEN).first()
         if (token != null) {
             try {
@@ -423,6 +425,7 @@ class MainViewModel @Inject constructor(
     fun showUpdateUI(isUpdate: Boolean) = viewModelScope.launch {
         dataStoreManager.updateData(DataStoreManager.PreferenceKeys.IS_UPDATE_MODE, isUpdate)
         mainActivityEventChannel.send(MainActivityEvents.ShowUpdateUI(isUpdate))
+        Timber.tag("showUpdateUI").d("showUpdateUI it $isUpdate")
     }
 
     private fun getUpdateLink(newConfig: String?) = viewModelScope.launch(Dispatchers.IO) {
@@ -583,6 +586,7 @@ class MainViewModel @Inject constructor(
 
     fun downloadAPKFromServer(context: Context?) = viewModelScope.launch(Dispatchers.IO) {
         // Create a URL object from the download URL(
+        config.value = ""
         context?.let { Utils.stopVService(it) }
         var statusCode = 0
         try {
@@ -658,7 +662,7 @@ class MainViewModel @Inject constructor(
         verificationRepository.getBaseAddress().collectLatest { res ->
             when (res.data?.status?.code) {
                 0 -> {
-                    ApiUrl.BASE_URL = res.data.link
+//                    ApiUrl.BASE_URL = res.data.link
                     ApiUrl.base_url_counter.value = 0
                     dataStoreManager.updateData(DataStoreManager.PreferenceKeys.BASE_URL, res.data.link)
                     Timber.d("getBaseurl succeed")
