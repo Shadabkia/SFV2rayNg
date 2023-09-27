@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.net.Uri
 import android.net.VpnService
@@ -83,7 +84,6 @@ class MainActivity : BaseActivity() {
         }
     private var mItemTouchHelper: ItemTouchHelper? = null
     val mainViewModel: MainViewModel by viewModels()
-
 
     val defaultSharedPreferences: SharedPreferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(
@@ -334,9 +334,8 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
-
+        requestNotificationPermission()
         deleteAppFile("SafeNet-${BuildConfig.VERSION_CODE}.apk")
-
     }
 
     private fun listeners() {
@@ -570,6 +569,7 @@ class MainActivity : BaseActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
             toastLong(R.string.wrong_config)
+            hideCircle(0)
             mainViewModel.setAppActivated(false)
             return false
         }
@@ -777,6 +777,26 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (PackageManager.PERMISSION_GRANTED !=
+                packageManager.checkPermission(Manifest.permission.POST_NOTIFICATIONS, packageName)) {
+                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission is granted. Continue the action or workflow in your
+                // app.
+            } else {
+                toastLong("Please turn on notification in App setting")
+            }
+        }
     private fun installUpdatedAPK() {
         try {
             val apkFile = File(application.getExternalFilesDir(null), mainViewModel.appFileName)

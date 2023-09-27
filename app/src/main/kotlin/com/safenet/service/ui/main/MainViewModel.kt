@@ -545,6 +545,7 @@ class MainViewModel @Inject constructor(
                             when (res.data?.status?.code) {
                                 0 -> {
                                     mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Are Logged Out"))
+                                    mainActivityEventChannel.send(MainActivityEvents.HideCircle)
                                     dataStoreManager.updateData(ACCESS_TOKEN, "")
                                     dataStoreManager.updateData(PUBLIC_S, "")
                                     setAppActivated(false)
