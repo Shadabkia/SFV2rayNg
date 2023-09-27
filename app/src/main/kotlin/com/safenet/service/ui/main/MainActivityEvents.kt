@@ -4,6 +4,7 @@ import java.io.File
 
 sealed class MainActivityEvents {
     object ShowLogoutDialog : MainActivityEvents()
+    class ShowMessageDialog(val message : String) : MainActivityEvents()
     object MaxLoginDialog : MainActivityEvents()
     object HideCircle : MainActivityEvents()
     object DownloadStarted : MainActivityEvents()

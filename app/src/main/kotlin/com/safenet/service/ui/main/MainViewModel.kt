@@ -87,9 +87,6 @@ class MainViewModel @Inject constructor(
     var config = MutableStateFlow("")
         private set
 
-    var isAppActivated = MutableStateFlow(false)
-        private set
-
     private val mainActivityEventChannel = Channel<MainActivityEvents>()
     val mainActivityEvent = mainActivityEventChannel.receiveAsFlow()
 
@@ -394,7 +391,9 @@ class MainViewModel @Inject constructor(
                     )
                     config.value = res.data.config
                     setAppActivated(true)
-                    dataStoreManager.updateData(IS_CONNECTED, true);
+                    dataStoreManager.updateData(IS_CONNECTED, true)
+                    if(!res.data.status.message.isNullOrEmpty() && res.data.status.message != "Ok")
+                        mainActivityEventChannel.send(MainActivityEvents.ShowMessageDialog(res.data.status.message))
                 }
             }
             -1 -> {

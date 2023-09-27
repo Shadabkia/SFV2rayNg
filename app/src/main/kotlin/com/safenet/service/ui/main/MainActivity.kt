@@ -12,6 +12,7 @@ import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.os.Message
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.KeyEvent
@@ -130,6 +131,8 @@ class MainActivity : BaseActivity() {
                     is MainActivityEvents.ShowMessage -> toast(event.message)
                     MainActivityEvents.ShowTimeDialog -> showTimeErrorDialog()
                     MainActivityEvents.MaxLoginDialog -> showMaxLoginDialog()
+                    is MainActivityEvents.ShowMessageDialog -> showMessageDialog(event.message)
+
                     MainActivityEvents.HideCircle -> {
                         hideCircle(2)
                     }
@@ -147,6 +150,7 @@ class MainActivity : BaseActivity() {
                         DownloadAppStatus.STARTED,
                         0
                     )
+
                 }
 
             }
@@ -234,12 +238,21 @@ class MainActivity : BaseActivity() {
             .show()
     }
 
+    private fun showMessageDialog(message: String) {
+        val dialog = AlertDialog.Builder(this)
+        dialog.setMessage(message)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+
+            }
+            .show()
+    }
+
     private fun showTimeErrorDialog() {
         val dialog = AlertDialog.Builder(this)
         dialog.setMessage(R.string.time_error_dialog)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 // go to time setting
-                startActivity(Intent(android.provider.Settings.ACTION_DATE_SETTINGS));
+                startActivity(Intent(Settings.ACTION_DATE_SETTINGS));
             }
             .show()
     }
