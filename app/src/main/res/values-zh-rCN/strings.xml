@@ -9,7 +9,7 @@
     <string name="migration_fail">数据迁移失败啦!</string>
 
     <!-- Notifications -->
-    <string name="notification_action_stop_v2ray">停止</string>
+    <string name="notification_action_stop_safenet">停止</string>
     <string name="toast_permission_denied">无法取得权D:\vssHotel\SourceCode\Hotel.root\Hotel\Clubank.Hotel\FrontCounter\CheckoutListForm.cs限</string>
     <string name="notification_action_more">点击了解更多</string>
     <string name="toast_services_start">启动服务中</string>

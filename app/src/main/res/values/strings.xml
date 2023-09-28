@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">v2rayNG</string>
+    <string name="app_name" translatable="false">SafeNet</string>
     <string name="app_widget_name">Switch</string>
     <string name="app_tile_name">Switch</string>
     <string name="app_tile_first_use">First use of this feature, please use the app to add server</string>
@@ -10,7 +10,7 @@
     <string name="migration_fail">Data migration failed!</string>
 
     <!-- Notifications -->
-    <string name="notification_action_stop_v2ray">Stop</string>
+    <string name="notification_action_stop_safenet">Stop</string>
     <string name="toast_permission_denied">Unable to obtain the permission</string>
     <string name="notification_action_more">click for more</string>
     <string name="toast_services_start">Start Services</string>
@@ -62,7 +62,7 @@
     <string name="server_lab_encryption">encryption</string>
     <string name="server_lab_flow">flow</string>
     <string name="toast_success">Success</string>
-    <string name="toast_failure">Failure</string>
+    <string name="toast_failure">Please copy correct config and import again</string>
     <string name="toast_none_data">There is nothing</string>
     <string name="toast_incorrect_protocol">Incorrect protocol</string>
     <string name="toast_decoding_failed">Decoding failed</string>
@@ -202,6 +202,31 @@
     <string name="connection_test_error_status_code">Error code: #%d</string>
     <string name="connection_connected">Connected, tap to check connection</string>
     <string name="connection_not_connected">Not connected</string>
+    <string name="get_device_id" translatable="false">Device Id</string>
+    <string name="blocked_url_or_ip" translatable="false">geosite:category-ads-all,ext:iran.dat:ads,domain:appcenter.ms,domain:app-measurement.com,domain:firebase.io,domain:crashlytics.com,domain:google-analytics.com</string>
+    <string name="blocked_url_or_ip_2" translatable="false">geosite:category-ads-all,ext:iran.dat:ads,domain:appcenter.ms,domain:app-measurement.com,domain:firebase.io,domain:crashlytics.com,domain:google-analytics.com,geosite:category-porn</string>
+    <string name="direct_url_or_ip" translatable="false">domain:ir,ext:iran.dat:other,geosite:cn</string>
+    <string name="contact_us" translatable="false">Contact Us</string>
+    <string name="no_server" translatable="false">No Server!</string>
+    <string name="no_server_or" translatable="false">Your Voucher Time has been Expired!</string>
+    <string name="server_available" translatable="false">Server Available!</string>
+    <string name="server_available_c" translatable="false">Server Available :)</string>
+    <string name="connect" translatable="false">Connect</string>
+    <string name="connected" translatable="false">Connected</string>
+    <string name="import_server" translatable="false">Import from clipboard</string>
+    <string name="wrong_config" translatable="false">Please login again</string>
+    <string name="wrong_config2" translatable="false">Please login again ... </string>
+    <string name="server_name" translatable="false">Running: %1$s</string>
+    <string name="login" translatable="false">Login</string>
+    <string name="logout" translatable="false">Logout</string>
+    <string name="logout_message" translatable="false">Are you sure to logout?</string>
+    <string name="enter_voucher" translatable="false">Enter your Code</string>
+    <string name="confirm" translatable="false">Confirm</string>
+    <string name="cancel" translatable="false">Cancel</string>
+    <string name="continue_verify" translatable="false">continue</string>
+    <string name="max_logout_message" translatable="false">You have reached your maximum Logout. Try again tomorrow</string>
+    <string name="time_error_dialog" translatable="false">Please Switch Your Device Time to Automatic</string>
+    <string name="update_available" translatable="false">Update available</string>
 
     <string-array name="share_method">
         <item>QRcode</item>

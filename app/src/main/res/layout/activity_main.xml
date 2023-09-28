@@ -1,126 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <include
+        android:id="@+id/nav_toolbar"
+        layout="@layout/nav_toolbar" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/server_availability"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay">
+            android:gravity="center"
+            android:text="@string/server_available"
+            android:textSize="10pt"
+            app:layout_constraintVertical_bias="0.45"
+            app:layout_constraintBottom_toTopOf="@+id/fabProgressCircle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize" />
+        <Button
+            android:id="@+id/bt_update"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:visibility="gone"
+            tools:visibility="gone"
+            android:insetLeft="0dp"
+            android:backgroundTint="@color/white"
+            android:insetRight="0dp"
+            android:letterSpacing="0"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/update_available"
+            android:textAllCaps="false"
+            app:icon="@drawable/arrow_pointing_up"
+            app:iconTint="@color/colorAccent"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/colorBlack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintVertical_bias="0.59"
+            app:layout_constraintBottom_toTopOf="@+id/fabProgressCircle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/server_availability"/>
 
-        </com.google.android.material.appbar.AppBarLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:clickable="false"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:id="@+id/cl_download_progressbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintVertical_bias="0.59"
+            app:layout_constraintBottom_toTopOf="@+id/fabProgressCircle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/server_availability">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true">
-
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:id="@+id/main_content"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recycler_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:nextFocusRight="@+id/fab" />
-
-                    <LinearLayout
-                        android:id="@+id/layout_test"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/connection_test_height"
-                        android:background="?attr/colorPrimary"
-                        android:gravity="center|left"
-                        android:nextFocusRight="@+id/fab"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:nextFocusLeft="@+id/recycler_view">
-
-                        <TextView
-                            android:id="@+id/tv_test_state"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:maxLines="2"
-                            android:minLines="1"
-                            android:paddingStart="16dp"
-                            android:text="@string/connection_test_pending"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                            android:textColor="@color/colorWhite" />
-
-                    </LinearLayout>
-                </LinearLayout>
-
-
-                <com.github.jorgecastilloprz.FABProgressCircle
-                    android:id="@+id/fabProgressCircle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_marginBottom="24dp">
-
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/fab"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentBottom="true"
-                        android:layout_gravity="bottom|end"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginRight="16dp"
-                        android:layout_marginBottom="16dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:nextFocusLeft="@+id/layout_test"
-                        android:src="@drawable/ic_stat_name"
-                        app:layout_anchorGravity="bottom|right|end" />
-
-                </com.github.jorgecastilloprz.FABProgressCircle>
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
-        </RelativeLayout>
-    </LinearLayout>
-
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:headerLayout="@layout/nav_header"
-        app:menu="@menu/menu_drawer" >
-
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:padding="2dp">
+            <ProgressBar
+                android:clickable="false"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                style="?android:attr/progressBarStyle"
+                android:indeterminateDrawable="@drawable/progressbar_custom"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_percentage"
+                app:layout_constraintEnd_toEndOf="@+id/tv_percentage"
+                app:layout_constraintStart_toStartOf="@+id/tv_percentage"
+                app:layout_constraintTop_toTopOf="@+id/tv_percentage" />
 
             <TextView
-                    android:id="@+id/version"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center" />
-        </LinearLayout>
-    </com.google.android.material.navigation.NavigationView>
+                android:clickable="false"
+                android:id="@+id/tv_percentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="100%"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-</androidx.drawerlayout.widget.DrawerLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:visibility="gone"
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:nextFocusRight="@+id/fab" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_test"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/connection_test_height"
+            android:background="?attr/colorPrimary"
+            android:clickable="true"
+            android:focusable="true"
+
+            android:gravity="center|left"
+            android:nextFocusLeft="@+id/recycler_view"
+            android:nextFocusRight="@+id/fab"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/tv_test_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="2"
+                android:minLines="1"
+                android:paddingStart="16dp"
+                android:text="@string/connection_test_pending"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textColor="@color/colorWhite" />
+
+        </LinearLayout>
+
+        <!--                <Button-->
+        <!--                    android:id="@id/fab"-->
+        <!--                    android:layout_width="wrap_content"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:text="connect"-->
+        <!--                    android:textColor="@color/white"-->
+        <!--                    android:backgroundTint="@color/colorPingRed"-->
+        <!--                    app:layout_constraintStart_toStartOf="parent"-->
+        <!--                    app:layout_constraintEnd_toEndOf="parent"-->
+        <!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--                    app:layout_constraintTop_toTopOf="parent"/>-->
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="190dp"
+            android:layout_height="190dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/fabProgressCircle"
+            app:layout_constraintLeft_toLeftOf="@id/fabProgressCircle"
+            app:layout_constraintRight_toRightOf="@id/fabProgressCircle"
+            app:layout_constraintTop_toTopOf="@id/fabProgressCircle" />
+
+        <FrameLayout
+            android:id="@+id/fabProgressCircle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="4dp"
+            android:layout_marginBottom="24dp"
+            android:scaleX="1"
+            android:scaleY="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusLeft="@+id/layout_test"
+                android:scaleX="1"
+                android:scaleY="1"
+                app:layout_anchorGravity="bottom|right|end" />
+
+            <TextView
+                android:id="@+id/fab_text"
+                android:layout_width="wrap_content"
+                android:layout_height="43dp"
+                android:layout_gravity="center"
+                android:elevation="10dp"
+                android:gravity="center"
+                android:text="@string/connect"
+                android:textColor="@color/white"
+                android:textSize="24dp" />
+
+        </FrameLayout>
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:id="@+id/contact_us"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0"
+            android:text="@string/contact_us"
+            android:textAllCaps="false"
+            android:textColor="#787878"
+            app:layout_constraintBottom_toTopOf="@+id/layout_test"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fabProgressCircle"
+            app:rippleColor="#787878" />
+
+        <ProgressBar
+            android:id="@+id/pb_main"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
 

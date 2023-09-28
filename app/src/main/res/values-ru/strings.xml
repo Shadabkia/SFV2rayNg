@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">v2rayNG</string>
+    <string name="app_name" translatable="false">SafeNet</string>
     <string name="app_widget_name">Переключить</string>
     <string name="app_tile_name">Переключить</string>
     <string name="app_tile_first_use">Первое использование этой функции, пожалуйста, используйте приложение, чтобы добавить сервер</string>
@@ -10,7 +10,7 @@
     <string name="migration_fail">Перенос данных не выполнен!</string>
 
     <!-- Notifications -->
-    <string name="notification_action_stop_v2ray">Остановить</string>
+    <string name="notification_action_stop_safenet">Остановить</string>
     <string name="toast_permission_denied">Разрешение не получено</string>
     <string name="notification_action_more">Ещё…</string>
     <string name="toast_services_start">Запуск служб</string>
