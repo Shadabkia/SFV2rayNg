@@ -277,7 +277,7 @@ class MainViewModel @Inject constructor(
         var count = AngConfigManager.importBatchConfig(server, subside2, append)
         if (count <= 0) {
             AngConfigManager.importBatchConfig(Utils.decode(server!!), subside2, append)
-            context.toastLong(R.string.wrong_config)
+            context.toastLong(R.string.wrong_config2)
             setAppActivated(false)
         } else {
             if (serverList.size >= 1) {

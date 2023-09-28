@@ -39,6 +39,7 @@ import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.helper.SimpleItemTouchHelperCallback
 import com.safenet.service.ui.BaseActivity
+import com.safenet.service.ui.LogcatActivity
 import com.safenet.service.ui.MainRecyclerAdapter
 import com.safenet.service.ui.ServerActivity
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
@@ -363,8 +364,10 @@ class MainActivity : BaseActivity() {
             }
 
             contactUs.setOnClickListener {
-                val intent =
-                    Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/safenet_vpn_admin"))
+//                val intent =
+//                    Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/safenet_vpn_admin"))
+//                startActivity(intent)
+                val intent = Intent(this@MainActivity, LogcatActivity::class.java)
                 startActivity(intent)
             }
 
@@ -459,7 +462,9 @@ class MainActivity : BaseActivity() {
                 adapter.notifyDataSetChanged()
             }
         }
-        mainViewModel.updateTestResultAction.observe(this) { setTestState(it) }
+        mainViewModel.updateTestResultAction.observe(this) {
+            setTestState(it)
+        }
         mainViewModel.isRunning.observe(this) { isRunning ->
             adapter.isRunning = isRunning
             if (isRunning) {
