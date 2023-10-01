@@ -12,11 +12,13 @@ import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
-import android.os.Message
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.Menu
+import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -33,7 +35,6 @@ import com.safenet.service.AppConfig
 import com.safenet.service.AppConfig.ANG_PACKAGE
 import com.safenet.service.BuildConfig
 import com.safenet.service.R
-import com.safenet.service.data.network.HeaderInterceptor
 import com.safenet.service.databinding.ActivityMainBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
@@ -50,16 +51,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.drakeet.support.toast.ToastCompat
-import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.OkHttpClient
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -131,7 +129,7 @@ class MainActivity : BaseActivity() {
                     is MainActivityEvents.ShowMessage -> toast(event.message)
                     MainActivityEvents.ShowTimeDialog -> showTimeErrorDialog()
                     MainActivityEvents.MaxLoginDialog -> showMaxLoginDialog()
-                    is MainActivityEvents.ShowMessageDialog -> showMessageDialog(event.message)
+                    is MainActivityEvents.ShowMessageDialog -> showNotificationDialog(event.message)
 
                     MainActivityEvents.HideCircle -> {
                         hideCircle(2)
@@ -238,13 +236,28 @@ class MainActivity : BaseActivity() {
             .show()
     }
 
-    private fun showMessageDialog(message: String) {
-        val dialog = AlertDialog.Builder(this)
-        dialog.setMessage(message)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
+    private fun showNotificationDialog(message: String?) {
 
+        binding.apply {
+            if (message.isNullOrEmpty() || message.lowercase() == "ok")
+                cvNotification.visibility = View.GONE
+            else{
+                tvNotification.text = message
+                if(cvNotification.visibility == View.GONE){
+                    //Load animation
+                    val slideDown : Animation = AnimationUtils.loadAnimation(
+                        applicationContext,
+                        R.anim.slide_down
+                    )
+
+                    cvNotification.startAnimation(slideDown)
+                    cvNotification.visibility = View.VISIBLE
+                }
             }
-            .show()
+        }
+
+
+
     }
 
     private fun showTimeErrorDialog() {

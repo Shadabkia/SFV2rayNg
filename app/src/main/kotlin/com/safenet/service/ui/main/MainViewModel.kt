@@ -392,8 +392,7 @@ class MainViewModel @Inject constructor(
                     config.value = res.data.config
                     setAppActivated(true)
                     dataStoreManager.updateData(IS_CONNECTED, true)
-                    if(!res.data.status.message.isNullOrEmpty() && res.data.status.message != "Ok")
-                        mainActivityEventChannel.send(MainActivityEvents.ShowMessageDialog(res.data.status.message))
+                    mainActivityEventChannel.send(MainActivityEvents.ShowMessageDialog(res.data.status.message))
                 }
             }
             -1 -> {
