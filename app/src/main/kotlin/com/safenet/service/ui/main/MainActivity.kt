@@ -589,11 +589,12 @@ class MainActivity : BaseActivity() {
             : Boolean {
         try {
 //            val clipboard = Utils.getClipboard(this)
-            val deConfig = KeyManage.instance.getConfig(config)
-            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("config : $deConfig")
-            mainViewModel.importBatchConfig(deConfig, "", this@MainActivity)
+            val decodeConfig = KeyManage.instance.getConfig(config)
+            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("config : $decodeConfig")
+            mainViewModel.importBatchConfig(decodeConfig, "", this@MainActivity)
         } catch (e: Exception) {
             e.printStackTrace()
+            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("error : ${e.message}")
             toastLong(R.string.wrong_config)
             hideCircle(0)
             mainViewModel.setAppActivated(false)

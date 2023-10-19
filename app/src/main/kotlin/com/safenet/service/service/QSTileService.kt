@@ -5,11 +5,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.util.Log
+import androidx.activity.viewModels
+import androidx.lifecycle.viewModelScope
+import androidx.preference.PreferenceManager
 import com.safenet.service.AngApplication
 import com.safenet.service.AppConfig
 import com.safenet.service.R
@@ -18,6 +22,10 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.dto.ServersCache
 import com.safenet.service.extension.toast
+import com.safenet.service.extension.toastLong
+import com.safenet.service.ui.main.MainActivity
+import com.safenet.service.ui.main.MainActivityEvents
+import com.safenet.service.ui.main.MainViewModel
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,6 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.ref.SoftReference
@@ -33,6 +42,14 @@ import javax.inject.Inject
 @TargetApi(Build.VERSION_CODES.N)
 @AndroidEntryPoint
 class QSTileService : TileService() {
+
+    private val defaultSharedPreferences: SharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(
+            this@QSTileService
+        )
+    }
+
+    private val subscriptionId: String = ""
 
     @Inject
     lateinit var application: AngApplication
@@ -44,7 +61,7 @@ class QSTileService : TileService() {
     lateinit var dataStoreManager: DataStoreManager
 
     private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.Default + job)
+    private val scope = CoroutineScope(Dispatchers.IO + job)
 
     var serverList = MmkvManager.decodeServerList()
     val serversCache = mutableListOf<ServersCache>()
@@ -83,9 +100,11 @@ class QSTileService : TileService() {
         super.onClick()
         when (qsTile.state) {
             Tile.STATE_INACTIVE -> {
-                Timber.d("startService 3")
-//                listenToken(this)
-                toast("Will be enabled in next version")
+                Timber.tag("ConfigApi ").d("qt startService 3")
+                listenToken(this)
+                toast("clicked")
+//                Utils.startVServiceFromToggle(this)
+
             }
             Tile.STATE_ACTIVE -> {
 //                disconnectApi()
@@ -120,28 +139,29 @@ class QSTileService : TileService() {
         }
     }
 
-//    fun listenToken(context: Context) = scope.launch {
-//        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("listenToken")
-//        dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN)
-//            .collectLatest { token ->
-//                if (token != null) {
-//                    try {
-//                        val publicS =
-//                            dataStoreManager.getData(DataStoreManager.PreferenceKeys.PUBLIC_S)
-//                                .first()
-//                        val tokenE = KeyManage.instance.getToken(
-//                            token,
-//                            publicS ?: ""
-//                        )
-//                        getConfig(tokenE, context)
-//                    } catch (e: Exception) {
-////                    setAppActivated(false)
-//                    }
-//                } else {
-////                setAppActivated(false)
-//                }
-//            }
-//    }
+    private fun listenToken(context: Context) = scope.launch {
+        Timber.tag("ConfigApi ").d("qt listenToken")
+        dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN)
+            .collectLatest { token ->
+                if (token != null) {
+                    try {
+                        val publicS =
+                            dataStoreManager.getData(DataStoreManager.PreferenceKeys.PUBLIC_S)
+                                .first()
+                        val tokenE = KeyManage.instance.getToken(
+                            token,
+                            publicS ?: ""
+                        )
+                        getConfig(tokenE, context)
+                        Timber.tag("ConfigApi ").d("qt getConfig")
+                    } catch (e: Exception) {
+//                    setAppActivated(false)
+                    }
+                } else {
+//                setAppActivated(false)
+                }
+            }
+    }
 
     private fun getConfig(tokenE: String, context: Context) = scope.launch {
         verificationRepository.getConfig(
@@ -152,13 +172,15 @@ class QSTileService : TileService() {
                 is Result.Error -> {
                     Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(res.message)
                     context.toast("unsuccessful")
+                    Timber.tag("ConfigApi ").d("qt getConfig error")
                 }
                 is Result.Loading ->{
                 }
                 is Result.Success -> {
+                    Timber.tag("ConfigApi ").d("qt getConfig code : ${res.data?.status?.code}")
                     when(res.data?.status?.code){
                         0 -> {
-                            importBatchConfig(KeyManage.instance.getConfig(res.data.config), "",context)
+                            importClipboard(res.data.config, context)
                         }
                         else -> {
                             context.toast("unsuccessful")
@@ -180,7 +202,7 @@ class QSTileService : TileService() {
     }
 
     fun removeServer(guid: String) {
-        Log.d("MainViewModel", guid)
+        Timber.tag("ConfigApi ").d(guid)
         serverList.remove(guid)
         MmkvManager.removeServer(guid)
         val index = getPosition(guid)
@@ -189,10 +211,26 @@ class QSTileService : TileService() {
         }
     }
 
+    private fun importClipboard(config: String, context: Context)
+            : Boolean {
+        try {
+            val deConfig = KeyManage.instance.getConfig(config)
+            Timber.tag("ConfigApi ").d(" qt config : $deConfig")
+            importBatchConfig(deConfig, "", context)
+        } catch (e: Exception) {
+            e.printStackTrace()
+//            toastLong(R.string.wrong_config)
+//  //          hideCircle(0)
+//  //          mainViewModel.setAppActivated(false)
+            return false
+        }
+        return true
+    }
+
     fun importBatchConfig(server: String?, subside: String = "", context: Context) {
-        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("server : $server")
+        Timber.tag("ConfigApi ").d("qt server : $server")
         val subside2 = if (subside.isNullOrEmpty()) {
-            ""
+            subscriptionId
         } else {
             subside
         }
@@ -201,43 +239,70 @@ class QSTileService : TileService() {
         var count = AngConfigManager.importBatchConfig(server, subside2, append)
         if (count <= 0) {
             AngConfigManager.importBatchConfig(Utils.decode(server!!), subside2, append)
+            context.toastLong(R.string.wrong_config_2)
+//  //          setAppActivated(false)
         } else {
             if (serverList.size >= 1) {
                 // Delete servers
-//                while (serversCache.size > 0) {
-//                    removeServer(serversCache[serversCache.size - 1].guid)
-//                }
+                while (serversCache.size > 0) {
+                    removeServer(serversCache[serversCache.size - 1].guid)
+                }
                 AngConfigManager.importBatchConfig(server, subside2, append)
-//                defaultSharedPreferences.edit()
-//                    .putString(AppConfig.LAST_SERVER, "")
-//                    .apply()
+                defaultSharedPreferences.edit()
+                    .putString(AppConfig.LAST_SERVER, "")
+                    .apply()
 
             } else {
-//                defaultSharedPreferences.edit()
-//                    .putString(AppConfig.LAST_SERVER, "")
-//                    .apply()
+                defaultSharedPreferences.edit()
+                    .putString(AppConfig.LAST_SERVER, "")
+                    .apply()
             }
 
             reloadServerList()
-//            V2RayServiceManager.startV2Ray(this)
-            V2RayServiceManager.startV2Ray(context)
+            Timber.tag("ConfigApi ").d("qt server : $server")
+            Utils.startVServiceFromToggle(this)
+            Timber.tag("ConfigApi ").d("qt servers : $server")
 
         }
-//        _serverAvailability.value =
-//            MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
-//                ?: "No server!"
+        /*_serverAvailability.value =
+            MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
+                ?: "No server!"
+
+        viewModelScope.launch {
+            mainActivityEventChannel.send(MainActivityEvents.HideCircle)
+        }*/
+
     }
 
     private fun reloadServerList() {
         serverList = MmkvManager.decodeServerList()
-        Log.d("ServersList", "serverlist size : ${serverList.size}")
+        Timber.tag("ServersList").d("serverlist size : %s", serverList.size)
 
-        serversCache.clear()
-
+        updateCache()
         AngConfigManager.mainStorage?.encode(
             MmkvManager.KEY_SELECTED_SERVER,
             serversCache.lastOrNull()?.guid
         )
+
+//        _serverAvailability.value =
+//            MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
+//                ?: "No server!"
+
+    }
+
+    @Synchronized
+    fun updateCache() {
+        serversCache.clear()
+        for (guid in serverList) {
+            val config = MmkvManager.decodeServerConfig(guid) ?: continue
+            if (subscriptionId.isNotEmpty() && subscriptionId != config.subscriptionId) {
+                Timber.tag("ServersList")
+                    .d("subscriptionId.isNotEmpty() && subscriptionId != config.subscriptionId")
+                continue
+            }
+            serversCache.add(ServersCache(guid, config))
+            }
+
     }
 
 //    fun disconnectApi() = scope.launch {

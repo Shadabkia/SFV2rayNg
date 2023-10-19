@@ -227,6 +227,7 @@
     <string name="max_logout_message" translatable="false">You have reached your maximum Logout. Try again tomorrow</string>
     <string name="time_error_dialog" translatable="false">Please Switch Your Device Time to Automatic</string>
     <string name="update_available" translatable="false">Update available</string>
+    <string name="notification_action_stop_v2ray" translatable="false">stop service</string>
 
     <string-array name="share_method">
         <item>QRcode</item>

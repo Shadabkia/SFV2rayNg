@@ -145,9 +145,9 @@ class MainViewModel @Inject constructor(
         )
 
 
-        _serverAvailability.value =
-            MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
-                ?: "No server!"
+//        _serverAvailability.value =
+//            MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
+//                ?: "No server!"
 
     }
 

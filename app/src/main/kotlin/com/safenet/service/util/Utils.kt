@@ -286,8 +286,8 @@ object Utils {
     }
 
     fun startVServiceFromToggle(context: Context): Boolean {
-//        Timber.d("startService startVServiceFromToggle")
         if (mainStorage?.decodeString(MmkvManager.KEY_SELECTED_SERVER).isNullOrEmpty()) {
+            Timber.tag("ConfigApi ").d("startVServiceFromToggle empty mainstorage")
             context.toast(R.string.app_tile_first_use)
             return false
         }

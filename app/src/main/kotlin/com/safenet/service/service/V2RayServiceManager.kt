@@ -32,6 +32,7 @@ import libv2ray.V2RayPoint
 import libv2ray.V2RayVPNServiceSupportsSet
 import rx.Observable
 import rx.Subscription
+import timber.log.Timber
 import java.lang.ref.SoftReference
 import kotlin.math.min
 
@@ -63,11 +64,7 @@ object V2RayServiceManager {
         if (settingsStorage?.decodeBool(AppConfig.PREF_PROXY_SHARING) == true) {
             context.toast(R.string.toast_warning_pref_proxysharing_short)
         } else {
-            try {
-//                context.toast(R.string.toast_services_start)
-            } catch (e : Exception){
-
-            }
+            context.toast(R.string.toast_services_start)
         }
         val intent = if (settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN" == "VPN") {
             Intent(context.applicationContext, V2RayVpnService::class.java)
@@ -147,7 +144,7 @@ object V2RayServiceManager {
             currentConfig = config
 
             try {
-                v2rayPoint.runLoop(settingsStorage?.decodeBool(AppConfig.PREF_PREFER_IPV6) ?: true)
+                v2rayPoint.runLoop(settingsStorage?.decodeBool(AppConfig.PREF_PREFER_IPV6) ?: false)
             } catch (e: Exception) {
                 Log.d(ANG_PACKAGE, e.toString())
             }
@@ -254,7 +251,7 @@ object V2RayServiceManager {
         val service = serviceControl?.get()?.getService() ?: return
         val startMainIntent = Intent(service, MainActivity::class.java)
         val contentPendingIntent = PendingIntent.getActivity(service,
-                NOTIFICATION_PENDING_INTENT_CONTENT, startMainIntent,
+            NOTIFICATION_PENDING_INTENT_CONTENT, startMainIntent,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             } else {
@@ -266,7 +263,7 @@ object V2RayServiceManager {
         stopV2RayIntent.putExtra("key", AppConfig.MSG_STATE_STOP)
 
         val stopV2RayPendingIntent = PendingIntent.getBroadcast(service,
-                NOTIFICATION_PENDING_INTENT_STOP_V2RAY, stopV2RayIntent,
+            NOTIFICATION_PENDING_INTENT_STOP_V2RAY, stopV2RayIntent,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             } else {
@@ -274,25 +271,25 @@ object V2RayServiceManager {
             })
 
         val channelId =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    createNotificationChannel()
-                } else {
-                    // If earlier version channel ID is not used
-                    // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
-                    ""
-                }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                createNotificationChannel()
+            } else {
+                // If earlier version channel ID is not used
+                // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
+                ""
+            }
 
         mBuilder = NotificationCompat.Builder(service, channelId)
-                .setSmallIcon(R.drawable.ic_stat_name)
-                .setContentTitle(currentConfig?.remarks)
-                .setPriority(NotificationCompat.PRIORITY_MIN)
-                .setOngoing(true)
-                .setShowWhen(false)
-                .setOnlyAlertOnce(true)
-                .setContentIntent(contentPendingIntent)
-                .addAction(R.drawable.ic_close_grey_800_24dp,
-                        service.getString(R.string.notification_action_stop_safenet),
-                        stopV2RayPendingIntent)
+            .setSmallIcon(R.drawable.ic_stat_name)
+            .setContentTitle(currentConfig?.remarks)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setOngoing(true)
+            .setShowWhen(false)
+            .setOnlyAlertOnce(true)
+            .setContentIntent(contentPendingIntent)
+            .addAction(R.drawable.ic_close_grey_800_24dp,
+                service.getString(R.string.notification_action_stop_v2ray),
+                stopV2RayPendingIntent)
         //.build()
 
         //mBuilder?.setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)  //取消震动,铃声其他都不好使
@@ -305,7 +302,7 @@ object V2RayServiceManager {
         val channelId = "RAY_NG_M_CH_ID"
         val channelName = "V2rayNG Background Service"
         val chan = NotificationChannel(channelId,
-                channelName, NotificationManager.IMPORTANCE_HIGH)
+            channelName, NotificationManager.IMPORTANCE_HIGH)
         chan.lightColor = Color.DKGRAY
         chan.importance = NotificationManager.IMPORTANCE_NONE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
@@ -346,40 +343,40 @@ object V2RayServiceManager {
 
     private fun startSpeedNotification() {
         if (mSubscription == null &&
-                v2rayPoint.isRunning &&
-                settingsStorage?.decodeBool(AppConfig.PREF_SPEED_ENABLED) == true) {
+            v2rayPoint.isRunning &&
+            settingsStorage?.decodeBool(AppConfig.PREF_SPEED_ENABLED) == true) {
             var lastZeroSpeed = false
             val outboundTags = currentConfig?.getAllOutboundTags()
             outboundTags?.remove(TAG_DIRECT)
 
             mSubscription = Observable.interval(3, java.util.concurrent.TimeUnit.SECONDS)
-                    .subscribe {
-                        val queryTime = System.currentTimeMillis()
-                        val sinceLastQueryInSeconds = (queryTime - lastQueryTime) / 1000.0
-                        var proxyTotal = 0L
-                        val text = StringBuilder()
-                        outboundTags?.forEach {
-                            val up = v2rayPoint.queryStats(it, "uplink")
-                            val down = v2rayPoint.queryStats(it, "downlink")
-                            if (up + down > 0) {
-                                appendSpeedString(text, it, up / sinceLastQueryInSeconds, down / sinceLastQueryInSeconds)
-                                proxyTotal += up + down
-                            }
+                .subscribe {
+                    val queryTime = System.currentTimeMillis()
+                    val sinceLastQueryInSeconds = (queryTime - lastQueryTime) / 1000.0
+                    var proxyTotal = 0L
+                    val text = StringBuilder()
+                    outboundTags?.forEach {
+                        val up = v2rayPoint.queryStats(it, "uplink")
+                        val down = v2rayPoint.queryStats(it, "downlink")
+                        if (up + down > 0) {
+                            appendSpeedString(text, it, up / sinceLastQueryInSeconds, down / sinceLastQueryInSeconds)
+                            proxyTotal += up + down
                         }
-                        val directUplink = v2rayPoint.queryStats(TAG_DIRECT, "uplink")
-                        val directDownlink = v2rayPoint.queryStats(TAG_DIRECT, "downlink")
-                        val zeroSpeed = (proxyTotal == 0L && directUplink == 0L && directDownlink == 0L)
-                        if (!zeroSpeed || !lastZeroSpeed) {
-                            if (proxyTotal == 0L) {
-                                appendSpeedString(text, outboundTags?.firstOrNull(), 0.0, 0.0)
-                            }
-                            appendSpeedString(text, TAG_DIRECT, directUplink / sinceLastQueryInSeconds,
-                                    directDownlink / sinceLastQueryInSeconds)
-                            updateNotification(text.toString(), proxyTotal, directDownlink + directUplink)
-                        }
-                        lastZeroSpeed = zeroSpeed
-                        lastQueryTime = queryTime
                     }
+                    val directUplink = v2rayPoint.queryStats(TAG_DIRECT, "uplink")
+                    val directDownlink = v2rayPoint.queryStats(TAG_DIRECT, "downlink")
+                    val zeroSpeed = (proxyTotal == 0L && directUplink == 0L && directDownlink == 0L)
+                    if (!zeroSpeed || !lastZeroSpeed) {
+                        if (proxyTotal == 0L) {
+                            appendSpeedString(text, outboundTags?.firstOrNull(), 0.0, 0.0)
+                        }
+                        appendSpeedString(text, TAG_DIRECT, directUplink / sinceLastQueryInSeconds,
+                            directDownlink / sinceLastQueryInSeconds)
+                        updateNotification(text.toString(), proxyTotal, directDownlink + directUplink)
+                    }
+                    lastZeroSpeed = zeroSpeed
+                    lastQueryTime = queryTime
+                }
         }
     }
 
