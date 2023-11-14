@@ -135,7 +135,7 @@ dependencies {
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta02'
 
     // Androidx ktx
-    implementation 'androidx.activity:activity-ktx:1.5.7'
+    implementation 'androidx.activity:activity-ktx:1.6.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
@@ -177,5 +177,8 @@ dependencies {
 
     // Timber for logging
     implementation 'com.jakewharton.timber:timber:5.0.1'
+
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
+
 }
 
