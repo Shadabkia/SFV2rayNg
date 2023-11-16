@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.CODE
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
@@ -87,6 +88,7 @@ constructor(
                         when (res.data?.status?.code) {
                             0 -> {
                                 enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Success)
+                                dataStoreManager.updateData(CODE, voucher)
                                 setTokenAndPublicKeyToDataStore(res.data)
                             }
                             -1 -> {

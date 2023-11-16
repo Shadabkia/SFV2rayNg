@@ -41,6 +41,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext val context: Cont
         val IS_CONNECTED = booleanPreferencesKey(name = "is_connected")
         val BASE_URL = stringPreferencesKey(name = "base_url_counter")
         val UPP_LLIINK = stringPreferencesKey(name = "upp_lliink")
+        val CODE = stringPreferencesKey(name = "CODE")
     }
 
 }

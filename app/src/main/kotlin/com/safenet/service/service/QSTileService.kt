@@ -84,8 +84,8 @@ class QSTileService : TileService() {
         when (qsTile.state) {
             Tile.STATE_INACTIVE -> {
                 Timber.d("startService 3")
-//                listenToken(this)
-                toast("Will be enabled in next version")
+                Utils.startVServiceFromToggle(this)
+//                toast("Will be enabled in next version")
             }
             Tile.STATE_ACTIVE -> {
 //                disconnectApi()
