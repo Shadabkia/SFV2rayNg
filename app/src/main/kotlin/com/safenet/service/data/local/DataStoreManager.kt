@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.CODE
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -17,10 +18,6 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 class DataStoreManager @Inject constructor(@ApplicationContext val context: Context) {
 
     fun <T> getData(key: Preferences.Key<T>): Flow<T?> = context.dataStore.data.map { preferences ->
-        preferences[key]
-    }
-
-    fun <T> getData2(key: Preferences.Key<T>) = context.dataStore.data.map { preferences ->
         preferences[key]
     }
 

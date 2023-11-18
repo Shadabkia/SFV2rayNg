@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.safenet.service.R
 import com.safenet.service.databinding.BottomsheetEnterVoucherBinding
@@ -42,22 +44,25 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.enterVoucherEvent.collect {
-                when (it) {
-                    EnterVoucherBottomSheetEvents.InitViews -> initViews()
-                    is EnterVoucherBottomSheetEvents.NavigateToEnterCode -> TODO()
-                    EnterVoucherBottomSheetEvents.Success -> {
-                        requireContext().toast("You can connect now!")
-                        this@EnterVoucherBottomSheetDialog.dismiss()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.enterVoucherEvent.collect {
+                    when (it) {
+                        EnterVoucherBottomSheetEvents.InitViews -> initViews()
+                        is EnterVoucherBottomSheetEvents.NavigateToEnterCode -> TODO()
+                        EnterVoucherBottomSheetEvents.Success -> {
+                            requireContext().toast("You can connect now!")
+                            this@EnterVoucherBottomSheetDialog.dismiss()
+                        }
+                        EnterVoucherBottomSheetEvents.Error -> {
+                            requireContext().toast("Error")
+                            this@EnterVoucherBottomSheetDialog.dismiss()
+                        }
+                        EnterVoucherBottomSheetEvents.MaxUserDialog -> showMaxUserDialog()
+                        is EnterVoucherBottomSheetEvents.MaxLoginDialog -> showMaxLoginDialog()
                     }
-                    EnterVoucherBottomSheetEvents.Error -> {
-                        requireContext().toast("Error")
-                        this@EnterVoucherBottomSheetDialog.dismiss()
-                    }
-                    EnterVoucherBottomSheetEvents.MaxUserDialog -> showMaxUserDialog()
-                    is EnterVoucherBottomSheetEvents.MaxLoginDialog -> showMaxLoginDialog()
                 }
             }
+
         }
 
         viewModel.fragmentCreated()
@@ -90,9 +95,8 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
     }
 
 
-    private fun initViews() {
+    private suspend fun initViews() {
         initListeners()
-        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.state.collectLatest { state ->
                 binding.pbVerification.isVisible = state?.isLoading ?: false
                 state?.let {
@@ -102,7 +106,7 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
                     }
                 }
             }
-        }
+
     }
 
     private fun initListeners() {

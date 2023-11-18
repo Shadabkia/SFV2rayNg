@@ -450,5 +450,12 @@ object Utils {
         val intent = Intent(Intent.ACTION_VIEW, webpage)
         context.startActivity(intent)
     }
+
+    // Function to copy a string to the clipboard
+    fun copyToClipboard(context: Context, text: String) {
+        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = ClipData.newPlainText("label", text)
+        clipboardManager.setPrimaryClip(clipData)
+    }
 }
 

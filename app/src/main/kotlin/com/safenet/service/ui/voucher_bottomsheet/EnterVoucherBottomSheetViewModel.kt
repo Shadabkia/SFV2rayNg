@@ -1,5 +1,6 @@
 package com.safenet.service.ui.voucher_bottomsheet
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -157,6 +158,7 @@ constructor(
 
         state.value = ModelState(response = data)
     }
+
 
 
     companion object {

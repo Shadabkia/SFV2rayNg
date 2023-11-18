@@ -674,4 +674,19 @@ class MainViewModel @Inject constructor(
 
     }
 
+    suspend fun copyToClipboard(context: Context) {
+            dataStoreManager.getData(DataStoreManager.PreferenceKeys.CODE).collectLatest {
+                if(it != null) {
+                    Utils.copyToClipboard(
+                        context = context,
+                        text = it
+                    )
+                    context.toastLong("کد شما کپی شد. می توانید آن را پیست کنید")
+                } else {
+                    context.toast("Login first")
+                }
+            }
+
+    }
+
 }
