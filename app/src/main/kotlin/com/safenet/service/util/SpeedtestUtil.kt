@@ -105,8 +105,8 @@ object SpeedtestUtil {
             conn = url.openConnection(
                     Proxy(Proxy.Type.HTTP,
                             InetSocketAddress("127.0.0.1", port))) as HttpURLConnection
-            conn.connectTimeout = 30000
-            conn.readTimeout = 30000
+            conn.connectTimeout = 20000
+            conn.readTimeout = 20000
             conn.setRequestProperty("Connection", "close")
             conn.instanceFollowRedirects = false
             conn.useCaches = false

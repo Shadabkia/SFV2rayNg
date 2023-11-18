@@ -544,8 +544,8 @@ class MainViewModel @Inject constructor(
                                 0 -> {
                                     mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Are Logged Out"))
                                     mainActivityEventChannel.send(MainActivityEvents.HideCircle)
-                                    dataStoreManager.updateData(ACCESS_TOKEN, "")
-                                    dataStoreManager.updateData(PUBLIC_S, "")
+                                    dataStoreManager.clearDataStore()
+
                                     setAppActivated(false)
 
                                 }
@@ -676,7 +676,7 @@ class MainViewModel @Inject constructor(
 
     suspend fun copyToClipboard(context: Context) {
             dataStoreManager.getData(DataStoreManager.PreferenceKeys.CODE).collectLatest {
-                if(it != null) {
+                if(!it.isNullOrEmpty()) {
                     Utils.copyToClipboard(
                         context = context,
                         text = it
