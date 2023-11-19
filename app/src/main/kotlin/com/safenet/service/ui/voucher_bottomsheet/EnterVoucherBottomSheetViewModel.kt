@@ -67,7 +67,7 @@ constructor(
         viewModelScope.launch(Dispatchers.IO) {
             Timber.tag("osinfo").d("osinfo: ${Utils.getOsInfo()}")
             verificationRepository.verifyVoucher(
-                voucher = voucher,
+                voucher = voucher.trim(),
                 publicIdU = publicU,
                 Utils.getOsInfo(),
                 force

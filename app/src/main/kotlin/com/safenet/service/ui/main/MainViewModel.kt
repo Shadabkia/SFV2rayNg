@@ -94,6 +94,8 @@ class MainViewModel @Inject constructor(
 
     var isUpdateRequired = MutableStateFlow(false)
 
+    var isAppActive = false
+
     fun activityCreated() = viewModelScope.launch {
         mainActivityEventChannel.send(MainActivityEvents.InitViews)
         checkAppActivated()
@@ -491,6 +493,7 @@ class MainViewModel @Inject constructor(
     private fun checkAppActivated() = viewModelScope.launch {
         dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
             Timber.d("appstatus token $token")
+            isAppActive = token != null
             setAppActivated(token != null)
         }
     }
@@ -682,9 +685,10 @@ class MainViewModel @Inject constructor(
                         text = it
                     )
                     context.toastLong("کد شما کپی شد. می توانید آن را پیست کنید")
-                } else {
-                    context.toast("Login first")
-                }
+                } else if(isAppActive) {
+                    context.toast("Login Again to enable this feature")
+                } else
+                    context.toast("Login First")
             }
 
     }

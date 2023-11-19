@@ -313,6 +313,8 @@ class MainActivity : BaseActivity() {
     private fun initView() {
         listeners()
 
+        binding.navToolbar.safenet.text = getString(R.string.app_name)+" "+BuildConfig.VERSION_NAME
+
         this.lifecycleScope.launch {
             mainViewModel.config.collectLatest {
                 Timber.tag("ConfigApi").d("config : $it")
