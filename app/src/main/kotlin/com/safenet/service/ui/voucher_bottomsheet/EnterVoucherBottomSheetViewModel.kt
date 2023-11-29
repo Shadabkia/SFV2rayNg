@@ -1,10 +1,12 @@
 package com.safenet.service.ui.voucher_bottomsheet
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.CODE
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
@@ -65,7 +67,7 @@ constructor(
         viewModelScope.launch(Dispatchers.IO) {
             Timber.tag("osinfo").d("osinfo: ${Utils.getOsInfo()}")
             verificationRepository.verifyVoucher(
-                voucher = voucher,
+                voucher = voucher.trim(),
                 publicIdU = publicU,
                 Utils.getOsInfo(),
                 force
@@ -87,6 +89,7 @@ constructor(
                         when (res.data?.status?.code) {
                             0 -> {
                                 enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Success)
+                                dataStoreManager.updateData(CODE, voucher)
                                 setTokenAndPublicKeyToDataStore(res.data)
                             }
                             -1 -> {
@@ -155,6 +158,7 @@ constructor(
 
         state.value = ModelState(response = data)
     }
+
 
 
     companion object {

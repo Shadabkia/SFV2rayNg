@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textIsSelectable="true"
-                android:text="Your account will be expired in 3 days, please apply for renewal                 android:text=Your account will be expired in 3 days, please apply for renewal"
+                android:text="Your account will be expired in 3 days, please apply for renewal  android:text=Your account will be expired in 3 days, please apply for renewal"
                 android:maxLines="4"
                 android:ellipsize="end"
                 android:textSize="18sp"
@@ -246,6 +246,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fabProgressCircle"
+            app:rippleColor="#787878" />
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:id="@+id/copy_voucher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0"
+            android:text="@string/copy_voucher"
+            android:textAllCaps="false"
+            android:textColor="#787878"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/contact_us"
             app:rippleColor="#787878" />
 
         <ProgressBar

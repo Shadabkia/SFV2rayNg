@@ -49,6 +49,7 @@ import com.tencent.mmkv.MMKV
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import me.drakeet.support.toast.ToastCompat
 import rx.Observable
@@ -312,6 +313,8 @@ class MainActivity : BaseActivity() {
     private fun initView() {
         listeners()
 
+        binding.navToolbar.safenet.text = getString(R.string.app_name)+" "+BuildConfig.VERSION_NAME
+
         this.lifecycleScope.launch {
             mainViewModel.config.collectLatest {
                 Timber.tag("ConfigApi").d("config : $it")
@@ -438,6 +441,14 @@ class MainActivity : BaseActivity() {
                 }
             }
 
+            copyVoucher.setOnClickListener {
+                Timber.tag("testtt").d("copyVoucher")
+                val job = lifecycleScope.launch {
+                    if (isActive)
+                        mainViewModel.copyToClipboard(this@MainActivity)
+                }
+                job.cancel()
+            }
 
         }
     }

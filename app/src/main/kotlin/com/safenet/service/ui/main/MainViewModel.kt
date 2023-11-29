@@ -94,6 +94,8 @@ class MainViewModel @Inject constructor(
 
     var isUpdateRequired = MutableStateFlow(false)
 
+    var isAppActive = false
+
     fun activityCreated() = viewModelScope.launch {
         mainActivityEventChannel.send(MainActivityEvents.InitViews)
         checkAppActivated()
@@ -491,6 +493,7 @@ class MainViewModel @Inject constructor(
     private fun checkAppActivated() = viewModelScope.launch {
         dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
             Timber.d("appstatus token $token")
+            isAppActive = token != null
             setAppActivated(token != null)
         }
     }
@@ -544,8 +547,8 @@ class MainViewModel @Inject constructor(
                                 0 -> {
                                     mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Are Logged Out"))
                                     mainActivityEventChannel.send(MainActivityEvents.HideCircle)
-                                    dataStoreManager.updateData(ACCESS_TOKEN, "")
-                                    dataStoreManager.updateData(PUBLIC_S, "")
+                                    dataStoreManager.clearDataStore()
+
                                     setAppActivated(false)
 
                                 }
@@ -671,6 +674,22 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
+
+    }
+
+    suspend fun copyToClipboard(context: Context) {
+            dataStoreManager.getData(DataStoreManager.PreferenceKeys.CODE).collectLatest {
+                if(!it.isNullOrEmpty()) {
+                    Utils.copyToClipboard(
+                        context = context,
+                        text = it
+                    )
+                    context.toastLong("کد شما کپی شد. می توانید آن را پیست کنید")
+                } else if(isAppActive) {
+                    context.toast("Login Again to enable this feature")
+                } else
+                    context.toast("Login First")
+            }
 
     }
 
