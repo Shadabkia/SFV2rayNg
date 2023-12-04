@@ -18,7 +18,7 @@
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-renamesourcefileattribute SourceFile
 
 ##########################################
 ############### Retrofit #################
@@ -59,7 +59,7 @@
 -keepattributes *Annotation*
 
 # Gson specific classes
--keep class sun.misc.Unsafe { *; }
+#-keep class sun.misc.Unsafe { *; }
 #-keep class com.google.gson.stream.** { *; }
 
 # Application classes that will be serialized/deserialized over Gson

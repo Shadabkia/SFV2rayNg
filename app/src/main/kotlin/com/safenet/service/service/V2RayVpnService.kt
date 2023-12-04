@@ -213,7 +213,7 @@ class V2RayVpnService : VpnService(), ServiceControl {
             cmd.add("--dnsgw")
             cmd.add("127.0.0.1:${localDnsPort}")
         }
-        Log.d(packageName, cmd.toString())
+//        Log.d(packageName, cmd.toString())
 
         try {
             val proBuilder = ProcessBuilder(cmd)
