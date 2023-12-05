@@ -26,7 +26,8 @@ class SubSettingRecyclerAdapter(val activity: SubSettingActivity) : RecyclerView
         if (subItem.enabled) {
             holder.itemSubSettingBinding.chkEnable.setBackgroundResource(R.color.colorSelected)
         } else {
-            holder.itemSubSettingBinding.chkEnable.setBackgroundResource(R.color.colorUnselected)
+
+//            holder.itemSubSettingBinding.chkEnable.setBackgroundResource(R.color.colorUnselected)
         }
         holder.itemView.setBackgroundColor(Color.TRANSPARENT)
 

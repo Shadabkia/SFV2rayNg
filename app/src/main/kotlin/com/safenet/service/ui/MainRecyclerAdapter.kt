@@ -29,6 +29,7 @@ import com.safenet.service.util.MmkvManager
 import com.safenet.service.util.Utils
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<MainRecyclerAdapter.BaseViewHolder>()
@@ -76,7 +77,7 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
             if (guid == mainStorage?.decodeString(MmkvManager.KEY_SELECTED_SERVER)) {
                 holder.itemMainBinding.layoutIndicator.setBackgroundResource(R.color.colorSelected)
             } else {
-                holder.itemMainBinding.layoutIndicator.setBackgroundResource(R.color.colorUnselected)
+//                holder.itemMainBinding.layoutIndicator.setBackgroundResource(R.color.colorUnselected)
             }
             holder.itemMainBinding.tvSubscription.text = ""
             val json = subStorage?.decodeString(config.subscriptionId)
@@ -192,7 +193,7 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
     }
 
     private  fun removeServer(guid: String,position:Int) {
-        Log.d("MainViewModel", "removeServer"+guid)
+        Timber.tag("MainViewModel").d("removeServer%s", guid)
         mActivity.mainViewModel.removeServer(guid)
         notifyItemRemoved(position)
         notifyItemRangeChanged(position, mActivity.mainViewModel.serversCache.size)

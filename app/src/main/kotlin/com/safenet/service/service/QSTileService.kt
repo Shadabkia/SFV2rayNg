@@ -1,5 +1,6 @@
 package com.safenet.service.service
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -68,14 +69,25 @@ class QSTileService : TileService() {
 
 
     fun setState(state: Int) {
-        if (state == Tile.STATE_INACTIVE) {
-            qsTile?.state = Tile.STATE_INACTIVE
-            qsTile?.label = getString(R.string.app_name)
-            qsTile?.icon = Icon.createWithResource(applicationContext, R.drawable.ic_stat_name)
-        } else if (state == Tile.STATE_ACTIVE) {
-            qsTile?.state = Tile.STATE_ACTIVE
-            qsTile?.label = V2RayServiceManager.currentConfig?.remarks
-            qsTile?.icon = Icon.createWithResource(applicationContext, R.drawable.ic_stat_name)
+        when (state) {
+            Tile.STATE_INACTIVE -> {
+                qsTile?.state = Tile.STATE_INACTIVE
+                qsTile?.label = getString(R.string.app_name)
+                qsTile?.icon = Icon.createWithResource(applicationContext, R.drawable.ic_stat_name)
+            }
+
+            Tile.STATE_ACTIVE -> {
+                qsTile?.state = Tile.STATE_ACTIVE
+                qsTile?.label = V2RayServiceManager.currentConfig?.remarks
+                qsTile?.icon = Icon.createWithResource(applicationContext, R.drawable.ic_stat_name)
+            }
+
+            Tile.STATE_UNAVAILABLE -> {
+                qsTile?.state = Tile.STATE_UNAVAILABLE
+                qsTile?.label = getString(R.string.connecting)
+                qsTile?.icon =
+                    Icon.createWithResource(applicationContext, R.drawable.ic_stat_connecting)
+            }
         }
 
         qsTile?.updateTile()
@@ -100,15 +112,15 @@ class QSTileService : TileService() {
         super.onClick()
         when (qsTile.state) {
             Tile.STATE_INACTIVE -> {
-                Timber.tag("ConfigApi ").d("qt startService 3")
+                Timber.tag("QSTILE ").d("qt startService 3")
+                setState(Tile.STATE_UNAVAILABLE)
                 listenToken(this)
-                toast("clicked")
-//                Utils.startVServiceFromToggle(this)
-
             }
+
             Tile.STATE_ACTIVE -> {
-//                disconnectApi()
+                setState(Tile.STATE_UNAVAILABLE)
                 Utils.stopVService(this)
+                disconnectApi()
             }
         }
     }
@@ -123,15 +135,19 @@ class QSTileService : TileService() {
                 AppConfig.MSG_STATE_RUNNING -> {
                     context?.setState(Tile.STATE_ACTIVE)
                 }
+
                 AppConfig.MSG_STATE_NOT_RUNNING -> {
                     context?.setState(Tile.STATE_INACTIVE)
                 }
+
                 AppConfig.MSG_STATE_START_SUCCESS -> {
                     context?.setState(Tile.STATE_ACTIVE)
                 }
+
                 AppConfig.MSG_STATE_START_FAILURE -> {
                     context?.setState(Tile.STATE_INACTIVE)
                 }
+
                 AppConfig.MSG_STATE_STOP_SUCCESS -> {
                     context?.setState(Tile.STATE_INACTIVE)
                 }
@@ -140,7 +156,7 @@ class QSTileService : TileService() {
     }
 
     private fun listenToken(context: Context) = scope.launch {
-        Timber.tag("ConfigApi ").d("qt listenToken")
+        Timber.tag("QSTILE ").d("qt listenToken")
         dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN)
             .collectLatest { token ->
                 if (token != null) {
@@ -153,7 +169,7 @@ class QSTileService : TileService() {
                             publicS ?: ""
                         )
                         getConfig(tokenE, context)
-                        Timber.tag("ConfigApi ").d("qt getConfig")
+                        Timber.tag("QSTILE ").d("qt getConfig")
                     } catch (e: Exception) {
 //                    setAppActivated(false)
                     }
@@ -166,24 +182,24 @@ class QSTileService : TileService() {
     private fun getConfig(tokenE: String, context: Context) = scope.launch {
         verificationRepository.getConfig(
             tokenE
-        ).collectLatest{
-                res ->
-            when(res){
+        ).collectLatest { res ->
+            when (res) {
                 is Result.Error -> {
                     Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(res.message)
-                    context.toast("unsuccessful")
-                    Timber.tag("ConfigApi ").d("qt getConfig error")
+                    Timber.tag("QSTILE ").d("qt getConfig error")
                 }
-                is Result.Loading ->{
+
+                is Result.Loading -> {
                 }
+
                 is Result.Success -> {
-                    Timber.tag("ConfigApi ").d("qt getConfig code : ${res.data?.status?.code}")
-                    when(res.data?.status?.code){
+                    Timber.tag("QSTILE ").d("qt getConfig code : ${res.data?.status?.code}")
+                    when (res.data?.status?.code) {
                         0 -> {
                             importClipboard(res.data.config, context)
                         }
+
                         else -> {
-                            context.toast("unsuccessful")
                         }
                     }
                 }
@@ -193,7 +209,7 @@ class QSTileService : TileService() {
     }
 
 
-    fun getPosition(guid: String): Int {
+    private fun getPosition(guid: String): Int {
         serversCache.forEachIndexed { index, it ->
             if (it.guid == guid)
                 return index
@@ -201,8 +217,8 @@ class QSTileService : TileService() {
         return -1
     }
 
-    fun removeServer(guid: String) {
-        Timber.tag("ConfigApi ").d(guid)
+    private fun removeServer(guid: String) {
+        Timber.tag("QSTILE ").d(guid)
         serverList.remove(guid)
         MmkvManager.removeServer(guid)
         val index = getPosition(guid)
@@ -215,7 +231,7 @@ class QSTileService : TileService() {
             : Boolean {
         try {
             val deConfig = KeyManage.instance.getConfig(config)
-            Timber.tag("ConfigApi ").d(" qt config : $deConfig")
+            Timber.tag("QSTILE ").d(" qt config : $deConfig")
             importBatchConfig(deConfig, "", context)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -227,8 +243,8 @@ class QSTileService : TileService() {
         return true
     }
 
-    fun importBatchConfig(server: String?, subside: String = "", context: Context) {
-        Timber.tag("ConfigApi ").d("qt server : $server")
+    private fun importBatchConfig(server: String?, subside: String = "", context: Context) {
+        Timber.tag("QSTILE ").d("qt server : $server")
         val subside2 = if (subside.isNullOrEmpty()) {
             subscriptionId
         } else {
@@ -240,7 +256,6 @@ class QSTileService : TileService() {
         if (count <= 0) {
             AngConfigManager.importBatchConfig(Utils.decode(server!!), subside2, append)
             context.toastLong(R.string.wrong_config_2)
-//  //          setAppActivated(false)
         } else {
             if (serverList.size >= 1) {
                 // Delete servers
@@ -259,9 +274,9 @@ class QSTileService : TileService() {
             }
 
             reloadServerList()
-            Timber.tag("ConfigApi ").d("qt server : $server")
+            Timber.tag("QSTILE ").d("qt server : $server")
             Utils.startVServiceFromToggle(this)
-            Timber.tag("ConfigApi ").d("qt servers : $server")
+            Timber.tag("QSTILE ").d("qt servers : $server")
 
         }
         /*_serverAvailability.value =
@@ -301,34 +316,35 @@ class QSTileService : TileService() {
                 continue
             }
             serversCache.add(ServersCache(guid, config))
-            }
+        }
 
     }
 
-//    fun disconnectApi() = scope.launch {
-////        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
-//        dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN).collectLatest { token ->
-//            if (token != null) {
-//                try {
-////                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi2")
-//                    val publicS = dataStoreManager.getData(DataStoreManager.PreferenceKeys.PUBLIC_S).first()
-//                    val tokenE = KeyManage.instance.getToken(
-//                        token,
-//                        publicS ?: ""
-//                    )
-////                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi3")
-//                    verificationRepository.disconnect(tokenE).collectLatest {
-//                        Utils.stopVService(this@QSTileService)
-////                        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi4")
-//                    }
-//                } catch (e: Exception) {
-//                    Utils.stopVService(this@QSTileService)
-//                }
-//            } else {
-//                Utils.stopVService(this@QSTileService)
-//            }
-//        }
-//    }
+    private fun disconnectApi() = scope.launch {
+        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
+        val token = dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN).first()
+        if (token != null) {
+            try {
+                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi2")
+                val publicS =
+                    dataStoreManager.getData(DataStoreManager.PreferenceKeys.PUBLIC_S).first()
+                val tokenE = KeyManage.instance.getToken(
+                    token,
+                    publicS ?: ""
+                )
+                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi3")
+                verificationRepository.disconnect(tokenE).collectLatest {
+                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi4")
+                }
+            } catch (e: Exception) {
+
+            }
+        }
+        dataStoreManager.updateData(
+            DataStoreManager.PreferenceKeys.IS_CONNECTED,
+            false
+        );
+    }
 
 
     override fun onDestroy() {

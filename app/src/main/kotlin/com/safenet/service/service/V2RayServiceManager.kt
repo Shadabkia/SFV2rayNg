@@ -86,7 +86,8 @@ object V2RayServiceManager {
                 serviceControl.stopService()
                 0
             } catch (e: Exception) {
-                Log.d(ANG_PACKAGE, e.toString())
+                Timber.tag(ANG_PACKAGE).d(e.toString())
+                Timber.tag(ANG_PACKAGE).d(e.toString())
                 -1
             }
         }
@@ -114,7 +115,7 @@ object V2RayServiceManager {
                 startSpeedNotification()
                 0
             } catch (e: Exception) {
-                Log.d(ANG_PACKAGE, e.toString())
+                Timber.tag(ANG_PACKAGE).d(e.toString())
                 -1
             }
         }
@@ -136,7 +137,7 @@ object V2RayServiceManager {
                 mFilter.addAction(Intent.ACTION_USER_PRESENT)
                 service.registerReceiver(mMsgReceive, mFilter)
             } catch (e: Exception) {
-                Log.d(ANG_PACKAGE, e.toString())
+                Timber.tag(ANG_PACKAGE).d(e.toString())
             }
 
             v2rayPoint.configureFileContent = result.content
@@ -146,7 +147,7 @@ object V2RayServiceManager {
             try {
                 v2rayPoint.runLoop(settingsStorage?.decodeBool(AppConfig.PREF_PREFER_IPV6) ?: false)
             } catch (e: Exception) {
-                Log.d(ANG_PACKAGE, e.toString())
+                Timber.tag(ANG_PACKAGE).d(e.toString())
             }
 
             if (v2rayPoint.isRunning) {
@@ -167,7 +168,7 @@ object V2RayServiceManager {
                 try {
                     v2rayPoint.stopLoop()
                 } catch (e: Exception) {
-                    Log.d(ANG_PACKAGE, e.toString())
+                    Timber.tag(ANG_PACKAGE).d(e.toString())
                 }
             }
         }
@@ -178,7 +179,7 @@ object V2RayServiceManager {
         try {
             service.unregisterReceiver(mMsgReceive)
         } catch (e: Exception) {
-            Log.d(ANG_PACKAGE, e.toString())
+            Timber.tag(ANG_PACKAGE).d(e.toString())
         }
     }
 
@@ -213,11 +214,11 @@ object V2RayServiceManager {
 
             when (intent?.action) {
                 Intent.ACTION_SCREEN_OFF -> {
-                    Log.d(ANG_PACKAGE, "SCREEN_OFF, stop querying stats")
+                    Timber.tag(ANG_PACKAGE).d("SCREEN_OFF, stop querying stats")
                     stopSpeedNotification()
                 }
                 Intent.ACTION_SCREEN_ON -> {
-                    Log.d(ANG_PACKAGE, "SCREEN_ON, start querying stats")
+                    Timber.tag(ANG_PACKAGE).d("SCREEN_ON, start querying stats")
                     startSpeedNotification()
                 }
             }
@@ -233,7 +234,7 @@ object V2RayServiceManager {
                 try {
                     time = v2rayPoint.measureDelay()
                 } catch (e: Exception) {
-                    Log.d(ANG_PACKAGE, "measureV2rayDelay: $e")
+                    Timber.tag(ANG_PACKAGE).d("measureV2rayDelay: $e")
                     errstr = e.message?.substringAfter("\":") ?: "empty message"
                 }
             }

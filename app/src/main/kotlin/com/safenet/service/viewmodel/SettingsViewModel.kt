@@ -10,6 +10,7 @@ import com.safenet.service.AppConfig
 import com.safenet.service.util.MmkvManager
 import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.android.lifecycle.HiltViewModel
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,12 +24,12 @@ class SettingsViewModel @Inject constructor(application: Application) : AndroidV
 
     override fun onCleared() {
         PreferenceManager.getDefaultSharedPreferences(getApplication()).unregisterOnSharedPreferenceChangeListener(this)
-        Log.i(AppConfig.ANG_PACKAGE, "Settings ViewModel is cleared")
+        Timber.tag(AppConfig.ANG_PACKAGE).i("Settings ViewModel is cleared")
         super.onCleared()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
-        Log.d(AppConfig.ANG_PACKAGE, "Observe settings changed: $key")
+        Timber.tag(AppConfig.ANG_PACKAGE).d( "Observe settings changed: $key")
         when(key) {
             AppConfig.PREF_MODE,
             AppConfig.PREF_VPN_DNS,
@@ -43,11 +44,13 @@ class SettingsViewModel @Inject constructor(application: Application) : AndroidV
             AppConfig.PREF_ROUTING_MODE,
             AppConfig.PREF_V2RAY_ROUTING_AGENT,
             AppConfig.PREF_V2RAY_ROUTING_BLOCKED,
-            AppConfig.PREF_V2RAY_ROUTING_DIRECT, -> {
+            AppConfig.PREF_V2RAY_ROUTING_DIRECT,
+            -> {
                 settingsStorage?.encode(key, sharedPreferences.getString(key, ""))
             }
             AppConfig.PREF_PREFER_IPV6,
-            AppConfig.PREF_LOCAL_DNS_ENABLED, -> {
+            AppConfig.PREF_LOCAL_DNS_ENABLED,
+            -> {
                 settingsStorage?.encode(key, sharedPreferences.getBoolean(key, true))
             }
             AppConfig.PREF_SPEED_ENABLED,
@@ -56,7 +59,8 @@ class SettingsViewModel @Inject constructor(application: Application) : AndroidV
             AppConfig.PREF_ALLOW_INSECURE,
             AppConfig.PREF_PER_APP_PROXY,
             AppConfig.PREF_BYPASS_APPS,
-            AppConfig.PREF_CONFIRM_REMOVE, -> {
+            AppConfig.PREF_CONFIRM_REMOVE,
+            -> {
                 settingsStorage?.encode(key, sharedPreferences.getBoolean(key, false))
             }
             AppConfig.PREF_SNIFFING_ENABLED -> {

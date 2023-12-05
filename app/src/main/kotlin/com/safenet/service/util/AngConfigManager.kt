@@ -20,6 +20,7 @@ import com.safenet.service.util.MmkvManager.KEY_SELECTED_SERVER
 import java.net.URI
 import java.util.*
 import com.safenet.service.extension.idnHost
+import timber.log.Timber
 
 object AngConfigManager {
     val mainStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_MAIN, MMKV.MULTI_PROCESS_MODE) }
@@ -456,7 +457,7 @@ object AngConfigManager {
             }
             return true
         } catch (e: Exception) {
-            Log.d(AppConfig.ANG_PACKAGE, e.toString())
+            Timber.tag(AppConfig.ANG_PACKAGE).d( e.toString())
             return false
         }
     }

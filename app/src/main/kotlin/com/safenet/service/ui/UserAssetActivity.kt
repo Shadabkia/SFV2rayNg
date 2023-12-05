@@ -27,6 +27,7 @@ import com.safenet.service.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
@@ -158,7 +159,7 @@ class UserAssetActivity : BaseActivity() {
         val targetTemp = File(extDir, name + "_temp")
         val target = File(extDir, name)
         var conn: HttpURLConnection? = null
-        //Log.d(AppConfig.ANG_PACKAGE, url)
+        Timber.tag(AppConfig.ANG_PACKAGE).d( url)
 
         try {
             conn = URL(url).openConnection(
@@ -180,7 +181,7 @@ class UserAssetActivity : BaseActivity() {
             }
             return true
         } catch (e: Exception) {
-            Log.e(AppConfig.ANG_PACKAGE, Log.getStackTraceString(e))
+            Timber.tag(AppConfig.ANG_PACKAGE).e(Log.getStackTraceString(e))
             return false
         } finally {
             conn?.disconnect()

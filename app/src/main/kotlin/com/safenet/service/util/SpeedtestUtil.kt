@@ -9,6 +9,7 @@ import com.safenet.service.R
 import com.safenet.service.extension.responseLength
 import kotlinx.coroutines.isActive
 import libv2ray.Libv2ray
+import timber.log.Timber
 import java.io.IOException
 import java.net.*
 import java.util.*
@@ -36,7 +37,7 @@ object SpeedtestUtil {
         return try {
             Libv2ray.measureOutboundDelay(config)
         } catch (e: Exception) {
-            Log.d(AppConfig.ANG_PACKAGE, "realPing: $e")
+            Timber.tag(AppConfig.ANG_PACKAGE).d("realPing: $e")
             -1L
         }
     }
@@ -76,7 +77,7 @@ object SpeedtestUtil {
         } catch (e: UnknownHostException) {
             e.printStackTrace()
         } catch (e: IOException) {
-            Log.d(AppConfig.ANG_PACKAGE, "socketConnectTime IOException: $e")
+            Timber.tag(AppConfig.ANG_PACKAGE).d("socketConnectTime IOException: $e")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -122,11 +123,11 @@ object SpeedtestUtil {
             }
         } catch (e: IOException) {
             // network exception
-            Log.d(AppConfig.ANG_PACKAGE, "testConnection IOException: " + Log.getStackTraceString(e))
+            Timber.tag(AppConfig.ANG_PACKAGE).d("testConnection IOException: " + Log.getStackTraceString(e))
             result = context.getString(R.string.connection_test_error, e.message)
         } catch (e: Exception) {
             // library exception, eg sumsung
-            Log.d(AppConfig.ANG_PACKAGE, "testConnection Exception: " + Log.getStackTraceString(e))
+            Timber.tag(AppConfig.ANG_PACKAGE).d("testConnection Exception: " + Log.getStackTraceString(e))
             result = context.getString(R.string.connection_test_error, e.message)
         } finally {
             conn?.disconnect()

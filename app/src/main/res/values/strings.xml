@@ -214,6 +214,7 @@
     <string name="server_available_c" translatable="false">Server Available :)</string>
     <string name="connect" translatable="false">Connect</string>
     <string name="connected" translatable="false">Connected</string>
+    <string name="connecting" translatable="false">Connecting</string>
     <string name="import_server" translatable="false">Import from clipboard</string>
     <string name="wrong_config" translatable="false">Please login again</string>
     <string name="wrong_config_2" translatable="false">Please login again ...</string>

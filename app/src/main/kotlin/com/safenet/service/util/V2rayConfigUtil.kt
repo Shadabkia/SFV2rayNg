@@ -12,6 +12,7 @@ import com.safenet.service.dto.EConfigType
 import com.safenet.service.dto.ERoutingMode
 import com.safenet.service.dto.V2rayConfig.Companion.DEFAULT_NETWORK
 import com.safenet.service.dto.V2rayConfig.Companion.HTTP
+import timber.log.Timber
 
 object V2rayConfigUtil {
     private val serverRawStorage by lazy { MMKV.mmkvWithID(MmkvManager.ID_SERVER_RAW, MMKV.MULTI_PROCESS_MODE) }
@@ -32,12 +33,12 @@ object V2rayConfigUtil {
                 } else {
                     raw
                 }
-                Log.d(ANG_PACKAGE, customConfig)
+                Timber.tag(ANG_PACKAGE).d(customConfig)
                 return Result(true, customConfig)
             }
             val outbound = config.getProxyOutbound() ?: return Result(false, "")
             val result = getV2rayNonCustomConfig(context, outbound)
-            Log.d(ANG_PACKAGE, result.content)
+            Timber.tag(ANG_PACKAGE).d(result.content)
             return result
         } catch (e: Exception) {
             e.printStackTrace()

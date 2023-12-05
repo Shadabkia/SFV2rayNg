@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import timber.log.Timber
 import java.text.Collator
 import java.util.*
 
@@ -245,7 +246,7 @@ class PerAppProxyActivity : BaseActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val content = Utils.getUrlContext(url, 5000)
             launch(Dispatchers.Main) {
-                Log.d(ANG_PACKAGE, content)
+                Timber.tag(ANG_PACKAGE).d(content)
                 selectProxyApp(content, true)
                 toast(R.string.toast_success)
             }
@@ -288,7 +289,7 @@ class PerAppProxyActivity : BaseActivity() {
                 adapter?.let {
                     it.apps.forEach block@{
                         val packageName = it.packageName
-                        Log.d(ANG_PACKAGE, packageName)
+                        Timber.tag(ANG_PACKAGE).d(packageName)
                         if (!inProxyApps(proxyApps, packageName, force)) {
                             adapter?.blacklist!!.add(packageName)
                             println(packageName)
@@ -301,7 +302,7 @@ class PerAppProxyActivity : BaseActivity() {
                 adapter?.let {
                     it.apps.forEach block@{
                         val packageName = it.packageName
-                        Log.d(ANG_PACKAGE, packageName)
+                        Timber.tag(ANG_PACKAGE).d(packageName)
                         if (inProxyApps(proxyApps, packageName, force)) {
                             adapter?.blacklist!!.add(packageName)
                             println(packageName)

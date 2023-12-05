@@ -8,7 +8,6 @@ import android.net.*
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.os.StrictMode
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.tencent.mmkv.MMKV
 import com.safenet.service.AppConfig
@@ -20,6 +19,7 @@ import com.safenet.service.util.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import java.lang.ref.SoftReference
 
@@ -213,7 +213,7 @@ class V2RayVpnService : VpnService(), ServiceControl {
             cmd.add("--dnsgw")
             cmd.add("127.0.0.1:${localDnsPort}")
         }
-//        Log.d(packageName, cmd.toString())
+//        Timber.tag(packageName).d( cmd.toString())
 
         try {
             val proBuilder = ProcessBuilder(cmd)
@@ -222,32 +222,32 @@ class V2RayVpnService : VpnService(), ServiceControl {
                 .directory(applicationContext.filesDir)
                 .start()
             Thread(Runnable {
-                Log.d(packageName,"$TUN2SOCKS check")
+                Timber.tag(packageName).d("$TUN2SOCKS check")
                 process.waitFor()
-                Log.d(packageName,"$TUN2SOCKS exited")
+                Timber.tag(packageName).d("$TUN2SOCKS exited")
                 if (isRunning) {
-                    Log.d(packageName,"$TUN2SOCKS restart")
+                    Timber.tag(packageName).d("$TUN2SOCKS restart")
                     runTun2socks()
                 }
             }).start()
-            Log.d(packageName, process.toString())
+            Timber.tag(packageName).d( process.toString())
 
             sendFd()
         } catch (e: Exception) {
-            Log.d(packageName, e.toString())
+            Timber.tag(packageName).d( e.toString())
         }
     }
 
     private fun sendFd() {
         val fd = mInterface.fileDescriptor
         val path = File(applicationContext.filesDir, "sock_path").absolutePath
-        Log.d(packageName, path)
+        Timber.tag(packageName).d( path)
 
         GlobalScope.launch(Dispatchers.IO) {
             var tries = 0
             while (true) try {
                 Thread.sleep(50L shl tries)
-                Log.d(packageName, "sendFd tries: $tries")
+                Timber.tag(packageName).d( "sendFd tries: $tries")
                 LocalSocket().use { localSocket ->
                     localSocket.connect(LocalSocketAddress(path, LocalSocketAddress.Namespace.FILESYSTEM))
                     localSocket.setFileDescriptorsForSend(arrayOf(fd))
@@ -255,7 +255,7 @@ class V2RayVpnService : VpnService(), ServiceControl {
                 }
                 break
             } catch (e: Exception) {
-                Log.d(packageName, e.toString())
+                Timber.tag(packageName).d( e.toString())
                 if (tries > 5) break
                 tries += 1
             }
@@ -283,10 +283,10 @@ class V2RayVpnService : VpnService(), ServiceControl {
         }
 
         try {
-            Log.d(packageName, "tun2socks destroy")
+            Timber.tag(packageName).d( "tun2socks destroy")
             process.destroy()
         } catch (e: Exception) {
-            Log.d(packageName, e.toString())
+            Timber.tag(packageName).d( e.toString())
         }
 
         V2RayServiceManager.stopV2rayPoint()

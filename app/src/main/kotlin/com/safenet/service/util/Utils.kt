@@ -121,12 +121,12 @@ object Utils {
         try {
             return Base64.decode(text, Base64.NO_WRAP).toString(charset("UTF-8"))
         } catch (e: Exception) {
-            Log.i(ANG_PACKAGE, "Parse base64 standard failed $e")
+            Timber.tag(ANG_PACKAGE).i("Parse base64 standard failed %s", e)
         }
         try {
             return Base64.decode(text, Base64.NO_WRAP.or(Base64.URL_SAFE)).toString(charset("UTF-8"))
         } catch (e: Exception) {
-            Log.i(ANG_PACKAGE, "Parse base64 url safe failed $e")
+            Timber.tag(ANG_PACKAGE).i("Parse base64 url safe failed %s", e)
         }
         return null
     }
@@ -287,7 +287,7 @@ object Utils {
 
     fun startVServiceFromToggle(context: Context): Boolean {
         if (mainStorage?.decodeString(MmkvManager.KEY_SELECTED_SERVER).isNullOrEmpty()) {
-            Timber.tag("ConfigApi ").d("startVServiceFromToggle empty mainstorage")
+            Timber.tag("QSTILE ").d("startVServiceFromToggle empty mainstorage")
             context.toast(R.string.app_tile_first_use)
             return false
         }
