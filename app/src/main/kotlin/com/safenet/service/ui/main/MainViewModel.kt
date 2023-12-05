@@ -45,7 +45,6 @@ import java.net.URL
 import java.util.*
 import javax.inject.Inject
 
-
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val verificationRepository: VerificationRepository,
@@ -94,7 +93,7 @@ class MainViewModel @Inject constructor(
 
     var isUpdateRequired = MutableStateFlow(false)
 
-    var isAppActive = false
+    private var isAppActive = false
 
     fun activityCreated() = viewModelScope.launch {
         mainActivityEventChannel.send(MainActivityEvents.InitViews)
@@ -113,6 +112,12 @@ class MainViewModel @Inject constructor(
                 url?.let {
                     Timber.tag("baseurl").d("base : $url")
                     verificationRepository.setBaseUrl(it)
+                }
+            }
+
+            dataStoreManager.getData(DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY).collectLatest { serverName ->
+                serverName?.let {
+                    _serverAvailability.value = serverName
                 }
             }
         }
@@ -267,7 +272,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun importBatchConfig(server: String?, subside: String = "", context: Context) {
+    suspend fun importBatchConfig(server: String?, subside: String = "", context: Context) {
         Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("server : $server")
         val subside2 = if (subside.isNullOrEmpty()) {
             subscriptionId
@@ -305,6 +310,10 @@ class MainViewModel @Inject constructor(
         _serverAvailability.value =
             MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
                 ?: "No server!"
+
+        dataStoreManager.updateData(DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY,
+            MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
+                ?: "No server!")
 
         viewModelScope.launch {
             mainActivityEventChannel.send(MainActivityEvents.HideCircle)
@@ -691,6 +700,16 @@ class MainViewModel @Inject constructor(
                     context.toast("Login First")
             }
 
+    }
+
+    fun updateServerName() = viewModelScope.launch{
+        Timber.tag("QSTILE").d("updateServerName")
+        dataStoreManager.getData(DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY).collectLatest { serverName ->
+            Timber.tag("QSTILE").d("servername    $serverName")
+            serverName?.let {
+                _serverAvailability.value = it
+            }
+        }
     }
 
 }

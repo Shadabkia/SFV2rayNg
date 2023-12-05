@@ -10,6 +10,7 @@ import com.tencent.mmkv.MMKV
 import com.safenet.service.R
 import com.safenet.service.databinding.ItemRecyclerSubSettingBinding
 import com.safenet.service.util.MmkvManager
+import timber.log.Timber
 
 class SubSettingRecyclerAdapter(val activity: SubSettingActivity) : RecyclerView.Adapter<SubSettingRecyclerAdapter.MainViewHolder>() {
 
@@ -24,6 +25,7 @@ class SubSettingRecyclerAdapter(val activity: SubSettingActivity) : RecyclerView
         holder.itemSubSettingBinding.tvName.text = subItem.remarks
         holder.itemSubSettingBinding.tvUrl.text = subItem.url
         if (subItem.enabled) {
+            Timber.tag("ACTIVATE").d("onBindViewHolder")
             holder.itemSubSettingBinding.chkEnable.setBackgroundResource(R.color.colorSelected)
         } else {
 

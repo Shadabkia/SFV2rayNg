@@ -35,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.ref.SoftReference
@@ -227,7 +228,7 @@ class QSTileService : TileService() {
         }
     }
 
-    private fun importClipboard(config: String, context: Context)
+    private suspend fun importClipboard(config: String, context: Context)
             : Boolean {
         try {
             val deConfig = KeyManage.instance.getConfig(config)
@@ -243,7 +244,7 @@ class QSTileService : TileService() {
         return true
     }
 
-    private fun importBatchConfig(server: String?, subside: String = "", context: Context) {
+    private suspend fun importBatchConfig(server: String?, subside: String = "", context: Context) {
         Timber.tag("QSTILE ").d("qt server : $server")
         val subside2 = if (subside.isNullOrEmpty()) {
             subscriptionId
@@ -279,11 +280,12 @@ class QSTileService : TileService() {
             Timber.tag("QSTILE ").d("qt servers : $server")
 
         }
-        /*_serverAvailability.value =
-            MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
-                ?: "No server!"
+        dataStoreManager.updateData(DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY,MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
+            ?: "No server!" )
 
-        viewModelScope.launch {
+        Timber.tag("QSTILE ").d("server name : ${MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks}")
+
+       /* viewModelScope.launch {
             mainActivityEventChannel.send(MainActivityEvents.HideCircle)
         }*/
 

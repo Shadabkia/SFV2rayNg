@@ -284,7 +284,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun activateApp(status: Boolean) {
-        Timber.d("appstatus $status")
+        Timber.tag("ACTIVATE").d("activateApp $status")
         binding.apply {
             if (status) {
                 navToolbar.activeVpn.text = getString(R.string.logout)
@@ -487,6 +487,7 @@ class MainActivity : BaseActivity() {
         mainViewModel.isRunning.observe(this) { isRunning ->
             adapter.isRunning = isRunning
             if (isRunning) {
+                Timber.tag("ACTIVATE").d("onBindViewHolder")
                 binding.fab.backgroundTintList =
                     ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorSelected))
                 setTestState(getString(R.string.connection_connected))
@@ -568,6 +569,7 @@ class MainActivity : BaseActivity() {
     public override fun onResume() {
         super.onResume()
         mainViewModel.reloadServerList()
+        mainViewModel.updateServerName()
     }
 
     public override fun onPause() {
@@ -596,7 +598,7 @@ class MainActivity : BaseActivity() {
     /**
      * import config from clipboard
      */
-    private fun importClipboard(config: String)
+    private suspend fun importClipboard(config: String)
             : Boolean {
         try {
 //            val clipboard = Utils.getClipboard(this)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPing">#009966</color>
+    <color name="colorPing">#024831</color>
     <color name="colorPingRed">#FF0099</color>
     <color name="colorSubscription">#247BA0</color>
     <color name="colorSelected">#009966</color>
