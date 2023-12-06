@@ -1,6 +1,6 @@
 package com.safenet.service.ui.voucher_bottomsheet
 
-import androidx.lifecycle.Lifecycle
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +12,6 @@ import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.VerifyResponse
 import com.safenet.service.data.repository.VerificationRepository
-import com.safenet.service.ui.main.MainActivityEvents
 import com.safenet.service.util.ApiUrl.base_url_counter
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.Utils
@@ -57,19 +56,22 @@ constructor(
         }
     }
 
-    fun onConfirmClicked(voucher: String, force: Int) {
+    fun onConfirmClicked(
+        context: Context,
+        username:String, password: String, force: Int) {
         Timber.tag("ConfigApi").d("verification getPublic : ${KeyManage.instance.getPublic()}")
         val publicS = KeyManage.instance.getPublic()
-        verification(voucher.trim(), publicS.trim(), force)
+        verification(context, username.trim(), password.trim(), publicS.trim(), force)
     }
 
-    private fun verification(voucher: String, publicU: String, force: Int) =
+    private fun verification(context: Context, username: String, password: String, publicU: String, force: Int) =
         viewModelScope.launch(Dispatchers.IO) {
-            Timber.tag("osinfo").d("osinfo: ${Utils.getOsInfo()}")
+            Timber.tag("osinfo").d("osinfo: ${Utils.getOsInfo(context)}")
             verificationRepository.verifyVoucher(
-                voucher = voucher.trim(),
+                username = username.trim(),
+                password = password.trim(),
                 publicIdU = publicU,
-                Utils.getOsInfo(),
+                Utils.getOsInfo(context),
                 force
             ).collectLatest { res ->
                 when (res) {
@@ -89,7 +91,7 @@ constructor(
                         when (res.data?.status?.code) {
                             0 -> {
                                 enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Success)
-                                dataStoreManager.updateData(CODE, voucher)
+                                dataStoreManager.updateData(CODE, password)
                                 setTokenAndPublicKeyToDataStore(res.data)
                             }
                             -1 -> {

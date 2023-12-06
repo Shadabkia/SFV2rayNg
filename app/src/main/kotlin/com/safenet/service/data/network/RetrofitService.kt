@@ -14,9 +14,10 @@ interface RetrofitService {
 
     // field force should be 0 or 1
     @FormUrlEncoded
-    @POST("verify")
+    @POST("login")
     suspend fun verifyVoucher(
-        @Field("voucher") voucher: String,
+        @Field("username") username: String,
+        @Field("password") password: String,
         @Field("publicU") publicU: String,
         @Field("osInfo") osInfo: String,
         @Field("force") force: Int

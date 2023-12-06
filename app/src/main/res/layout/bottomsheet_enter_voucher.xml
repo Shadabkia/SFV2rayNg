@@ -28,14 +28,14 @@
                 android:id="@+id/tv_voucher_hint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/enter_voucher"
+                android:text="@string/enter_password"
                 android:textSize="12pt"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tt_voucher"
+                android:id="@+id/tt_username"
                 style="@style/inputEditTextStyle"
                 android:layout_marginTop="@dimen/margin_2x_large"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -43,11 +43,29 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_voucher_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="@string/enter_username"
+                    android:inputType="textEmailAddress" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tt_voucher"
+                style="@style/inputEditTextStyle"
+                android:layout_marginTop="@dimen/margin_2x_large"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tt_username">
+
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_voucher"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:hint="@string/enter_voucher"
+                    android:hint="@string/enter_password"
                     android:inputType="textEmailAddress" />
 
             </com.google.android.material.textfield.TextInputLayout>

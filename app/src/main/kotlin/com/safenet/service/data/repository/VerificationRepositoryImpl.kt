@@ -27,9 +27,15 @@ class VerificationRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun verifyVoucher(voucher: String, publicIdU: String, osInfo: String, force: Int) =
+    override fun verifyVoucher(
+        username: String,
+        password: String,
+        publicIdU: String,
+        osInfo: String,
+        force: Int
+    ) =
         apiRequest {
-            api.verifyVoucher(voucher, publicIdU, osInfo, force)
+            api.verifyVoucher(username, password, publicIdU, osInfo, force)
         }
 
     override fun getConfig(token: String): Flow<Result<ConfigResponse>> =

@@ -4,6 +4,7 @@ buildscript {
     ext {
         hilt_version = '2.44.2'
         retrofit_version = '2.9.0'
+        agp_version = '8.1.4'
     }
     repositories {
         google()
@@ -13,7 +14,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.2'
+        classpath "com.android.tools.build:gradle:$agp_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
 

@@ -18,10 +18,10 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.net.Uri
 import android.os.Build
 import android.os.LocaleList
-import android.util.Log
+import android.provider.Settings
+import android.provider.Settings.*
 import android.util.Patterns
 import android.webkit.URLUtil
-import android.widget.Toast
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.safenet.service.AppConfig
@@ -34,6 +34,7 @@ import java.net.*
 import com.safenet.service.service.V2RayServiceManager
 import timber.log.Timber
 import java.io.IOException
+import java.lang.System
 
 object Utils {
 
@@ -433,12 +434,13 @@ object Utils {
         return str?.replace(" ", "")
     }
 
-    fun getOsInfo() : String {
+    fun getOsInfo(context: Context) : String {
         val gson = Gson()
         val osInfo = OsInfo(
             osVersion = Build.VERSION.SDK_INT.toString(),
             architecture = System.getProperty("os.arch") ?: "error",
-            appVersion = BuildConfig.VERSION_CODE.toString()
+            androidID = Secure.getString(context.contentResolver, Secure.ANDROID_ID),
+            appVersion = BuildConfig.VERSION_CODE
         )
         return gson.toJson(osInfo)
     }

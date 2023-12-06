@@ -8,9 +8,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.safenet.service.R
 import com.safenet.service.databinding.BottomsheetEnterVoucherBinding
@@ -82,7 +80,7 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
         val dialog = AlertDialog.Builder(requireContext())
         dialog.setMessage("Apparently, your account is full. If you Continue, another user will be disconnected")
             .setPositiveButton(R.string.continue_verify) { _, _ ->
-                viewModel.onConfirmClicked(binding.etVoucher.text.toString(), force = 1)
+                viewModel.onConfirmClicked(requireContext() ,binding.etUsername.text.toString(),binding.etVoucher.text.toString(), force = 1)
             }
             .setNegativeButton(R.string.cancel) { _, _ ->
 
@@ -111,7 +109,7 @@ class EnterVoucherBottomSheetDialog : BottomSheetDialogFragment() {
         binding.apply {
             btConfirm.setOnClickListener {
                 if (etVoucher.text.toString().isNotEmpty()) {
-                    viewModel.onConfirmClicked(etVoucher.text.toString(), force = 0)
+                    viewModel.onConfirmClicked(requireContext(), etUsername.text.toString(), etVoucher.text.toString(), force = 0)
                 }
             }
         }

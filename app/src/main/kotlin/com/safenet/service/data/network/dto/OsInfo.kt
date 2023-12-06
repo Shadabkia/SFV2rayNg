@@ -1,10 +1,11 @@
 package com.safenet.service.data.network.dto
 
 data class OsInfo(
-    val osName : String? = "Android",
+    val osName : Int = 0,
     val osVersion: String,
     val architecture : String,
-    val appVersion : String,
+    val androidID : String,
+    val appVersion : Int
 
 ) {
 //    override fun toString(): String {
