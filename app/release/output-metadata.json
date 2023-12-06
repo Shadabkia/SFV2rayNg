@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 503,
-      "versionName": "5.0.3q",
-      "outputFile": "SafeNet_Android_5.0.3q.apk"
+      "versionCode": 504,
+      "versionName": "5.0.4",
+      "outputFile": "SafeNet_Android_5.0.4.apk"
     }
   ],
   "elementType": "File"
