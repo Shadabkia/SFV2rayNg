@@ -1,6 +1,5 @@
 package com.safenet.service.service
 
-import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -11,9 +10,6 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.util.Log
-import androidx.activity.viewModels
-import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
 import com.safenet.service.AngApplication
 import com.safenet.service.AppConfig
@@ -22,11 +18,7 @@ import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.network.Result
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.dto.ServersCache
-import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
-import com.safenet.service.ui.main.MainActivity
-import com.safenet.service.ui.main.MainActivityEvents
-import com.safenet.service.ui.main.MainViewModel
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,7 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.ref.SoftReference
@@ -169,7 +160,8 @@ class QSTileService : TileService() {
                             token,
                             publicS ?: ""
                         )
-                        getConfig(tokenE, context)
+                        val serverNumber = dataStoreManager.getData(DataStoreManager.PreferenceKeys.SERVER_ID).first() ?: 0
+                        getConfig(tokenE,serverNumber, context)
                         Timber.tag("QSTILE ").d("qt getConfig")
                     } catch (e: Exception) {
 //                    setAppActivated(false)
@@ -180,9 +172,10 @@ class QSTileService : TileService() {
             }
     }
 
-    private fun getConfig(tokenE: String, context: Context) = scope.launch {
+    private fun getConfig(tokenE: String, serverNumber: Int, context: Context) = scope.launch {
         verificationRepository.getConfig(
-            tokenE
+            tokenE,
+            serverNumber,
         ).collectLatest { res ->
             when (res) {
                 is Result.Error -> {

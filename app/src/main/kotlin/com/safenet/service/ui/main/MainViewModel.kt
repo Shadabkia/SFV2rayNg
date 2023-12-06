@@ -16,6 +16,7 @@ import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.IS_CONNECTED
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.SERVER_ID
 import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.ConfigResponse
 import com.safenet.service.data.network.dto.UpdateLinkRequest
@@ -27,6 +28,7 @@ import com.safenet.service.dto.V2rayConfig
 import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.service.V2RayServiceManager
+import com.safenet.service.ui.server_bottomsheet.ServerListBottomSheetDialog
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetDialog
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
@@ -77,7 +79,7 @@ class MainViewModel @Inject constructor(
 
     var appFileName = "safenet.apk"
 
-    private val _serverAvailability = MutableStateFlow<String?>(null)
+    private val _serverAvailability = MutableStateFlow<String?>("servers")
     val serverAvailability: StateFlow<String?> get() = _serverAvailability
 
     private val _downloadPercentage = MutableStateFlow<Int?>(null)
@@ -232,6 +234,21 @@ class MainViewModel @Inject constructor(
 
     }
 
+    fun onServersClicked(context: Context) {
+
+        val serverListBottomSheetDialog = ServerListBottomSheetDialog()
+        serverListBottomSheetDialog.show(
+            (context as MainActivity).supportFragmentManager,
+            "serverList"
+        )
+
+//        var publicKey = KeyManage().getPublic()
+//        setToClipBoard(context, publicKey)
+//
+//        context.toast("Device Id Copied to Clipboard")
+
+    }
+
     private fun setToClipBoard(context: Context, text: String) {
         val clipboard =
             ContextCompat.getSystemService(context, ClipboardManager::class.java)
@@ -355,7 +372,9 @@ class MainViewModel @Inject constructor(
                     token,
                     publicS ?: ""
                 )
-                getConfig(tokenE)
+                val sN = dataStoreManager.getData(SERVER_ID).first() ?: 0
+
+                getConfig(tokenE, sN)
                 getTime()
             } catch (e: Exception) {
                 setAppActivated(false)
@@ -367,10 +386,11 @@ class MainViewModel @Inject constructor(
 
     }
 
-    fun getConfig(token: String) = viewModelScope.launch(Dispatchers.IO) {
+    fun getConfig(token: String, serverNumber : Int) = viewModelScope.launch(Dispatchers.IO) {
         Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getConfig")
         verificationRepository.getConfig(
             token,
+            serverNumber
         ).collectLatest { res ->
             when (res) {
                 is Result.Error -> {

@@ -450,6 +450,10 @@ class MainActivity : BaseActivity() {
                 job.cancel()
             }
 
+            serverAvailability.setOnClickListener {
+                mainViewModel.onServersClicked(this@MainActivity)
+            }
+
         }
     }
 

@@ -1,6 +1,7 @@
 package com.safenet.service.data.network
 
 import com.safenet.service.data.network.dto.ConfigResponse
+import com.safenet.service.data.network.dto.ServerListResponse
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.network.dto.UpdateLinkResponse
 import com.safenet.service.data.network.dto.VerifyResponse
@@ -27,6 +28,7 @@ interface RetrofitService {
     @POST("config")
     suspend fun getConfig(
         @Field("token") token: String,
+        @Field("serverNumber") serverNumber: Int
     ): Response<ConfigResponse>
 
     @FormUrlEncoded
@@ -46,5 +48,10 @@ interface RetrofitService {
         @Body req : UpdateLinkRequest
     ): Response<UpdateLinkResponse>
 
+    @FormUrlEncoded
+    @POST("getServerList")
+    suspend fun getServerList(
+        @Field("token") token: String,
+    ): Response<ServerListResponse>
 
 }

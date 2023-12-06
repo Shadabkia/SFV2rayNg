@@ -2,6 +2,7 @@ package com.safenet.service.data.repository
 
 import com.safenet.service.data.network.*
 import com.safenet.service.data.network.dto.ConfigResponse
+import com.safenet.service.data.network.dto.ServerListResponse
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.network.dto.UpdateLinkResponse
 import com.safenet.service.data.network.dto.time.TimeResponse
@@ -11,10 +12,10 @@ import retrofit2.Retrofit
 import javax.inject.Inject
 
 class VerificationRepositoryImpl @Inject constructor(
-    var retrofit: RetrofitFactory,
+    private var retrofit: RetrofitFactory,
     var api: RetrofitService,
-    var newApi: RetrofitServiceNew,
-    var timeApi : RetrofitServiceTime
+    private var newApi: RetrofitServiceNew,
+    private var timeApi : RetrofitServiceTime
 ) : VerificationRepository, SafeApiRequest() {
 
 
@@ -38,9 +39,9 @@ class VerificationRepositoryImpl @Inject constructor(
             api.verifyVoucher(username, password, publicIdU, osInfo, force)
         }
 
-    override fun getConfig(token: String): Flow<Result<ConfigResponse>> =
+    override fun getConfig(token: String, serverNumber: Int): Flow<Result<ConfigResponse>> =
         apiRequest {
-            api.getConfig(token = token)
+            api.getConfig(token = token, serverNumber)
         }
 
     override fun disconnect(token: String): Flow<Result<ConfigResponse>> =
@@ -69,4 +70,10 @@ class VerificationRepositoryImpl @Inject constructor(
         apiRequest {
             timeApi.getTime()
         }
+
+    override fun getServerList(token: String): Flow<Result<ServerListResponse>> =
+        apiRequest {
+            api.getServerList(token)
+        }
+
 }
