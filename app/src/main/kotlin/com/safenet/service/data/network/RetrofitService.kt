@@ -2,9 +2,10 @@ package com.safenet.service.data.network
 
 import com.safenet.service.data.network.dto.ConfigResponse
 import com.safenet.service.data.network.dto.ServerListResponse
+import com.safenet.service.data.network.dto.Status
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.network.dto.UpdateLinkResponse
-import com.safenet.service.data.network.dto.VerifyResponse
+import com.safenet.service.data.network.dto.RegisterResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Field
@@ -22,7 +23,18 @@ interface RetrofitService {
         @Field("publicU") publicU: String,
         @Field("osInfo") osInfo: String,
         @Field("force") force: Int
-    ): Response<VerifyResponse>
+    ): Response<RegisterResponse>
+
+    @FormUrlEncoded
+    @POST("register")
+    suspend fun register(
+        @Field("username") username: String,
+        @Field("password") password: String,
+        @Field("referral") referral: String,
+        @Field("telegramID") telegramID: String,
+        @Field("publicU") publicU: String,
+        @Field("osInfo") osInfo: String,
+    ): Response<RegisterResponse>
 
     @FormUrlEncoded
     @POST("config")

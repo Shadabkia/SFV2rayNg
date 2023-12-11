@@ -33,6 +33,9 @@ android {
         versionCode 505
 //        versionName1 "1.7.23"
         versionName "5.0.5T"
+        vectorDrawables {
+            useSupportLibrary true
+        }
     }
 
     if (props["sign"]) {
@@ -54,7 +57,7 @@ android {
 
     buildTypes {
         release {
-            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3028/api/app/"'
+//            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3028/api/app/"'
             minifyEnabled false
             debuggable = false
             jniDebuggable = false
@@ -68,7 +71,7 @@ android {
 //            ndk.abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
         }
         debug {
-            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3028/api/app/"'
+//            buildConfigField "String", "BASE_URL", '"http://net.safenetvpn.cf:3028/api/app/"'
             debuggable = true
             jniDebuggable = true
             minifyEnabled false
@@ -117,12 +120,27 @@ android {
 
     buildFeatures {
         viewBinding true
+        compose true
     }
     namespace 'com.safenet.service'
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.3'
+    }
+    packaging {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
+    implementation 'androidx.activity:activity-compose:1.8.1'
+    implementation platform('androidx.compose:compose-bom:2023.03.00')
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-graphics'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.material3:material3'
     testImplementation 'junit:junit:4.13.2'
 
     // Androidx
@@ -174,6 +192,12 @@ dependencies {
     // Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    // compose
+    androidTestImplementation platform('androidx.compose:compose-bom:2023.03.00')
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
     // Datastore
     implementation "androidx.datastore:datastore-preferences:1.0.0"

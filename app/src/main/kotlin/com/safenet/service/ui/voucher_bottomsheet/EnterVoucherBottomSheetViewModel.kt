@@ -10,7 +10,7 @@ import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.CODE
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
-import com.safenet.service.data.network.dto.VerifyResponse
+import com.safenet.service.data.network.dto.RegisterResponse
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.util.ApiUrl.base_url_counter
 import com.safenet.service.util.KeyManage
@@ -41,7 +41,7 @@ constructor(
         enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.InitViews)
     }
 
-    var state = MutableStateFlow<ModelState<VerifyResponse>?>(null)
+    var state = MutableStateFlow<ModelState<RegisterResponse>?>(null)
         private set
 
     init {
@@ -129,7 +129,7 @@ constructor(
             }
         }
 
-    private fun setTokenAndPublicKeyToDataStore(data: VerifyResponse) = viewModelScope.launch {
+    private fun setTokenAndPublicKeyToDataStore(data: RegisterResponse) = viewModelScope.launch {
 
         val pair = KeyManage.instance.setToken(
             data.token,

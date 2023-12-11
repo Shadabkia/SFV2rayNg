@@ -1,26 +1,19 @@
 package com.safenet.service.ui.server_bottomsheet
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
-import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.CODE
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.Server
-import com.safenet.service.data.network.dto.ServerListResponse
-import com.safenet.service.data.network.dto.VerifyResponse
+import com.safenet.service.data.network.dto.RegisterResponse
 import com.safenet.service.data.repository.VerificationRepository
-import com.safenet.service.ui.main.MainActivityEvents
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
-import com.safenet.service.util.ApiUrl.base_url_counter
 import com.safenet.service.util.KeyManage
-import com.safenet.service.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -48,7 +41,7 @@ constructor(
         listenToken()
     }
 
-    var state = MutableStateFlow<ModelState<VerifyResponse>?>(null)
+    var state = MutableStateFlow<ModelState<RegisterResponse>?>(null)
         private set
 
     private val _serverList = MutableStateFlow<List<Server>>(listOf())

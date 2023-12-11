@@ -2,7 +2,9 @@ package com.safenet.service.data.repository
 
 import com.safenet.service.data.network.*
 import com.safenet.service.data.network.dto.ConfigResponse
+import com.safenet.service.data.network.dto.RegisterResponse
 import com.safenet.service.data.network.dto.ServerListResponse
+import com.safenet.service.data.network.dto.Status
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.network.dto.UpdateLinkResponse
 import com.safenet.service.data.network.dto.time.TimeResponse
@@ -19,10 +21,11 @@ class VerificationRepositoryImpl @Inject constructor(
 ) : VerificationRepository, SafeApiRequest() {
 
 
-    lateinit var newRetrofit: Retrofit
+    private lateinit var newRetrofit: Retrofit
 
     override fun setBaseUrl(baseUrl: String) {
         if (baseUrl.isNotEmpty()) {
+            // don't touch!
             newRetrofit  = retrofit.create(baseUrl+":3028/api/app/")
             api = newRetrofit.create(RetrofitService::class.java)
         }
@@ -37,6 +40,18 @@ class VerificationRepositoryImpl @Inject constructor(
     ) =
         apiRequest {
             api.verifyVoucher(username, password, publicIdU, osInfo, force)
+        }
+
+    override fun register(
+        username: String,
+        password: String,
+        referral: String,
+        telegramId: String,
+        publicIdU: String,
+        osInfo: String
+    ): Flow<Result<RegisterResponse>> =
+        apiRequest {
+            api.register(username, password, referral, telegramId,  publicIdU, osInfo)
         }
 
     override fun getConfig(token: String, serverNumber: Int): Flow<Result<ConfigResponse>> =

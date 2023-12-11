@@ -256,5 +256,6 @@
         <item>VPN</item>
         <item>Proxy only</item>
     </string-array>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
 
 </resources>
