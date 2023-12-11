@@ -342,10 +342,13 @@ object AngConfigManager {
                     vnext.users[0].flow =queryParam["flow"] ?: ""
                 }
 
+                Timber.tag("VLESSTAG").d(queryParam["path"])
+
                 val sni = streamSetting.populateTransportSettings(queryParam["type"] ?: "tcp", queryParam["headerType"],
                         queryParam["host"], queryParam["path"], queryParam["seed"], queryParam["quicSecurity"], queryParam["key"],
                         queryParam["mode"], queryParam["serviceName"])
-                streamSetting.populateTlsSettings(queryParam["security"] ?: "", allowInsecure, queryParam["sni"] ?: sni, fingerprint, queryParam["alpn"])
+
+                streamSetting.populateTlsSettings(queryParam["security"] ?: "", allowInsecure, sni, fingerprint, queryParam["alpn"])
             }
             if (config == null){
                 return R.string.toast_incorrect_protocol

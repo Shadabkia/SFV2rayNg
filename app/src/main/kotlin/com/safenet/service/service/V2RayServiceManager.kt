@@ -125,6 +125,7 @@ object V2RayServiceManager {
         val service = serviceControl?.get()?.getService() ?: return
         val guid = mainStorage?.decodeString(MmkvManager.KEY_SELECTED_SERVER) ?: return
         val config = MmkvManager.decodeServerConfig(guid) ?: return
+        Timber.tag("VLESSTAG").d("config $config")
         if (!v2rayPoint.isRunning) {
             val result = V2rayConfigUtil.getV2rayConfig(service, guid)
             if (!result.status)
