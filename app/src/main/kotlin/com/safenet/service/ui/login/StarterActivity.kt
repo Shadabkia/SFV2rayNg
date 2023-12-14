@@ -1,4 +1,4 @@
-package com.safenet.service
+package com.safenet.service.ui.login
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -6,14 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.safenet.service.ui.theme.RegistrationPage
+import com.google.android.material.tabs.TabLayout
 import com.safenet.service.ui.theme.V2rayNGTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-class StartActivity : ComponentActivity() {
+@AndroidEntryPoint
+class StarterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -23,25 +24,19 @@ class StartActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RegistrationPage()
+                    TabScreen(this@StarterActivity)
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     V2rayNGTheme {
-        Greeting("Android")
+        val s = StarterActivity()
+        TabLayout(s)
     }
 }

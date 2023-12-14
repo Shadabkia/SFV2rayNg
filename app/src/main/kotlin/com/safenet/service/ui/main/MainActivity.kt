@@ -42,6 +42,7 @@ import com.safenet.service.helper.SimpleItemTouchHelperCallback
 import com.safenet.service.ui.BaseActivity
 import com.safenet.service.ui.MainRecyclerAdapter
 import com.safenet.service.ui.ServerActivity
+import com.safenet.service.ui.login.StarterActivity
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
 import com.tbruyelle.rxpermissions.RxPermissions
@@ -78,10 +79,12 @@ class MainActivity : BaseActivity() {
             MMKV.MULTI_PROCESS_MODE
         )
     }
-    private val requestVpnPermission =
+    private val requestVpnPermission by lazy {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             binding.fab.isEnabled = true
         }
+    }
+
     private var mItemTouchHelper: ItemTouchHelper? = null
     val mainViewModel: MainViewModel by viewModels()
 
@@ -123,9 +126,11 @@ class MainActivity : BaseActivity() {
                         binding.fab.isEnabled = true
                         toastLong(event.message ?: "Error")
                     }
+
                     is MainActivityEvents.Disconnected -> {
                         binding.fab.isEnabled = true
                     }
+
                     MainActivityEvents.ShowLogoutDialog -> showLogoutDialog()
                     is MainActivityEvents.ShowMessage -> toast(event.message)
                     MainActivityEvents.ShowTimeDialog -> showTimeErrorDialog()
@@ -135,16 +140,19 @@ class MainActivity : BaseActivity() {
                     MainActivityEvents.HideCircle -> {
                         hideCircle(2)
                     }
+
                     is MainActivityEvents.ShowUpdateUI -> showUpdateUI(event.status)
                     is MainActivityEvents.OpenBrowser -> Utils.openWebPage(
                         this@MainActivity,
                         event.link
                     )
+
                     MainActivityEvents.DownloadFailed -> downloadStatus(DownloadAppStatus.FAILED, 0)
                     is MainActivityEvents.DownloadFinished -> downloadStatus(
                         DownloadAppStatus.FINISHED,
                         event.progress
                     )
+
                     MainActivityEvents.DownloadStarted -> downloadStatus(
                         DownloadAppStatus.STARTED,
                         0
@@ -164,6 +172,7 @@ class MainActivity : BaseActivity() {
                 binding.btUpdate.isVisible = false
                 binding.clDownloadProgressbar.isVisible = true
             }
+
             DownloadAppStatus.FINISHED, DownloadAppStatus.FAILED -> {
                 Timber.tag("showUpdateUI").d("showUpdateUI FAILED")
                 binding.apply {
@@ -171,6 +180,7 @@ class MainActivity : BaseActivity() {
                     clDownloadProgressbar.isVisible = false
                 }
             }
+
             else -> {
                 Timber.tag("showUpdateUI").d("showUpdateUI $status")
                 binding.btUpdate.isVisible = status
@@ -190,6 +200,7 @@ class MainActivity : BaseActivity() {
                     clDownloadProgressbar.isVisible = true
                 }
             }
+
             DownloadAppStatus.FINISHED -> {
                 if (progress == 100) {
                     toast("app is enabled")
@@ -213,6 +224,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
             }
+
             DownloadAppStatus.FAILED -> {
                 toastLong("download failed")
                 binding.apply {
@@ -242,11 +254,11 @@ class MainActivity : BaseActivity() {
         binding.apply {
             if (message.isNullOrEmpty() || message.lowercase() == "ok")
                 cvNotification.visibility = View.GONE
-            else{
+            else {
                 tvNotification.text = message
-                if(cvNotification.visibility == View.GONE){
+                if (cvNotification.visibility == View.GONE) {
                     //Load animation
-                    val slideDown : Animation = AnimationUtils.loadAnimation(
+                    val slideDown: Animation = AnimationUtils.loadAnimation(
                         applicationContext,
                         R.anim.slide_down
                     )
@@ -256,7 +268,6 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
-
 
 
     }
@@ -313,7 +324,8 @@ class MainActivity : BaseActivity() {
     private fun initView() {
         listeners()
 
-        binding.navToolbar.safenet.text = getString(R.string.app_name)+" "+BuildConfig.VERSION_NAME
+        binding.navToolbar.safenet.text =
+            getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME
 
         this.lifecycleScope.launch {
             mainViewModel.config.collectLatest {
@@ -358,7 +370,7 @@ class MainActivity : BaseActivity() {
 
         this.lifecycleScope.launch {
             ApiUrl.base_url_counter.collectLatest {
-                if(it > 8){
+                if (it > 8) {
                     mainViewModel.getBaseAddress()
                 }
             }
@@ -824,7 +836,8 @@ class MainActivity : BaseActivity() {
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (PackageManager.PERMISSION_GRANTED !=
-                packageManager.checkPermission(Manifest.permission.POST_NOTIFICATIONS, packageName)) {
+                packageManager.checkPermission(Manifest.permission.POST_NOTIFICATIONS, packageName)
+            ) {
                 requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
@@ -841,6 +854,7 @@ class MainActivity : BaseActivity() {
                 toastLong("Please turn on notification in App setting")
             }
         }
+
     private fun installUpdatedAPK() {
         try {
             val apkFile = File(application.getExternalFilesDir(null), mainViewModel.appFileName)
@@ -892,6 +906,5 @@ class MainActivity : BaseActivity() {
         super.onDestroy()
         deleteAppFile(mainViewModel.appFileName)
     }
-
 
 }
