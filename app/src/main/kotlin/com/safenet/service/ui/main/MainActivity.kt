@@ -64,6 +64,8 @@ import java.util.concurrent.TimeUnit
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
 
+    val mainViewModel: MainViewModel by viewModels()
+
     private lateinit var binding: ActivityMainBinding
 
     private val adapter by lazy { MainRecyclerAdapter(this) }
@@ -86,7 +88,6 @@ class MainActivity : BaseActivity() {
     }
 
     private var mItemTouchHelper: ItemTouchHelper? = null
-    val mainViewModel: MainViewModel by viewModels()
 
     val defaultSharedPreferences: SharedPreferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(
@@ -94,8 +95,21 @@ class MainActivity : BaseActivity() {
         )
     }
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        mainViewModel.checkIsAppActive()
+
+        lifecycleScope.launch {
+            mainViewModel.isAppActive.collectLatest {
+                if (!it) {
+                    startActivity(Intent(this@MainActivity, StarterActivity::class.java))
+                    finish()
+                }
+            }
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root

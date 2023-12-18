@@ -14,6 +14,7 @@ import com.safenet.service.BuildConfig
 import com.safenet.service.R
 import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.BASE_URL
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.IS_CONNECTED
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.SERVER_ID
@@ -88,6 +89,10 @@ class MainViewModel @Inject constructor(
     var config = MutableStateFlow("")
         private set
 
+
+    var isAppActive = MutableStateFlow(false)
+        private set
+
     private val mainActivityEventChannel = Channel<MainActivityEvents>()
     val mainActivityEvent = mainActivityEventChannel.receiveAsFlow()
 
@@ -95,8 +100,14 @@ class MainViewModel @Inject constructor(
 
     var isUpdateRequired = MutableStateFlow(false)
 
-    private var isAppActive = false
 
+    fun checkIsAppActive(){
+        viewModelScope.launch {
+            dataStoreManager.getData(ACCESS_TOKEN).collectLatest {
+                isAppActive.value = !it.isNullOrEmpty()
+            }
+        }
+    }
     fun activityCreated() = viewModelScope.launch {
         mainActivityEventChannel.send(MainActivityEvents.InitViews)
         checkAppActivated()
@@ -110,7 +121,7 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            dataStoreManager.getData(DataStoreManager.PreferenceKeys.BASE_URL).collectLatest { url ->
+            dataStoreManager.getData(BASE_URL).collectLatest { url ->
                 url?.let {
                     Timber.tag("baseurl").d("base : $url")
                     verificationRepository.setBaseUrl(it)
@@ -522,7 +533,7 @@ class MainViewModel @Inject constructor(
     private fun checkAppActivated() = viewModelScope.launch {
         dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
             Timber.d("appstatus token $token")
-            isAppActive = token != null
+            isAppActive.value = token != null
             setAppActivated(token != null)
         }
     }
@@ -714,7 +725,7 @@ class MainViewModel @Inject constructor(
                         text = it
                     )
                     context.toastLong("کد شما کپی شد. می توانید آن را پیست کنید")
-                } else if(isAppActive) {
+                } else if(isAppActive.value) {
                     context.toast("Login Again to enable this feature")
                 } else
                     context.toast("Login First")

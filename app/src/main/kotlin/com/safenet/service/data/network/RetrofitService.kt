@@ -14,6 +14,15 @@ import retrofit2.http.POST
 
 interface RetrofitService {
 
+    @FormUrlEncoded
+    @POST("verify")
+    suspend fun verifyVoucher(
+        @Field("voucher") voucher: String,
+        @Field("publicU") publicU: String,
+        @Field("osInfo") osInfo: String,
+        @Field("force") force: Int
+    ): Response<RegisterResponse>
+
     // field force should be 0 or 1
     @FormUrlEncoded
     @POST("login")

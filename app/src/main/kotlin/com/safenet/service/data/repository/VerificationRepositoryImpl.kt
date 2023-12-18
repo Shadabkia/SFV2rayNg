@@ -42,6 +42,16 @@ class VerificationRepositoryImpl @Inject constructor(
             api.verifyVoucher(username, password, publicIdU, osInfo, force)
         }
 
+//    override fun verifyVoucher(
+//        voucher: String,
+//        publicIdU: String,
+//        osInfo: String,
+//        force: Int
+//    ) =
+//        apiRequest {
+//            api.verifyVoucher(voucher, publicIdU, osInfo, force)
+//        }
+
     override fun register(
         username: String,
         password: String,

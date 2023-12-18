@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 fun TabScreen(context : StarterActivity) {
     var tabIndex by remember { mutableStateOf(0) }
 
-    val tabs = listOf("Register", "Login")
+    val tabs = listOf("Login", "Register")
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex) {
@@ -33,8 +33,8 @@ fun TabScreen(context : StarterActivity) {
             }
         }
         when (tabIndex) {
-            0 -> Register(context)
-            1 -> Login()
+            1 -> Register(context)
+            0 -> Login(context)
         }
     }
 }
