@@ -42,7 +42,7 @@ import com.safenet.service.helper.SimpleItemTouchHelperCallback
 import com.safenet.service.ui.BaseActivity
 import com.safenet.service.ui.MainRecyclerAdapter
 import com.safenet.service.ui.ServerActivity
-import com.safenet.service.ui.login.StarterActivity
+import com.safenet.service.ui.start_activity.StarterActivity
 import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
 import com.tbruyelle.rxpermissions.RxPermissions

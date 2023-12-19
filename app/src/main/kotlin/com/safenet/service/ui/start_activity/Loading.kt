@@ -1,3 +1,5 @@
+package com.safenet.service.ui.start_activity
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -12,7 +14,9 @@ fun loading(){
        modifier = Modifier
            .fillMaxSize()
     ){
-        Text("loading ...", modifier = Modifier.align(Alignment.Center))
+        Text("loading ...",
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }
 

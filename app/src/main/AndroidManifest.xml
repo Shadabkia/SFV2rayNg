@@ -40,7 +40,7 @@
         tools:targetApi="m">
 
         <activity
-            android:name="com.safenet.service.ui.login.StarterActivity"
+            android:name="com.safenet.service.ui.start_activity.StarterActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
             android:theme="@style/AppThemeLight">

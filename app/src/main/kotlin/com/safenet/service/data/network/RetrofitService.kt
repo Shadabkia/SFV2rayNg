@@ -2,7 +2,6 @@ package com.safenet.service.data.network
 
 import com.safenet.service.data.network.dto.ConfigResponse
 import com.safenet.service.data.network.dto.ServerListResponse
-import com.safenet.service.data.network.dto.Status
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.network.dto.UpdateLinkResponse
 import com.safenet.service.data.network.dto.RegisterResponse
@@ -13,15 +12,6 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 
 interface RetrofitService {
-
-    @FormUrlEncoded
-    @POST("verify")
-    suspend fun verifyVoucher(
-        @Field("voucher") voucher: String,
-        @Field("publicU") publicU: String,
-        @Field("osInfo") osInfo: String,
-        @Field("force") force: Int
-    ): Response<RegisterResponse>
 
     // field force should be 0 or 1
     @FormUrlEncoded
@@ -39,8 +29,8 @@ interface RetrofitService {
     suspend fun register(
         @Field("username") username: String,
         @Field("password") password: String,
-        @Field("referral") referral: String,
-        @Field("telegramID") telegramID: String,
+        @Field("email") email: String?,
+        @Field("referral") referral: String?,
         @Field("publicU") publicU: String,
         @Field("osInfo") osInfo: String,
     ): Response<RegisterResponse>

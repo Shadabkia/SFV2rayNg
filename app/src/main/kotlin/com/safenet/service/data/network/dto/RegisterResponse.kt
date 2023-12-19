@@ -11,6 +11,8 @@ data class RegisterResponse(
     @SerializedName("publicS")
     val publicS: String,
     @SerializedName("contactLink")
-    val contactLink: String
+    val contactLink: String,
+    @SerializedName("serverNumber")
+    val serverNumber: String
 )
 
