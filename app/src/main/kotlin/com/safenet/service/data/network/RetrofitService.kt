@@ -36,10 +36,10 @@ interface RetrofitService {
     ): Response<RegisterResponse>
 
     @FormUrlEncoded
-    @POST("config")
+    @POST("connect")
     suspend fun getConfig(
         @Field("token") token: String,
-        @Field("serverNumber") serverNumber: Int
+        @Field("serverNumber") serverNumber: Int,
     ): Response<ConfigResponse>
 
     @FormUrlEncoded
@@ -60,7 +60,7 @@ interface RetrofitService {
     ): Response<UpdateLinkResponse>
 
     @FormUrlEncoded
-    @POST("getServerList")
+    @POST("serverList")
     suspend fun getServerList(
         @Field("token") token: String,
     ): Response<ServerListResponse>

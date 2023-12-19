@@ -10,4 +10,6 @@ data class ConfigResponse(
     val config: String,
     @SerializedName("lastVersion")
     val lastVersion: Int,
+    @SerializedName("serverNumber")
+    val serverNumber: Int,
 )

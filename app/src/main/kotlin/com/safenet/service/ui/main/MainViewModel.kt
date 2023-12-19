@@ -383,7 +383,7 @@ class MainViewModel @Inject constructor(
                     token,
                     publicS ?: ""
                 )
-                val sN = dataStoreManager.getData(SERVER_ID).first() ?: 0
+                val sN = dataStoreManager.getData(SERVER_ID).first() ?: -1
 
                 getConfig(tokenE, sN)
                 getTime()
@@ -414,6 +414,7 @@ class MainViewModel @Inject constructor(
                 }
                 is Result.Success -> {
                     base_url_counter.value = 0
+                    dataStoreManager.updateData(SERVER_ID, res.data?.serverNumber ?: -1)
                     checkVersionCode(res)
                 }
             }

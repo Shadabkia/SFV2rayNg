@@ -160,7 +160,7 @@ class QSTileService : TileService() {
                             token,
                             publicS ?: ""
                         )
-                        val serverNumber = dataStoreManager.getData(DataStoreManager.PreferenceKeys.SERVER_ID).first() ?: 0
+                        val serverNumber = dataStoreManager.getData(DataStoreManager.PreferenceKeys.SERVER_ID).first() ?: -1
                         getConfig(tokenE,serverNumber, context)
                         Timber.tag("QSTILE ").d("qt getConfig")
                     } catch (e: Exception) {

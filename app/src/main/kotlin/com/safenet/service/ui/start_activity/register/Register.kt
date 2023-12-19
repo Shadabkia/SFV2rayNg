@@ -36,18 +36,17 @@ import com.safenet.service.ui.start_activity.loading
 import com.safenet.service.ui.start_activity.login.LoginViewModel
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Register(context: StarterActivity) {
 
     val viewModel: RegisterViewModel = viewModel()
 
-    var uiState = viewModel.uiState.collectAsState()
-    var usernameError = viewModel.usernameError.collectAsState()
-    var passwordError = viewModel.passwordError.collectAsState()
-    var passConfirmError = viewModel.passConfirmError.collectAsState()
-    var emailError = viewModel.emailError.collectAsState()
-    var referralError = viewModel.referralError.collectAsState()
+    val uiState = viewModel.uiState.collectAsState()
+    val usernameError = viewModel.usernameError.collectAsState()
+    val passwordError = viewModel.passwordError.collectAsState()
+    val passConfirmError = viewModel.passConfirmError.collectAsState()
+    val emailError = viewModel.emailError.collectAsState()
+    val referralError = viewModel.referralError.collectAsState()
 
 
     if (uiState.value?.isLoading == true) {
