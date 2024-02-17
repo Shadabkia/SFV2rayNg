@@ -1,4 +1,4 @@
-package com.safenet.service.ui.voucher_bottomsheet
+package com.safenet.service.ui.on_boarding.voucher_bottomsheet
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
@@ -67,7 +67,7 @@ constructor(
     private fun verification(context: Context, username: String, password: String, publicU: String, force: Int) =
         viewModelScope.launch(Dispatchers.IO) {
             Timber.tag("osinfo").d("osinfo: ${Utils.getOsInfo(context)}")
-            verificationRepository.verifyVoucher(
+            verificationRepository.login(
                 username = username.trim(),
                 password = password.trim(),
                 publicIdU = publicU,

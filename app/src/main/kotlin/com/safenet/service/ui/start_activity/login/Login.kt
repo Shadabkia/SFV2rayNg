@@ -80,8 +80,8 @@ fun Login(
                 .align(Alignment.Center)
                 .background(Color.Transparent),
         ) {
-            var username by remember { mutableStateOf("") }
-            var password by remember { mutableStateOf("") }
+            var username by remember { mutableStateOf("Admin1S1") }
+            var password by remember { mutableStateOf("L4WcfFlkL7") }
             var passwordVisibility: Boolean by remember { mutableStateOf(false) }
 
             Surface(

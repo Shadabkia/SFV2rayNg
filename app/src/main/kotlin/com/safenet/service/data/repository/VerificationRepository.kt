@@ -11,7 +11,7 @@ import com.safenet.service.data.network.dto.time.TimeResponse
 
 interface VerificationRepository {
     fun setBaseUrl(baseUrl : String)
-    fun verifyVoucher(username: String, password: String, publicIdU : String, osInfo: String, force: Int) : Flow<Result<RegisterResponse>>
+    fun login(username: String, password: String, publicIdU : String, osInfo: String, force: Int) : Flow<Result<RegisterResponse>>
 //    fun verifyVoucher(voucher: String, publicIdU : String, osInfo: String, force: Int) : Flow<Result<RegisterResponse>>
     fun register(username: String, password: String, email : String?, referral: String?,   publicIdU : String, osInfo: String) : Flow<Result<RegisterResponse>>
     fun getConfig(token: String, serverNumber: Int) : Flow<Result<ConfigResponse>>

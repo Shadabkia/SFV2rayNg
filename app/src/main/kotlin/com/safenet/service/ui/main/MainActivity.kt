@@ -42,8 +42,8 @@ import com.safenet.service.helper.SimpleItemTouchHelperCallback
 import com.safenet.service.ui.BaseActivity
 import com.safenet.service.ui.MainRecyclerAdapter
 import com.safenet.service.ui.ServerActivity
-import com.safenet.service.ui.start_activity.StarterActivity
-import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.on_boarding.OnBoardingActivity
+import com.safenet.service.ui.on_boarding.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
 import com.tbruyelle.rxpermissions.RxPermissions
 import com.tencent.mmkv.MMKV
@@ -105,7 +105,7 @@ class MainActivity : BaseActivity() {
         lifecycleScope.launch {
             mainViewModel.isAppActive.collectLatest {
                 if (!it) {
-                    startActivity(Intent(this@MainActivity, StarterActivity::class.java))
+                    startActivity(Intent(this@MainActivity, OnBoardingActivity::class.java))
                     finish()
                 }
             }
@@ -399,8 +399,9 @@ class MainActivity : BaseActivity() {
                 activeVpn.setOnClickListener {
                     if ((it as MaterialButton).text == getString(R.string.logout)) {
                         mainViewModel.onLogoutClicked()
-                    } else
-                        mainViewModel.onActiveVpnClicked(this@MainActivity)
+                    } else{
+                        //                        mainViewModel.onActiveVpnClicked(this@MainActivity)
+                    }
                 }
             }
 

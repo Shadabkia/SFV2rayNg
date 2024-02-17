@@ -19,7 +19,7 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.dto.ServersCache
 import com.safenet.service.extension.toastLong
-import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.on_boarding.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope

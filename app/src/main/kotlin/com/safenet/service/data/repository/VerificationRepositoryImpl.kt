@@ -30,7 +30,7 @@ class VerificationRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun verifyVoucher(
+    override fun login(
         username: String,
         password: String,
         publicIdU: String,
@@ -38,7 +38,7 @@ class VerificationRepositoryImpl @Inject constructor(
         force: Int
     ) =
         apiRequest {
-            api.verifyVoucher(username, password, publicIdU, osInfo, force)
+            api.login(username, password, publicIdU, osInfo, force)
         }
 
 //    override fun verifyVoucher(

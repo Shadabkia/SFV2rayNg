@@ -11,7 +11,7 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.Server
 import com.safenet.service.data.network.dto.RegisterResponse
 import com.safenet.service.data.repository.VerificationRepository
-import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.on_boarding.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.KeyManage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel

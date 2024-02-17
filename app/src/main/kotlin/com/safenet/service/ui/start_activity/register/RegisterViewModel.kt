@@ -10,7 +10,7 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.RegisterResponse
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.ui.start_activity.StarterActivity
-import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.on_boarding.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.ApiUrl
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.Utils

@@ -10,7 +10,6 @@ import com.safenet.service.data.network.dto.RegisterResponse
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.ui.start_activity.InputError
 import com.safenet.service.ui.start_activity.StarterActivity
-import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.ApiUrl
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.Utils
@@ -63,7 +62,7 @@ class LoginViewModel @Inject constructor(
     private fun verification(context: Context, username: String, password: String, publicU: String, force: Int)  =
         viewModelScope.launch(Dispatchers.IO) {
             Timber.tag("osinfo").d("osinfo: ${Utils.getOsInfo(context)}")
-            verificationRepository.verifyVoucher(
+            verificationRepository.login(
                 username = username.trim(),
                 password = password.trim(),
                 publicIdU = publicU,
@@ -128,6 +127,10 @@ class LoginViewModel @Inject constructor(
                             }
                         }
                     }
+
+                    is Result.Error -> TODO()
+                    is Result.Loading -> TODO()
+                    is Result.Success -> TODO()
                 }
             }
     }

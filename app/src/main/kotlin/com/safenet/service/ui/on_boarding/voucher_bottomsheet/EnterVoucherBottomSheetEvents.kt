@@ -1,4 +1,4 @@
-package com.safenet.service.ui.voucher_bottomsheet
+package com.safenet.service.ui.on_boarding.voucher_bottomsheet
 
 sealed class EnterVoucherBottomSheetEvents{
     class NavigateToEnterCode(val code : String) : EnterVoucherBottomSheetEvents()

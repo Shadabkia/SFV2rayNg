@@ -30,8 +30,8 @@ import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.ui.server_bottomsheet.ServerListBottomSheetDialog
-import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetDialog
-import com.safenet.service.ui.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.on_boarding.voucher_bottomsheet.LoginFragment
+import com.safenet.service.ui.on_boarding.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
 import com.safenet.service.util.*
 import com.safenet.service.util.ApiUrl.base_url_counter
 import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
@@ -227,22 +227,6 @@ class MainViewModel @Inject constructor(
                 return index
         }
         return -1
-    }
-
-    fun onActiveVpnClicked(context: Context) {
-//        var androidId = Settings.Secure.getString(context.contentResolver,
-//            Settings.Secure.ANDROID_ID);
-        val enterVoucherBottomSheetDialog = EnterVoucherBottomSheetDialog()
-        enterVoucherBottomSheetDialog.show(
-            (context as MainActivity).supportFragmentManager,
-            "voucher"
-        )
-
-//        var publicKey = KeyManage().getPublic()
-//        setToClipBoard(context, publicKey)
-//
-//        context.toast("Device Id Copied to Clipboard")
-
     }
 
     fun onServersClicked(context: Context) {
