@@ -24,7 +24,6 @@ class OnBoardingActivity : AppCompatActivity() {
         binding.apply {
             val adapter = OnBoardingSlidePagerAdapter(this@OnBoardingActivity)
             vp2OnBoarding.adapter = adapter
-            vp2OnBoarding.isUserInputEnabled = false
             TabLayoutMediator(tlOnBoarding, vp2OnBoarding) { tab, position ->
                 tab.text = when(position){
                     0 -> getString(R.string.login)

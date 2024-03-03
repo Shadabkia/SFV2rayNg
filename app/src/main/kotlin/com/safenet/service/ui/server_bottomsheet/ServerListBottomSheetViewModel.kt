@@ -11,7 +11,7 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.Server
 import com.safenet.service.data.network.dto.RegisterResponse
 import com.safenet.service.data.repository.VerificationRepository
-import com.safenet.service.ui.on_boarding.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.on_boarding.login.LoginViewModel
 import com.safenet.service.util.KeyManage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -59,7 +59,7 @@ constructor(
     }
 
     fun listenToken() = viewModelScope.launch {
-        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("listenToken")
+        Timber.tag(LoginViewModel.TAG).d("listenToken")
         val token = dataStoreManager.getData(ACCESS_TOKEN).first()
         if (token != null) {
             try {

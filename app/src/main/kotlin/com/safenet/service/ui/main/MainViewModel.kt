@@ -30,8 +30,7 @@ import com.safenet.service.extension.toast
 import com.safenet.service.extension.toastLong
 import com.safenet.service.service.V2RayServiceManager
 import com.safenet.service.ui.server_bottomsheet.ServerListBottomSheetDialog
-import com.safenet.service.ui.on_boarding.voucher_bottomsheet.LoginFragment
-import com.safenet.service.ui.on_boarding.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.on_boarding.login.LoginViewModel
 import com.safenet.service.util.*
 import com.safenet.service.util.ApiUrl.base_url_counter
 import com.safenet.service.util.MmkvManager.KEY_ANG_CONFIGS
@@ -285,7 +284,7 @@ class MainViewModel @Inject constructor(
     }
 
     suspend fun importBatchConfig(server: String?, subside: String = "", context: Context) {
-        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("server : $server")
+        Timber.tag(LoginViewModel.TAG).d("server : $server")
         val subside2 = if (subside.isNullOrEmpty()) {
             subscriptionId
         } else {
@@ -358,7 +357,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun listenToken() = viewModelScope.launch {
-        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("listenToken")
+        Timber.tag(LoginViewModel.TAG).d("listenToken")
         val token = dataStoreManager.getData(ACCESS_TOKEN).first()
         if (token != null) {
             try {
@@ -382,14 +381,14 @@ class MainViewModel @Inject constructor(
     }
 
     fun getConfig(token: String, serverNumber : Int) = viewModelScope.launch(Dispatchers.IO) {
-        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getConfig")
+        Timber.tag(LoginViewModel.TAG).d("getConfig")
         verificationRepository.getConfig(
             token,
             serverNumber
         ).collectLatest { res ->
             when (res) {
                 is Result.Error -> {
-                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(res.message)
+                    Timber.tag(LoginViewModel.TAG).d(res.message)
                     mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.message))
                     base_url_counter.value++
                     Timber.tag("baseurl").d("base_url_counter ${base_url_counter.value}")
@@ -455,10 +454,10 @@ class MainViewModel @Inject constructor(
 
     private fun getUpdateLink(newConfig: String?) = viewModelScope.launch(Dispatchers.IO) {
         val token = dataStoreManager.getData(ACCESS_TOKEN).first()
-        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getUpdateLink $token")
+        Timber.tag(LoginViewModel.TAG).d("getUpdateLink $token")
         if (token != null) {
             try {
-                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("getUpdateLink")
+                Timber.tag(LoginViewModel.TAG).d("getUpdateLink")
                 val publicS = dataStoreManager.getData(PUBLIC_S).first()
                 val tokenE = KeyManage.instance.getToken(
                     token,
@@ -552,13 +551,13 @@ class MainViewModel @Inject constructor(
         val token = dataStoreManager.getData(ACCESS_TOKEN).first()
         if (token != null) {
             try {
-                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("onLogoutClicked")
+                Timber.tag(LoginViewModel.TAG).d("onLogoutClicked")
                 val publicS = dataStoreManager.getData(PUBLIC_S).first()
                 val tokenE = KeyManage.instance.getToken(
                     token,
                     publicS ?: ""
                 )
-                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("onLogoutClicked2")
+                Timber.tag(LoginViewModel.TAG).d("onLogoutClicked2")
                 verificationRepository.logout(tokenE).collectLatest { res ->
                     when (res) {
                         is Result.Error -> {
@@ -600,7 +599,7 @@ class MainViewModel @Inject constructor(
                             }
                         }
                     }
-                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("onLogoutClicked3")
+                    Timber.tag(LoginViewModel.TAG).d("onLogoutClicked3")
 
                 }
             } catch (e: Exception) {

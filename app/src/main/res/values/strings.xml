@@ -223,7 +223,8 @@
     <string name="register" translatable="false">Register</string>
     <string name="logout" translatable="false">Logout</string>
     <string name="logout_message" translatable="false">Are you sure to logout?</string>
-    <string name="enter_password" translatable="false">Enter your username and password</string>
+    <string name="enter_username_password" translatable="false">Enter your username and password</string>
+    <string name="enter_password" translatable="false">Enter your password *</string>
     <string name="confirm" translatable="false">Confirm</string>
     <string name="cancel" translatable="false">Cancel</string>
     <string name="continue_verify" translatable="false">continue</string>
@@ -231,7 +232,7 @@
     <string name="time_error_dialog" translatable="false">Please Switch Your Device Time to Automatic</string>
     <string name="update_available" translatable="false">Update available</string>
     <string name="notification_action_stop_v2ray" translatable="false">stop service</string>
-    <string name="enter_username" translatable="false">Enter your username</string>
+    <string name="enter_username" translatable="false">Enter your username *</string>
 
     <string-array name="share_method">
         <item>QRcode</item>
@@ -258,6 +259,10 @@
         <item>Proxy only</item>
     </string-array>
     <string name="title_activity_main" translatable="false">MainActivity</string>
+    <string name="enter_email">Enter your email</string>
+    <string name="enter_referral_code">Referral code</string>
+    <string name="confirm_password">Confirm password *</string>
+    <string name="register_account">Register you account\n</string>
 
 
 </resources>

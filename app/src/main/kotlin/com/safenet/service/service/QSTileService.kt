@@ -19,7 +19,7 @@ import com.safenet.service.data.network.Result
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.dto.ServersCache
 import com.safenet.service.extension.toastLong
-import com.safenet.service.ui.on_boarding.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.on_boarding.login.LoginViewModel
 import com.safenet.service.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -179,7 +179,7 @@ class QSTileService : TileService() {
         ).collectLatest { res ->
             when (res) {
                 is Result.Error -> {
-                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(res.message)
+                    Timber.tag(LoginViewModel.TAG).d(res.message)
                     Timber.tag("QSTILE ").d("qt getConfig error")
                 }
 
@@ -316,20 +316,20 @@ class QSTileService : TileService() {
     }
 
     private fun disconnectApi() = scope.launch {
-        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi1")
+        Timber.tag(LoginViewModel.TAG).d("disconnectApi1")
         val token = dataStoreManager.getData(DataStoreManager.PreferenceKeys.ACCESS_TOKEN).first()
         if (token != null) {
             try {
-                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi2")
+                Timber.tag(LoginViewModel.TAG).d("disconnectApi2")
                 val publicS =
                     dataStoreManager.getData(DataStoreManager.PreferenceKeys.PUBLIC_S).first()
                 val tokenE = KeyManage.instance.getToken(
                     token,
                     publicS ?: ""
                 )
-                Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi3")
+                Timber.tag(LoginViewModel.TAG).d("disconnectApi3")
                 verificationRepository.disconnect(tokenE).collectLatest {
-                    Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("disconnectApi4")
+                    Timber.tag(LoginViewModel.TAG).d("disconnectApi4")
                 }
             } catch (e: Exception) {
 

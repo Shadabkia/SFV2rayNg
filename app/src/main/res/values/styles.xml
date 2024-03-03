@@ -55,12 +55,27 @@
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:textSize">@dimen/font_medium</item>
-        <item name="android:textColorHint">@color/soft_gray</item>
         <item name="android:layout_marginStart">@dimen/margin_medium</item>
         <item name="android:layout_marginTop">@dimen/margin_middle</item>
         <item name="android:layout_marginEnd">@dimen/margin_medium</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:textColor">@color/colorPrimaryByDark</item>
+    </style>
+
+    <style name="buttonActiveStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:textSize">@dimen/font_large</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">@dimen/padding_x_middle</item>
+        <item name="android:paddingBottom">@dimen/padding_x_middle</item>
+        <item name="android:layout_marginStart">@dimen/margin_medium</item>
+        <item name="android:layout_marginTop">@dimen/margin_medium</item>
+        <item name="android:layout_marginEnd">@dimen/margin_medium</item>
+        <item name="android:backgroundTint">@color/colorAccentByDark</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 
     <!-- =================== bottomSheet =================== -->

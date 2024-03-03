@@ -1,4 +1,4 @@
-package com.safenet.service.ui.on_boarding.voucher_bottomsheet
+package com.safenet.service.ui.on_boarding.login
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -7,25 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.safenet.service.R
-import com.safenet.service.databinding.BottomsheetEnterVoucherBinding
 import com.safenet.service.extension.toast
 import com.safenet.service.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import com.safenet.service.databinding.FragmentLoginBinding
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
 
-    private val viewModel by activityViewModels<EnterVoucherBottomSheetViewModel>()
+    private val viewModel by activityViewModels<LoginViewModel>()
 
-    private var _binding: BottomsheetEnterVoucherBinding? = null
+    private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -33,7 +31,7 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = BottomsheetEnterVoucherBinding.inflate(inflater, container, false)
+        _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -42,17 +40,17 @@ class LoginFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.enterVoucherEvent.collect {
                 when (it) {
-                    EnterVoucherBottomSheetEvents.InitViews -> initViews()
-                    is EnterVoucherBottomSheetEvents.NavigateToEnterCode -> TODO()
-                    EnterVoucherBottomSheetEvents.Success -> {
+                    LoginEvents.InitViews -> initViews()
+                    is LoginEvents.NavigateToEnterCode -> TODO()
+                    LoginEvents.Success -> {
                         requireContext().toast("You can connect now!")
                         startMainActivity()
                     }
-                    EnterVoucherBottomSheetEvents.Error -> {
+                    LoginEvents.Error -> {
                         requireContext().toast("Error")
                     }
-                    EnterVoucherBottomSheetEvents.MaxUserDialog -> showMaxUserDialog()
-                    is EnterVoucherBottomSheetEvents.MaxLoginDialog -> showMaxLoginDialog()
+                    LoginEvents.MaxUserDialog -> showMaxUserDialog()
+                    is LoginEvents.MaxLoginDialog -> showMaxLoginDialog()
                 }
             }
         }

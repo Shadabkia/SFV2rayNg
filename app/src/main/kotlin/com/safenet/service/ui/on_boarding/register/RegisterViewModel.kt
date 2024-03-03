@@ -1,30 +1,44 @@
-package com.safenet.service.ui.start_activity.register
+package com.safenet.service.ui.on_boarding.register
 
 import android.content.Context
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.safenet.service.data.local.DataStoreManager
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.CODE
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
 import com.safenet.service.data.network.dto.RegisterResponse
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.ui.start_activity.StarterActivity
 import com.safenet.service.util.ApiUrl
+import com.safenet.service.util.ApiUrl.base_url_counter
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
+
 @HiltViewModel
-class RegisterViewModel @Inject constructor(
+class RegisterViewModel @Inject
+constructor(
+    savedStateHandle: SavedStateHandle,
     private val verificationRepository: VerificationRepository,
-    private val dataStoreManager: DataStoreManager
+    private val dataStoreManager: DataStoreManager,
 ) : ViewModel() {
+
+    private val enterVoucherEventChannel = Channel<RegisterEvents>()
+    val enterVoucherEvent = enterVoucherEventChannel.receiveAsFlow()
+
     var uiState = MutableStateFlow<ModelState<RegisterResponse>?>(null)
         private set
 
@@ -40,6 +54,25 @@ class RegisterViewModel @Inject constructor(
     var referralError = MutableStateFlow<String?>(null)
         private set
 
+    fun fragmentCreated() = viewModelScope.launch {
+        enterVoucherEventChannel.send(RegisterEvents.InitViews)
+    }
+
+    var state = MutableStateFlow<ModelState<RegisterResponse>?>(null)
+        private set
+
+    init {
+        viewModelScope.launch {
+            dataStoreManager.getData(DataStoreManager.PreferenceKeys.BASE_URL)
+                .collectLatest { url ->
+                    url?.let {
+                        Timber.tag("baseurl").d("base : $url")
+                        verificationRepository.setBaseUrl(it)
+                    }
+                }
+        }
+    }
+
     init {
         viewModelScope.launch {
             dataStoreManager.getData(DataStoreManager.PreferenceKeys.BASE_URL)
@@ -53,7 +86,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onRegisterClicked(
-        context: StarterActivity, username: String, password: String, confirmPass: String,
+        context: Context, username: String, password: String, confirmPass: String,
         email: String, referral: String
     ) {
         if (!validateInput(username, password, confirmPass, email, referral)) {
@@ -154,12 +187,12 @@ class RegisterViewModel @Inject constructor(
         )
 
         dataStoreManager.updateData(
-            DataStoreManager.PreferenceKeys.PUBLIC_S,
+            PUBLIC_S,
             pair.second
         )
 
         dataStoreManager.updateData(
-            DataStoreManager.PreferenceKeys.ACCESS_TOKEN,
+            ACCESS_TOKEN,
             pair.first
         )
 
@@ -225,4 +258,8 @@ class RegisterViewModel @Inject constructor(
         return email.matches(emailRegex.toRegex())
     }
 
+    companion object {
+        const val TAG = "ConfigApi"
+    }
 }
+    

@@ -43,7 +43,7 @@ import com.safenet.service.ui.BaseActivity
 import com.safenet.service.ui.MainRecyclerAdapter
 import com.safenet.service.ui.ServerActivity
 import com.safenet.service.ui.on_boarding.OnBoardingActivity
-import com.safenet.service.ui.on_boarding.voucher_bottomsheet.EnterVoucherBottomSheetViewModel
+import com.safenet.service.ui.on_boarding.login.LoginViewModel
 import com.safenet.service.util.*
 import com.tbruyelle.rxpermissions.RxPermissions
 import com.tencent.mmkv.MMKV
@@ -634,11 +634,11 @@ class MainActivity : BaseActivity() {
         try {
 //            val clipboard = Utils.getClipboard(this)
             val decodeConfig = KeyManage.instance.getConfig(config)
-            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("config : $decodeConfig")
+            Timber.tag(LoginViewModel.TAG).d("config : $decodeConfig")
             mainViewModel.importBatchConfig(decodeConfig, "", this@MainActivity)
         } catch (e: Exception) {
             e.printStackTrace()
-            Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("error : ${e.message}")
+            Timber.tag(LoginViewModel.TAG).d("error : ${e.message}")
             toastLong(R.string.wrong_config)
             hideCircle(0)
             mainViewModel.setAppActivated(false)

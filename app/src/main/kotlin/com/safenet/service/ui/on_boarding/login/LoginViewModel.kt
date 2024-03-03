@@ -1,4 +1,4 @@
-package com.safenet.service.ui.on_boarding.voucher_bottomsheet
+package com.safenet.service.ui.on_boarding.login
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
@@ -27,18 +27,18 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class EnterVoucherBottomSheetViewModel @Inject
+class LoginViewModel @Inject
 constructor(
     savedStateHandle: SavedStateHandle,
     private val verificationRepository: VerificationRepository,
     private val dataStoreManager: DataStoreManager,
 ) : ViewModel() {
 
-    private val enterVoucherEventChannel = Channel<EnterVoucherBottomSheetEvents>()
+    private val enterVoucherEventChannel = Channel<LoginEvents>()
     val enterVoucherEvent = enterVoucherEventChannel.receiveAsFlow()
 
     fun fragmentCreated() = viewModelScope.launch {
-        enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.InitViews)
+        enterVoucherEventChannel.send(LoginEvents.InitViews)
     }
 
     var state = MutableStateFlow<ModelState<RegisterResponse>?>(null)
@@ -77,7 +77,7 @@ constructor(
                 when (res) {
                     is Result.Error -> {
                         state.value = ModelState(error = res.message ?: "")
-                        enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Error)
+                        enterVoucherEventChannel.send(LoginEvents.Error)
                         Timber.tag("ConfigApi").d("verification error")
                         base_url_counter.value++
 
@@ -90,7 +90,7 @@ constructor(
                         base_url_counter.value = 0
                         when (res.data?.status?.code) {
                             0 -> {
-                                enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Success)
+                                enterVoucherEventChannel.send(LoginEvents.Success)
                                 dataStoreManager.updateData(CODE, password)
                                 setTokenAndPublicKeyToDataStore(res.data)
                             }
@@ -100,12 +100,12 @@ constructor(
                             }
                             -2 -> {
                                 // max user -- mitavani force verify konid --> call again in "yes" ignore in "no"
-                                enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.MaxUserDialog)
+                                enterVoucherEventChannel.send(LoginEvents.MaxUserDialog)
                                 state.value = ModelState(isLoading = false)
                             }
                             -4 -> {
                                 enterVoucherEventChannel.send(
-                                    EnterVoucherBottomSheetEvents.MaxLoginDialog(
+                                    LoginEvents.MaxLoginDialog(
                                         "max login"
                                     )
                                 )
