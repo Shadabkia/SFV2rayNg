@@ -62,6 +62,7 @@ class LoginFragment : Fragment() {
     private fun startMainActivity(){
         val intent = Intent(requireActivity(), MainActivity::class.java)
         requireContext().startActivity(intent)
+        requireActivity().finish()
     }
 
     private fun showMaxLoginDialog() {

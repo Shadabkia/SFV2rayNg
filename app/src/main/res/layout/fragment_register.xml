@@ -62,6 +62,7 @@
                     android:id="@+id/tt_password"
                     style="@style/inputEditTextStyle"
                     android:layout_marginTop="@dimen/margin_x_large"
+                    app:endIconMode="password_toggle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tt_username">
@@ -73,7 +74,7 @@
                         android:ems="10"
                         android:text="L4WcfFlkL7"
                         android:hint="@string/enter_password"
-                        android:inputType="textEmailAddress" />
+                        android:inputType="textPassword" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -81,6 +82,7 @@
                     android:id="@+id/tt_password_confirm"
                     style="@style/inputEditTextStyle"
                     android:layout_marginTop="@dimen/margin_x_large"
+                    app:endIconMode="password_toggle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tt_password">
@@ -89,9 +91,10 @@
                         android:id="@+id/et_password_confirm"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="L4WcfFlkL7"
                         android:ems="10"
                         android:hint="@string/confirm_password"
-                        android:inputType="textEmailAddress" />
+                        android:inputType="textPassword" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -155,7 +158,8 @@
 
         <ProgressBar
             android:id="@+id/pb_verification"
-            android:visibility="visible"
+            android:visibility="gone"
+            android:elevation="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"

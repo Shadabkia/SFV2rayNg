@@ -4,7 +4,13 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.CODE
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.IS_CONNECTED
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.SERVER_ID
+import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.UPP_LLIINK
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,6 +36,16 @@ class DataStoreManager @Inject constructor(@ApplicationContext val context: Cont
         context.dataStore.edit {
             it.clear()
         }
+
+    suspend fun clearData() {
+        val keys = arrayListOf(ACCESS_TOKEN, PUBLIC_S, IS_CONNECTED, UPP_LLIINK, CODE, SERVER_AVAILABILITY, SERVER_ID)
+        for (key in keys) {
+            context.dataStore.edit {
+                it.remove(key)
+            }
+        }
+    }
+
 
     object PreferenceKeys {
         val IS_UPDATE_MODE = booleanPreferencesKey(name = "is_update_mode")

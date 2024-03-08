@@ -88,10 +88,6 @@ class MainViewModel @Inject constructor(
     var config = MutableStateFlow("")
         private set
 
-
-    var isAppActive = MutableStateFlow(false)
-        private set
-
     private val mainActivityEventChannel = Channel<MainActivityEvents>()
     val mainActivityEvent = mainActivityEventChannel.receiveAsFlow()
 
@@ -100,16 +96,8 @@ class MainViewModel @Inject constructor(
     var isUpdateRequired = MutableStateFlow(false)
 
 
-    fun checkIsAppActive(){
-        viewModelScope.launch {
-            dataStoreManager.getData(ACCESS_TOKEN).collectLatest {
-                isAppActive.value = !it.isNullOrEmpty()
-            }
-        }
-    }
     fun activityCreated() = viewModelScope.launch {
         mainActivityEventChannel.send(MainActivityEvents.InitViews)
-        checkAppActivated()
         dataStoreManager.getData(DataStoreManager.PreferenceKeys.IS_UPDATE_MODE).collectLatest {
             it?.let {
                 Timber.tag("showUpdateUI").d("showUpdateUI IS_UPDATE_MODE $it")
@@ -127,11 +115,12 @@ class MainViewModel @Inject constructor(
                 }
             }
 
-            dataStoreManager.getData(DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY).collectLatest { serverName ->
-                serverName?.let {
-                    _serverAvailability.value = serverName
+            dataStoreManager.getData(DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY)
+                .collectLatest { serverName ->
+                    serverName?.let {
+                        _serverAvailability.value = serverName
+                    }
                 }
-            }
         }
     }
 
@@ -242,13 +231,13 @@ class MainViewModel @Inject constructor(
 //        context.toast("Device Id Copied to Clipboard")
 
     }
-
-    private fun setToClipBoard(context: Context, text: String) {
-        val clipboard =
-            ContextCompat.getSystemService(context, ClipboardManager::class.java)
-        val clip = ClipData.newPlainText(null, text)
-        clipboard!!.setPrimaryClip(clip)
-    }
+//
+//    private fun setToClipBoard(context: Context, text: String) {
+//        val clipboard =
+//            ContextCompat.getSystemService(context, ClipboardManager::class.java)
+//        val clip = ClipData.newPlainText(null, text)
+//        clipboard!!.setPrimaryClip(clip)
+//    }
 
 
     private val mMsgReceiver = object : BroadcastReceiver() {
@@ -257,23 +246,29 @@ class MainViewModel @Inject constructor(
                 AppConfig.MSG_STATE_RUNNING -> {
                     isRunning.value = true
                 }
+
                 AppConfig.MSG_STATE_NOT_RUNNING -> {
                     isRunning.value = false
                 }
+
                 AppConfig.MSG_STATE_START_SUCCESS -> {
                     application.toast(R.string.toast_services_success)
                     isRunning.value = true
                 }
+
                 AppConfig.MSG_STATE_START_FAILURE -> {
                     application.toast(R.string.toast_services_failure)
                     isRunning.value = false
                 }
+
                 AppConfig.MSG_STATE_STOP_SUCCESS -> {
                     isRunning.value = false
                 }
+
                 AppConfig.MSG_MEASURE_DELAY_SUCCESS -> {
                     updateTestResultAction.value = intent.getStringExtra("content")
                 }
+
                 AppConfig.MSG_MEASURE_CONFIG_SUCCESS -> {
                     val resultPair = intent.getSerializableExtra("content") as Pair<String, Long>
                     MmkvManager.encodeServerTestDelayMillis(resultPair.first, resultPair.second)
@@ -322,9 +317,11 @@ class MainViewModel @Inject constructor(
             MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
                 ?: "No server!"
 
-        dataStoreManager.updateData(DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY,
+        dataStoreManager.updateData(
+            DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY,
             MmkvManager.decodeServerConfig(serversCache.lastOrNull()?.guid ?: "")?.remarks
-                ?: "No server!")
+                ?: "No server!"
+        )
 
         viewModelScope.launch {
             mainActivityEventChannel.send(MainActivityEvents.HideCircle)
@@ -380,7 +377,7 @@ class MainViewModel @Inject constructor(
 
     }
 
-    fun getConfig(token: String, serverNumber : Int) = viewModelScope.launch(Dispatchers.IO) {
+    fun getConfig(token: String, serverNumber: Int) = viewModelScope.launch(Dispatchers.IO) {
         Timber.tag(LoginViewModel.TAG).d("getConfig")
         verificationRepository.getConfig(
             token,
@@ -393,8 +390,10 @@ class MainViewModel @Inject constructor(
                     base_url_counter.value++
                     Timber.tag("baseurl").d("base_url_counter ${base_url_counter.value}")
                 }
+
                 is Result.Loading -> {
                 }
+
                 is Result.Success -> {
                     base_url_counter.value = 0
                     dataStoreManager.updateData(SERVER_ID, res.data?.serverNumber ?: -1)
@@ -421,9 +420,11 @@ class MainViewModel @Inject constructor(
                     mainActivityEventChannel.send(MainActivityEvents.ShowMessageDialog(res.data.status.message))
                 }
             }
+
             -1 -> {
                 mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.message))
             }
+
             -2 -> {
                 // deactivate app
                 mainActivityEventChannel.send(
@@ -431,15 +432,18 @@ class MainViewModel @Inject constructor(
                         "You have Logged Out.Please Login Again."
                     )
                 )
-                dataStoreManager.clearDataStore()
+                dataStoreManager.clearData()
             }
+
             -3 -> {
                 mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data.status.message))
             }
+
             -7 -> {
                 // active tunnel problem
                 mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage("Technical Problem.Please Contact Support"))
             }
+
             else -> {
                 mainActivityEventChannel.send(MainActivityEvents.GetConfigMessage(res.data?.status?.message))
             }
@@ -488,6 +492,7 @@ class MainViewModel @Inject constructor(
                             )
                             if (newConfig == null) downloadAppFileRecursive(application.applicationContext)
                         }
+
                         else -> {
                             if (res.data != null) {
                                 if (newConfig != null) {
@@ -504,9 +509,19 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    //------------------------------------------ check activation ------------------------------------- //
+    var isAppActive = MutableStateFlow<Boolean?>(null)
+        private set
+
+    fun checkAppActivated() = viewModelScope.launch {
+        dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
+            setAppActivated(token != null)
+        }
+    }
 
     fun setAppActivated(status: Boolean) = viewModelScope.launch {
-        mainActivityEventChannel.send(MainActivityEvents.ActivateApp(status))
+//        mainActivityEventChannel.send(MainActivityEvents.ActivateApp(status))
+        isAppActive.value = status
         if (!status) {
             while (serversCache.size > 0) {
                 removeServer(serversCache[serversCache.size - 1].guid)
@@ -514,13 +529,8 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun checkAppActivated() = viewModelScope.launch {
-        dataStoreManager.getData(ACCESS_TOKEN).collectLatest { token ->
-            Timber.d("appstatus token $token")
-            isAppActive.value = token != null
-            setAppActivated(token != null)
-        }
-    }
+//------------------------------------------------------------------------------------------------ //
+
 
     private fun getTime() = viewModelScope.launch {
         verificationRepository.getTime().collectLatest { res ->
@@ -529,7 +539,7 @@ class MainViewModel @Inject constructor(
                 val unixTime = System.currentTimeMillis()
                 var serverUnix = en?.times(1000L)
                 val acceptableDiffrence = 600000L
-                if(Math.abs(unixTime - (serverUnix ?: unixTime)) > acceptableDiffrence)
+                if (Math.abs(unixTime - (serverUnix ?: unixTime)) > acceptableDiffrence)
                     mainActivityEventChannel.send(MainActivityEvents.ShowTimeDialog)
 
             }
@@ -563,31 +573,32 @@ class MainViewModel @Inject constructor(
                         is Result.Error -> {
                             mainActivityEventChannel.send(MainActivityEvents.ShowMessage("Couldn't Logout. Check your internet connection"))
                         }
+
                         is Result.Loading -> {
                             mainActivityEventChannel.send(MainActivityEvents.ShowMessage("Logging out ..."))
                         }
+
                         is Result.Success -> {
                             when (res.data?.status?.code) {
                                 0 -> {
-                                    mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Are Logged Out"))
-                                    mainActivityEventChannel.send(MainActivityEvents.HideCircle)
-                                    dataStoreManager.clearDataStore()
-
-                                    setAppActivated(false)
-
+                                    logoutOrders()
                                 }
+
                                 -1 -> {
                                     // wrong token ke karbar nemikhorad
                                     mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.status.message))
                                 }
+
                                 -2 -> {
                                     //
                                     mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.data.status.message))
                                 }
+
                                 -4 -> {
                                     // max reset
                                     mainActivityEventChannel.send(MainActivityEvents.MaxLoginDialog)
                                 }
+
                                 else -> {
                                     //
                                     mainActivityEventChannel.send(
@@ -603,13 +614,24 @@ class MainViewModel @Inject constructor(
 
                 }
             } catch (e: Exception) {
+                //
+                logoutOrders()
             }
+        } else {
+            logoutOrders()
         }
+    }
+
+    private suspend fun logoutOrders(){
+        mainActivityEventChannel.send(MainActivityEvents.ShowMessage("You Are Logged Out"))
+        mainActivityEventChannel.send(MainActivityEvents.HideCircle)
+        dataStoreManager.clearData()
+
+        setAppActivated(false)
     }
 
     //control request count
     private var counter_401 = 0
-
     fun downloadAPKFromServer(context: Context?) = viewModelScope.launch(Dispatchers.IO) {
         // Create a URL object from the download URL(
         config.value = ""
@@ -690,9 +712,13 @@ class MainViewModel @Inject constructor(
                 0 -> {
 //                    ApiUrl.BASE_URL = res.data.link
                     ApiUrl.base_url_counter.value = 0
-                    dataStoreManager.updateData(DataStoreManager.PreferenceKeys.BASE_URL, res.data.link)
+                    dataStoreManager.updateData(
+                        DataStoreManager.PreferenceKeys.BASE_URL,
+                        res.data.link
+                    )
                     Timber.d("getBaseurl succeed")
                 }
+
                 else -> {
                     Timber.d("getBaseurl failed")
                 }
@@ -702,29 +728,30 @@ class MainViewModel @Inject constructor(
     }
 
     suspend fun copyToClipboard(context: Context) {
-            dataStoreManager.getData(DataStoreManager.PreferenceKeys.CODE).collectLatest {
-                if(!it.isNullOrEmpty()) {
-                    Utils.copyToClipboard(
-                        context = context,
-                        text = it
-                    )
-                    context.toastLong("کد شما کپی شد. می توانید آن را پیست کنید")
-                } else if(isAppActive.value) {
-                    context.toast("Login Again to enable this feature")
-                } else
-                    context.toast("Login First")
-            }
+        dataStoreManager.getData(DataStoreManager.PreferenceKeys.CODE).collectLatest {
+            if (!it.isNullOrEmpty()) {
+                Utils.copyToClipboard(
+                    context = context,
+                    text = it
+                )
+                context.toastLong("کد شما کپی شد. می توانید آن را پیست کنید")
+            } else if (isAppActive.value == true) {
+                context.toast("Login Again to enable this feature")
+            } else
+                context.toast("Login First")
+        }
 
     }
 
-    fun updateServerName() = viewModelScope.launch{
+    fun updateServerName() = viewModelScope.launch {
         Timber.tag("QSTILE").d("updateServerName")
-        dataStoreManager.getData(DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY).collectLatest { serverName ->
-            Timber.tag("QSTILE").d("servername    $serverName")
-            serverName?.let {
-                _serverAvailability.value = it
+        dataStoreManager.getData(DataStoreManager.PreferenceKeys.SERVER_AVAILABILITY)
+            .collectLatest { serverName ->
+                Timber.tag("QSTILE").d("servername    $serverName")
+                serverName?.let {
+                    _serverAvailability.value = it
+                }
             }
-        }
     }
 
 }

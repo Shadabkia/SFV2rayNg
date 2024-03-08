@@ -38,7 +38,7 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.enterVoucherEvent.collect {
+            viewModel.registerEvent.collect {
                 when (it) {
                     RegisterEvents.InitViews -> initViews()
                     is RegisterEvents.NavigateToEnterCode -> TODO()
@@ -60,17 +60,18 @@ class RegisterFragment : Fragment() {
     private fun startMainActivity() {
         val intent = Intent(requireActivity(), MainActivity::class.java)
         requireContext().startActivity(intent)
+        requireActivity().finish()
     }
 
     private fun initViews() {
         initListeners()
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.state.collectLatest { state ->
+            viewModel.uiState.collectLatest { state ->
                 binding.pbVerification.isVisible = state?.isLoading ?: false
                 state?.let {
                     if (state.error.isNotBlank()) {
                         activity?.toast(state.error)
-                        viewModel.state.value = null
+                        viewModel.uiState.value = null
                     }
                 }
             }
@@ -89,6 +90,56 @@ class RegisterFragment : Fragment() {
                         email = etEmail.text.toString(),
                         referral = etReferral.text.toString()
                     )
+                }
+            }
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.usernameError.collectLatest {
+                    if (it != null) {
+                        etUsername.error = it
+                    } else {
+                        etUsername.error = null
+                    }
+                }
+            }
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.passwordError.collectLatest {
+                    if (it != null) {
+                        etPassword.error = it
+                    } else {
+                        etPassword.error = null
+                    }
+                }
+            }
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.passConfirmError.collectLatest {
+                    if (it != null) {
+                        etPasswordConfirm.error = it
+                    } else {
+                        etPasswordConfirm.error = null
+                    }
+                }
+            }
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.emailError.collectLatest {
+                    if (it != null) {
+                        etEmail.error = it
+                    } else {
+                        etEmail.error = null
+                    }
+                }
+            }
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.referralError.collectLatest {
+                    if (it != null) {
+                        etReferral.error = it
+                    } else {
+                        etReferral.error = null
+                    }
                 }
             }
         }

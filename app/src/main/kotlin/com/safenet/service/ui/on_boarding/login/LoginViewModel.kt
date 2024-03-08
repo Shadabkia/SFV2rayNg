@@ -135,15 +135,13 @@ constructor(
             data.token,
             data.publicS
         )
-
-        dataStoreManager.updateData(
-            PUBLIC_S,
-            pair.second
-        )
-
         dataStoreManager.updateData(
             ACCESS_TOKEN,
             pair.first
+        )
+        dataStoreManager.updateData(
+            PUBLIC_S,
+            pair.second
         )
 
         Timber.tag(TAG).d("pair f : ${pair.first}")
@@ -160,8 +158,6 @@ constructor(
 
         state.value = ModelState(response = data)
     }
-
-
 
     companion object {
         const val TAG = "ConfigApi"

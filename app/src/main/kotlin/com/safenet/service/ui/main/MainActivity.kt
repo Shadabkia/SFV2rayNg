@@ -100,16 +100,16 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mainViewModel.checkIsAppActive()
-
         lifecycleScope.launch {
             mainViewModel.isAppActive.collectLatest {
-                if (!it) {
+                if ((it != null) && !it) {
                     startActivity(Intent(this@MainActivity, OnBoardingActivity::class.java))
                     finish()
                 }
             }
         }
+
+        mainViewModel.checkAppActivated()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
@@ -397,11 +397,7 @@ class MainActivity : BaseActivity() {
         binding.apply {
             navToolbar.apply {
                 activeVpn.setOnClickListener {
-                    if ((it as MaterialButton).text == getString(R.string.logout)) {
-                        mainViewModel.onLogoutClicked()
-                    } else{
-                        //                        mainViewModel.onActiveVpnClicked(this@MainActivity)
-                    }
+                    mainViewModel.onLogoutClicked()
                 }
             }
 
@@ -818,7 +814,7 @@ class MainActivity : BaseActivity() {
         binding.progress.isVisible = true
     }
 
-    fun hideCircle(int: Int) {
+    private fun hideCircle(int: Int) {
         Timber.tag("circle").d("hideCircle! $int")
         if (binding.progress.isShown) {
             binding.progress.isVisible = false

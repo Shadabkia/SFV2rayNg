@@ -36,8 +36,8 @@ constructor(
     private val dataStoreManager: DataStoreManager,
 ) : ViewModel() {
 
-    private val enterVoucherEventChannel = Channel<RegisterEvents>()
-    val enterVoucherEvent = enterVoucherEventChannel.receiveAsFlow()
+    private val registerEventChannel = Channel<RegisterEvents>()
+    val registerEvent = registerEventChannel.receiveAsFlow()
 
     var uiState = MutableStateFlow<ModelState<RegisterResponse>?>(null)
         private set
@@ -55,22 +55,7 @@ constructor(
         private set
 
     fun fragmentCreated() = viewModelScope.launch {
-        enterVoucherEventChannel.send(RegisterEvents.InitViews)
-    }
-
-    var state = MutableStateFlow<ModelState<RegisterResponse>?>(null)
-        private set
-
-    init {
-        viewModelScope.launch {
-            dataStoreManager.getData(DataStoreManager.PreferenceKeys.BASE_URL)
-                .collectLatest { url ->
-                    url?.let {
-                        Timber.tag("baseurl").d("base : $url")
-                        verificationRepository.setBaseUrl(it)
-                    }
-                }
-        }
+        registerEventChannel.send(RegisterEvents.InitViews)
     }
 
     init {
@@ -84,6 +69,7 @@ constructor(
                 }
         }
     }
+
 
     fun onRegisterClicked(
         context: Context, username: String, password: String, confirmPass: String,
@@ -128,7 +114,7 @@ constructor(
                     is Result.Error -> {
                         uiState.value = ModelState(error = res.message ?: "Error")
                         Timber.tag("ConfigApi").d("verification error")
-                        ApiUrl.base_url_counter.value++
+                        base_url_counter.value++
 
                     }
 
@@ -138,10 +124,10 @@ constructor(
 
                     is Result.Success -> {
                         Timber.tag("ConfigApi").d("verification success ${res.data}")
-                        ApiUrl.base_url_counter.value = 0
+                        base_url_counter.value = 0
                         when (res.data?.status?.code) {
                             0 -> {
-//                                enterVoucherEventChannel.send(EnterVoucherBottomSheetEvents.Success)
+                                registerEventChannel.send(RegisterEvents.Success)
                                 setTokenAndPublicKeyToDataStore(res.data)
                             }
 
@@ -156,7 +142,7 @@ constructor(
                             }
 
                             -4 -> {
-                                uiState.value = ModelState(error = res?.message ?: "max login")
+                                uiState.value = ModelState(error = res.message ?: "max login")
                             }
 
                             -3 -> {
@@ -185,21 +171,21 @@ constructor(
             data.token,
             data.publicS
         )
-
+        dataStoreManager.updateData(
+            ACCESS_TOKEN,
+            pair.first
+        )
         dataStoreManager.updateData(
             PUBLIC_S,
             pair.second
         )
 
-        dataStoreManager.updateData(
-            ACCESS_TOKEN,
-            pair.first
-        )
 
-//        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("pair f : ${pair.first}")
-//        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d("pair s : ${pair.second}")
 
-//        Timber.tag(EnterVoucherBottomSheetViewModel.TAG).d(
+//        Timber.tag(RegisterBottomSheetViewModel.TAG).d("pair f : ${pair.first}")
+//        Timber.tag(RegisterBottomSheetViewModel.TAG).d("pair s : ${pair.second}")
+
+//        Timber.tag(RegisterBottomSheetViewModel.TAG).d(
 //            "token decompiled : ${
 //                KeyManage.instance.getToken(
 //                    pair.first,
@@ -236,14 +222,14 @@ constructor(
             passConfirmError.value = null
         }
 
-        if (!email.isNullOrEmpty() && !isValidEmail(email)) {
+        if (email.isNotEmpty() && !isValidEmail(email)) {
             emailError.value = "Write correct email"
             validate = false
         } else {
             emailError.value = null
         }
 
-        if (!referral.isNullOrEmpty() && referral.length != 4) {
+        if (referral.isNotEmpty() && referral.length != 4) {
             referralError.value = "referral is 4 char"
             validate = false
         } else {
