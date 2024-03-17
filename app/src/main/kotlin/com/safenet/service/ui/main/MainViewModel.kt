@@ -494,13 +494,16 @@ class MainViewModel @Inject constructor(
                         }
 
                         else -> {
-                            if (res.data != null) {
-                                if (newConfig != null) {
-                                    config.value = newConfig
-                                    setAppActivated(true)
-                                    dataStoreManager.updateData(IS_CONNECTED, true)
-                                }
-                            }
+                            mainActivityEventChannel.send(MainActivityEvents.HideCircle)
+                            mainActivityEventChannel.send(MainActivityEvents.ShowMessage(res.message ?: "Connection Error"))
+                            // TODO
+//                            if (res.data != null) {
+//                                if (newConfig != null) {
+//                                    config.value = newConfig
+//                                    setAppActivated(true)
+//                                    dataStoreManager.updateData(IS_CONNECTED, true)
+//                                }
+//                            }
                         }
                     }
                 }

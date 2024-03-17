@@ -55,8 +55,8 @@ class ServerListBottomSheetDialog : BottomSheetDialogFragment(), ServerListListe
                         requireContext().toast("You can connect now!")
                         this@ServerListBottomSheetDialog.dismiss()
                     }
-                    ServerListBottomSheetEvents.Error -> {
-                        requireContext().toast("Error")
+                    is ServerListBottomSheetEvents.Error -> {
+                        requireContext().toast(it.message)
                         this@ServerListBottomSheetDialog.dismiss()
                     }
                 }

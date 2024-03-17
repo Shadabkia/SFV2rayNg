@@ -8,8 +8,8 @@ import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOK
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
+import com.safenet.service.data.network.dto.LoginResponse
 import com.safenet.service.data.network.dto.Server
-import com.safenet.service.data.network.dto.RegisterResponse
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.ui.on_boarding.login.LoginViewModel
 import com.safenet.service.util.KeyManage
@@ -41,7 +41,7 @@ constructor(
         listenToken()
     }
 
-    var state = MutableStateFlow<ModelState<RegisterResponse>?>(null)
+    var state = MutableStateFlow<ModelState<LoginResponse>?>(null)
         private set
 
     private val _serverList = MutableStateFlow<List<Server>>(listOf())
@@ -70,7 +70,7 @@ constructor(
                 )
                 getServerList(tokenE)
             } catch (e: Exception) {
-                serverListEventChannel.send(ServerListBottomSheetEvents.Error)
+                serverListEventChannel.send(ServerListBottomSheetEvents.Error(e.message ?: "Error"))
             }
         } else {
             getServerList("0")
@@ -81,7 +81,7 @@ constructor(
         verificationRepository.getServerList(token).collectLatest {result->
             when(result){
                 is Result.Error -> {
-                    serverListEventChannel.send(ServerListBottomSheetEvents.Error)
+                    serverListEventChannel.send(ServerListBottomSheetEvents.Error(result.message ?: "Error"))
 
                 }
                 is Result.Loading -> {

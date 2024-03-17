@@ -2,7 +2,7 @@ package com.safenet.service.data.repository
 
 import com.safenet.service.data.network.*
 import com.safenet.service.data.network.dto.ConfigResponse
-import com.safenet.service.data.network.dto.RegisterResponse
+import com.safenet.service.data.network.dto.LoginResponse
 import com.safenet.service.data.network.dto.ServerListResponse
 import com.safenet.service.data.network.dto.UpdateLinkRequest
 import com.safenet.service.data.network.dto.UpdateLinkResponse
@@ -58,7 +58,7 @@ class VerificationRepositoryImpl @Inject constructor(
         referral: String?,
         publicIdU: String,
         osInfo: String
-    ): Flow<Result<RegisterResponse>> =
+    ): Flow<Result<LoginResponse>> =
         apiRequest {
             api.register(username, password, email, referral, publicIdU, osInfo)
         }

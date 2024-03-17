@@ -57,6 +57,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext val context: Cont
         val CODE = stringPreferencesKey(name = "CODE")
         val SERVER_AVAILABILITY = stringPreferencesKey(name = "serverAvailability")
         val SERVER_ID = intPreferencesKey(name = "server_id")
+        val SERVER_NAME = intPreferencesKey(name = "server_name")
     }
 
 }

@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
-import com.safenet.service.data.network.dto.RegisterResponse
+import com.safenet.service.data.network.dto.LoginResponse
 import com.safenet.service.data.repository.VerificationRepository
 import com.safenet.service.ui.start_activity.InputError
 import com.safenet.service.ui.start_activity.StarterActivity
@@ -27,7 +27,7 @@ class LoginViewModel @Inject constructor(
     private val verificationRepository: VerificationRepository
 ) : ViewModel() {
 
-    var uiState = MutableStateFlow<ModelState<RegisterResponse>?>(null)
+    var uiState = MutableStateFlow<ModelState<LoginResponse>?>(null)
         private set
 
     var usernameError = MutableStateFlow<InputError?>(null)
@@ -135,7 +135,7 @@ class LoginViewModel @Inject constructor(
             }
     }
 
-    private fun setTokenAndPublicKeyToDataStore(data: RegisterResponse) = viewModelScope.launch {
+    private fun setTokenAndPublicKeyToDataStore(data: LoginResponse) = viewModelScope.launch {
 
         val pair = KeyManage.instance.setToken(
             data.token,

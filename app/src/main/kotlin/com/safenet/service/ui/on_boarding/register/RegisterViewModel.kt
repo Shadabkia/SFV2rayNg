@@ -6,14 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.safenet.service.data.local.DataStoreManager
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.ACCESS_TOKEN
-import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.CODE
 import com.safenet.service.data.local.DataStoreManager.PreferenceKeys.PUBLIC_S
 import com.safenet.service.data.network.ModelState
 import com.safenet.service.data.network.Result
-import com.safenet.service.data.network.dto.RegisterResponse
+import com.safenet.service.data.network.dto.LoginResponse
 import com.safenet.service.data.repository.VerificationRepository
-import com.safenet.service.ui.start_activity.StarterActivity
-import com.safenet.service.util.ApiUrl
 import com.safenet.service.util.ApiUrl.base_url_counter
 import com.safenet.service.util.KeyManage
 import com.safenet.service.util.Utils
@@ -39,7 +36,7 @@ constructor(
     private val registerEventChannel = Channel<RegisterEvents>()
     val registerEvent = registerEventChannel.receiveAsFlow()
 
-    var uiState = MutableStateFlow<ModelState<RegisterResponse>?>(null)
+    var uiState = MutableStateFlow<ModelState<LoginResponse>?>(null)
         private set
 
     var usernameError = MutableStateFlow<String?>(null)
@@ -80,7 +77,7 @@ constructor(
 
         } else {
             Timber.tag("ConfigApi").d("verification getPublic : ${KeyManage.instance.getPublic()}")
-            val publicS = KeyManage.instance.getPublic()
+            val publicS = KeyManage.instance.getPublic().trim()
             verification(
                 context,
                 username.trim(),
@@ -165,7 +162,7 @@ constructor(
             }
         }
 
-    private fun setTokenAndPublicKeyToDataStore(data: RegisterResponse) = viewModelScope.launch {
+    private fun setTokenAndPublicKeyToDataStore(data: LoginResponse) = viewModelScope.launch {
 
         val pair = KeyManage.instance.setToken(
             data.token,
