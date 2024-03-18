@@ -1,5 +1,6 @@
 package com.safenet.service.ui.server_bottomsheet
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -50,7 +51,9 @@ class ServerListBottomSheetDialog : BottomSheetDialogFragment(), ServerListListe
             viewModel.serverListEvent.collect {
                 when (it) {
                     ServerListBottomSheetEvents.InitViews -> initViews()
-                    is ServerListBottomSheetEvents.NavigateToEnterCode -> TODO()
+                    is ServerListBottomSheetEvents.NavigateToEnterCode -> {
+                        //TODO
+                    }
                     ServerListBottomSheetEvents.Success -> {
                         requireContext().toast("You can connect now!")
                         this@ServerListBottomSheetDialog.dismiss()
@@ -77,7 +80,7 @@ class ServerListBottomSheetDialog : BottomSheetDialogFragment(), ServerListListe
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.serverList.collectLatest {
-                Timber.tag("servers").d(""+it.size )
+                Timber.tag("servers").d(" ${it.size}")
                 serverListAdapter.submitList(it)
             }
         }

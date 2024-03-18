@@ -6,10 +6,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.safenet.service.data.network.dto.Server
 import com.safenet.service.databinding.ItemServerBinding
+import com.safenet.service.databinding.ItemServerDisabledBinding
 import com.safenet.service.ui.server_bottomsheet.ServerListListener
 
-class ServerListViewHolder(
-    val binding: ItemServerBinding,
+class ServerListDisabledViewHolder(
+    val binding: ItemServerDisabledBinding,
     private val listener: ServerListListener,
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -17,10 +18,10 @@ class ServerListViewHolder(
         fun create(
             parent: ViewGroup,
             listener: ServerListListener,
-        ): ServerListViewHolder {
+        ): ServerListDisabledViewHolder {
             val inflater = LayoutInflater.from(parent.context)
-            val binding = ItemServerBinding.inflate(inflater, parent, false)
-            return ServerListViewHolder(binding, listener)
+            val binding = ItemServerDisabledBinding.inflate(inflater, parent, false)
+            return ServerListDisabledViewHolder(binding, listener)
         }
     }
 

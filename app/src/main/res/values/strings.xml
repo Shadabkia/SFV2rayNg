@@ -263,6 +263,7 @@
     <string name="enter_referral_code">Referral code</string>
     <string name="confirm_password">Confirm password *</string>
     <string name="register_account">Register you account\n</string>
+    <string name="country">Country</string>
 
 
 </resources>
